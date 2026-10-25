@@ -24,6 +24,10 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
   .nav-item.active{background:#393939}
   .topbar{height:62px}
 }
+.section-card#savedPanel{display:none}
+.section-card#savedPanel.is-open{display:block;position:fixed;z-index:45;inset:72px 10px 82px;overflow:auto;margin:0;background:#1b1b1b;border:1px solid #444;border-radius:22px;box-shadow:0 16px 50px #000b;padding:18px}
+.trust{display:none!important}
+@media(max-width:799px){.photo{height:calc(100svh - 142px);min-height:0;max-height:none}.feed{padding:0 4px}.card{border-radius:22px}}
 </style>
 </head>
 <body>
@@ -31,7 +35,7 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
 <header class="topbar"><div class="brand"><div class="mark">H</div>Heavy<em>Match</em></div><div class="top-actions"><button class="top-btn" id="filtersNav" aria-label="Abrir filtros">☷</button><button class="top-btn" id="favoritesJump" aria-label="Ver salvos">♥ <b id="savedCount">0</b></button></div></header>
 <section class="intro"><div class="eyebrow">O PRÓXIMO GRANDE NEGÓCIO COMEÇA AQUI</div><h1>Máquinas que movem<br><span>grandes negócios.</span></h1><p>Explore. Compare. Encontre a próxima máquina da sua operação.</p></section>
 <div class="quickbar" id="quickbar"><button class="chip active" data-cat="">🔥 Para você</button><button class="chip" data-cat="Caminhão">🚛 Caminhões</button><button class="chip" data-cat="Escavadeira">🚜 Escavadeiras</button><button class="chip" data-cat="Carregadeira">🏗️ Carregadeiras</button><button class="chip" data-cat="Retroescavadeira">⚙️ Retroescavadeiras</button></div>
-<section class="filters" id="filters"><select id="brand"><option value="">Todas as marcas</option></select><select id="sort"><option value="featured">Destaques primeiro</option><option value="year">Ano: mais recente</option><option value="az">Marca: A–Z</option></select><input class="search" id="search" placeholder="⌕  Buscar marca ou modelo (ex.: SANY SY215)" type="search"></section>
+<section class="filters"><select id="brand"><option value="">Todas as marcas</option></select><select id="sort"><option value="featured">Destaques primeiro</option><option value="year">Ano: mais recente</option><option value="az">Marca: A–Z</option></select><input class="search" id="search" placeholder="⌕  Buscar marca ou modelo (ex.: SANY SY215)" type="search"></section>
 <div class="feed-meta"><strong id="feedLabel">Escolha seu próximo equipamento</strong><span id="feedCount">01 / 06</span></div>
 <section class="feed"><div id="deck"></div></section>
 <div class="gesture-hint"><span>← <b>PASSAR</b></span><span>•</span><span><b>DESLIZE PARA DIREITA</b> ♥</span></div>
@@ -77,6 +81,8 @@ $('brand').addEventListener('change',filterVehicles);$('sort').addEventListener(
 $('quickbar').addEventListener('click',e=>{const btn=e.target.closest('[data-cat]');if(!btn)return;activeCategory=btn.dataset.cat;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c===btn));filterVehicles();});
 document.addEventListener('keydown',e=>{if($('detailModal').classList.contains('open')){if(e.key==='Escape')closeDetails();return;}if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;if(e.key==='ArrowLeft')pass();if(e.key==='ArrowRight')like();if(e.key==='Enter')contact();});
 const deckEl=$('deck');deckEl.addEventListener('pointerdown',e=>{if(!e.target.closest('.photo'))return;startX=e.clientX;startY=e.clientY;try{deckEl.setPointerCapture(e.pointerId);}catch(_){}},{passive:true});deckEl.addEventListener('pointerup',e=>{if(startX===null||!current)return;const dx=e.clientX-startX,dy=e.clientY-startY;startX=null;startY=null;if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.25){if(dx>0)like();else pass();}},{passive:true});deckEl.addEventListener('pointercancel',()=>{startX=null;startY=null;},{passive:true});
+function toggleSavedPanel(forceOpen=false){const panel=$('savedPanel');const shouldOpen=forceOpen||!panel.classList.contains('is-open');panel.classList.toggle('is-open',shouldOpen);if(shouldOpen)renderFavorites();}
+$('favoritesJump').addEventListener('click',()=>toggleSavedPanel());$('savedNav').addEventListener('click',()=>toggleSavedPanel());$('profileNav').addEventListener('click',()=>toggleSavedPanel(true));$('homeNav').addEventListener('click',()=>$('savedPanel').classList.remove('is-open'));
 initBrands();render();renderFavorites();
 </script>
 </body>
