@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       if (sellerIds.length) {
         const { data: profiles, error: profilesError } = await db.from("profiles").select("id, phone").in("id", sellerIds);
         if (profilesError) throw profilesError;
-        sellerPhones = Object.fromEntries((profiles || []).map(p => [p.id, String(p.phone || "").replace(/\D/g, "")]));
+        sellerPhones = Object.fromEntries((profiles || []).map(p => { const digits = String(p.phone || "").replace(/\D/g, ""); const whatsapp = digits.length === 10 || digits.length === 11 ? "55" + digits : digits; return [p.id, whatsapp]; }));
       }
       const items = await Promise.all((rows || []).map(async v => {
         const related = photos.filter(p => p.vehicle_id === v.id);
