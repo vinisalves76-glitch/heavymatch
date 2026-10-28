@@ -39,7 +39,7 @@
             <div class="hm-vehicle-field"><label for="hmVState">Estado</label><input id="hmVState" maxlength="80" placeholder="MG"></div>
             <div class="hm-vehicle-field"><label for="hmVCity">Cidade</label><input id="hmVCity" maxlength="100" placeholder="Belo Horizonte"></div>
             <div class="hm-vehicle-field full"><label for="hmVDescription">Descrição</label><textarea id="hmVDescription" maxlength="5000" placeholder="Condição, horímetro/quilometragem, opcionais e detalhes"></textarea></div>
-            <div class="hm-vehicle-field full"><label for="hmVPhotos">Fotos (até 10, JPG/PNG/WebP, até 10 MB cada)</label><input id="hmVPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><small id="hmVExistingPhotos" style="display:block;color:#687680;margin-top:5px"></small></div>
+            <div class="hm-vehicle-field full"><label for="hmVPhotos">Fotos do equipamento (até 10, JPG/PNG/WebP, até 10 MB cada)</label><input id="hmVPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><input id="hmVCameraPhotos" type="file" accept="image/*" capture="environment" hidden><div class="hm-vehicle-actions" style="margin-top:8px"><button id="hmVTakePhoto" type="button" class="primary">📷 Tirar foto com a câmera</button><button id="hmVChoosePhotos" type="button">🖼️ Escolher da galeria</button></div><small id="hmVPhotoHelp" style="display:block;color:#687680;margin-top:5px">No celular, toque em “Tirar foto” para abrir a câmera traseira. Você pode repetir para adicionar mais fotos.</small><small id="hmVExistingPhotos" style="display:block;color:#687680;margin-top:5px"></small></div>
             <div class="hm-vehicle-field full"><label for="hmVStatus">Visibilidade</label><select id="hmVStatus"><option value="published">Publicar no catálogo</option><option value="draft">Salvar como rascunho</option></select></div>
             <div class="hm-vehicle-field full"><div class="hm-vehicle-actions"><button class="primary" id="hmVSave" type="submit">Cadastrar equipamento</button><button id="hmVCancelEdit" type="button" hidden>Cancelar edição</button><button id="hmVReset" type="button">Limpar formulário</button></div><div class="hm-vehicle-status" id="hmVMessage" role="status" aria-live="polite"></div></div>
           </form>
@@ -48,11 +48,11 @@
       </div>
     </section>`;
   document.body.appendChild(overlay);
-  let client = null, session = null, role = "buyer", user = null, items = [], editing = null;
+  let client = null, session = null, role = "buyer", user = null, items = [], editing = null, cameraFiles = [];
   const $ = id => document.getElementById(id);
   const setMessage = (s, bad=false) => { $("hmVMessage").textContent=s; $("hmVMessage").style.color=bad?"#b42332":"#246b45"; };
   const close = () => { overlay.classList.remove("open"); document.body.style.overflow=""; };
-  const clearForm = () => { editing=null; $("hmVehicleForm").reset(); $("hmVehicleFormTitle").textContent="Cadastrar equipamento"; $("hmVSave").textContent="Cadastrar equipamento"; $("hmVCancelEdit").hidden=true; $("hmVExistingPhotos").textContent=""; setMessage(""); };
+  const clearForm = () => { editing=null; cameraFiles=[]; $("hmVehicleForm").reset(); $("hmVehicleFormTitle").textContent="Cadastrar equipamento"; $("hmVSave").textContent="Cadastrar equipamento"; $("hmVCancelEdit").hidden=true; $("hmVExistingPhotos").textContent=""; $("hmVPhotoHelp").textContent="No celular, toque em “Tirar foto” para abrir a câmera traseira. Você pode repetir para adicionar mais fotos."; setMessage(""); };
   const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:2});
   const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   async function getSession() {
@@ -102,6 +102,10 @@
     } catch(error){alert(error.message);}
   }
   openButton.addEventListener("click",open);
+  $("hmVTakePhoto").addEventListener("click",()=> $("hmVCameraPhotos").click());
+  $("hmVChoosePhotos").addEventListener("click",()=> $("hmVPhotos").click());
+  $("hmVCameraPhotos").addEventListener("change",()=>{const picked=[...$("hmVCameraPhotos").files];if(picked.length){cameraFiles.push(...picked);const total=$("hmVPhotos").files.length+cameraFiles.length;if(total>10){cameraFiles=cameraFiles.slice(0,Math.max(0,10-$("hmVPhotos").files.length));setMessage("Limite de 10 fotos por anúncio.",true);}else setMessage("Foto capturada! "+total+" foto(s) selecionada(s).");$("hmVPhotoHelp").textContent=($("hmVPhotos").files.length+cameraFiles.length)+" foto(s) selecionada(s). Você pode tirar outra foto ou escolher imagens da galeria.";} $("hmVCameraPhotos").value="";});
+  $("hmVPhotos").addEventListener("change",()=>{const total=$("hmVPhotos").files.length+cameraFiles.length;if(total>10){setMessage("Escolha no máximo 10 fotos no total.",true);}else $("hmVPhotoHelp").textContent=total+" foto(s) selecionada(s). Você pode combinar câmera e galeria.";});
   overlay.querySelector(".hm-vehicle-close").addEventListener("click",close);
   overlay.addEventListener("click",e=>{if(e.target===overlay)close();});
   $("hmVCancelEdit").addEventListener("click",clearForm);$("hmVReset").addEventListener("click",clearForm);
@@ -114,7 +118,7 @@
       $("hmVTitle").value=v.title||"";$("hmVCategory").value=v.category||"";$("hmVBrand").value=v.brand||"";$("hmVModel").value=v.model||"";$("hmVYear").value=v.manufacture_year||"";
       $("hmVPriceOnRequest").value=String(!!v.price_on_request||v.price==null);$("hmVPrice").disabled=$("hmVPriceOnRequest").value==="true";$("hmVPrice").value=v.price??"";
       $("hmVState").value=v.state||"";$("hmVCity").value=v.city||"";$("hmVDescription").value=v.description||"";$("hmVStatus").value=v.status==="draft"?"draft":"published";
-      $("hmVExistingPhotos").textContent=(v.photos||[]).length+" foto(s) atual(is). Se enviar novas fotos, elas substituirão as atuais."; $("hmVPhotos").value="";setMessage("");$("hmVehicleForm").scrollIntoView({behavior:"smooth",block:"start"});
+      cameraFiles=[]; $("hmVExistingPhotos").textContent=(v.photos||[]).length+" foto(s) atual(is). Se enviar novas fotos, elas substituirão as atuais."; $("hmVPhotoHelp").textContent="No celular, tire novas fotos ou escolha imagens da galeria para substituir as atuais."; $("hmVPhotos").value="";setMessage("");$("hmVehicleForm").scrollIntoView({behavior:"smooth",block:"start"});
     }
     if(del){const v=items.find(x=>x.id===del.dataset.delete);if(!v)return;if(!confirm("Remover definitivamente o anúncio "+(v.title||v.brand+" "+v.model)+"?"))return;
       del.disabled=true;try{const result=await request("delete",{id:v.id});setMessage(result.message||"Anúncio removido.");await loadManage();await loadPublic();}catch(error){setMessage(error.message,true);}finally{del.disabled=false;}
@@ -125,7 +129,7 @@
     let uploaded=[];
     try {
       if(!await getSession())throw new Error("Entre com uma conta autorizada.");
-      const files=[...$("hmVPhotos").files];
+      const files=[...$("hmVPhotos").files,...cameraFiles];
       if(files.length>10)throw new Error("Escolha no máximo 10 fotos.");
       for(const file of files){if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("Use somente fotos JPG, PNG ou WebP.");
         if(file.size>10*1024*1024)throw new Error("Cada foto deve ter até 10 MB.");
