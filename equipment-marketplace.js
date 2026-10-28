@@ -109,7 +109,7 @@
     container.append(prev,next,count,dots);
   }
   function mountCardGallery(){
-    const v=window.current;
+    const v=current;
     const card=document.getElementById("activeCard");
     if(!v||!card)return;
     const urls=photoUrls(v), photo=card.querySelector(".photo"), img=photo?.querySelector("img");
@@ -120,7 +120,7 @@
   const originalOpenDetails=window.openDetails;
   if(typeof originalOpenDetails==="function")window.openDetails=function(){
     originalOpenDetails();
-    const v=window.current, content=document.getElementById("modalContent");
+    const v=current, content=document.getElementById("modalContent");
     const oldImg=content?.querySelector("img");
     const urls=photoUrls(v);
     if(oldImg&&urls.length>1){
