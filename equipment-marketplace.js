@@ -145,7 +145,7 @@
       setMessage(error.message||"Não foi possível salvar o equipamento.",true);
     } finally {button.disabled=false;button.textContent=editing?"Salvar alterações":"Cadastrar equipamento";}
   });
-  document.addEventListener("hm-auth-changed",()=>{refreshRole();});
+  window.addEventListener("hm-auth-changed",()=>{refreshRole();});
   loadPublic();
   getSession().catch(()=>{});
 })();
