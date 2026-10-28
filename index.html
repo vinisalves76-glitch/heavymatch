@@ -61,11 +61,31 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
 .chat-input{min-width:0;flex:1;border:1px solid #d9e0e3;border-radius:22px;padding:12px 14px;outline-color:#f5b323;font-size:13px;color:#182630;background:#fff}
 .chat-send{width:45px;height:45px;flex:0 0 45px;border:0;border-radius:50%;background:#f5b323;color:#17212a;font-size:20px;font-weight:900}
 @media(max-width:600px){.chat-overlay{padding:0;align-items:stretch}.chat-panel{width:100%;height:100svh;max-height:100svh;border-radius:0}.chat-head{padding-top:calc(13px + env(safe-area-inset-top))}.chat-messages{padding:15px 11px}}
+
+/* Cadastro e acesso do cliente */
+.auth-trigger{border:1px solid #f5b323!important;background:#f5b323!important;color:#17212a!important;font-size:12px!important;padding:9px 12px!important;border-radius:11px!important;font-weight:900!important}
+.auth-overlay{display:none;position:fixed;inset:0;z-index:120;background:#05090de8;align-items:center;justify-content:center;padding:16px;color:#172630}
+.auth-overlay.open{display:flex}
+.auth-panel{width:min(100%,460px);max-height:92svh;overflow:auto;background:#fff;border-radius:22px;padding:22px;box-shadow:0 24px 80px #0008}
+.auth-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.auth-top h2{font-size:25px;letter-spacing:-.6px;margin:5px 0 8px}
+.auth-subtitle{font-size:13px;line-height:1.5;color:#687680;margin:0 0 18px}
+.auth-form{display:grid;gap:11px}
+.auth-form label{display:grid;gap:6px;font-size:11px;font-weight:850;color:#3b4a54}
+.auth-form input{width:100%;min-height:44px;border:1px solid #d8e0e4;border-radius:11px;padding:11px 12px;color:#172630;background:#fff;outline-color:#f5b323;font-size:13px}
+.auth-submit{min-height:47px;border:0;border-radius:12px;background:#f5b323;color:#17212a;font-weight:950;margin-top:3px}
+.auth-switch{width:100%;border:0;background:transparent;color:#705000;font-weight:850;padding:12px 6px 2px;font-size:12px}
+.auth-status{display:none;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.5;background:#eef6ef;color:#24623b;margin:0 0 12px}
+.auth-status.error{background:#fff0f0;color:#9b2929}
+.auth-privacy{font-size:10px;line-height:1.5;color:#77838a;margin:13px 0 0}
+@media(max-width:799px){.auth-trigger{font-size:12px!important;padding:8px 10px!important}.auth-panel{padding:19px;border-radius:20px}.auth-overlay{padding:10px}}
+
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div id="app">
-<header class="topbar"><div class="brand"><div class="mark">H</div>Heavy<em>Match</em></div><div class="top-actions"><button class="top-btn" id="filtersNav" aria-label="Abrir filtros">☷</button><button class="top-btn" id="favoritesJump" aria-label="Ver salvos">♥ <b id="savedCount">0</b></button></div></header>
+<header class="topbar"><div class="brand"><div class="mark">H</div>Heavy<em>Match</em></div><div class="top-actions"><button class="top-btn" id="filtersNav" aria-label="Abrir filtros">☷</button><button class="top-btn auth-trigger" id="authOpen" aria-label="Entrar ou criar conta">Entrar</button><button class="top-btn" id="favoritesJump" aria-label="Ver salvos">♥ <b id="savedCount">0</b></button></div></header>
 <section class="intro"><div class="eyebrow">O PRÓXIMO GRANDE NEGÓCIO COMEÇA AQUI</div><h1>Máquinas que movem<br><span>grandes negócios.</span></h1><p>Explore. Compare. Encontre a próxima máquina da sua operação.</p></section>
 <div class="quickbar" id="quickbar"><button class="chip active" data-cat="">🔥 Para você</button><button class="chip" data-cat="Caminhão">🚛 Caminhões</button><button class="chip" data-cat="Escavadeira">🚜 Escavadeiras</button><button class="chip" data-cat="Carregadeira">🏗️ Carregadeiras</button><button class="chip" data-cat="Retroescavadeira">⚙️ Retroescavadeiras</button></div>
 <section class="filters"><select id="brand"><option value="">Todas as marcas</option></select><select id="sort"><option value="featured">Destaques primeiro</option><option value="year">Ano: mais recente</option><option value="az">Marca: A–Z</option></select><input class="search" id="search" placeholder="⌕  Buscar marca ou modelo (ex.: SANY SY215)" type="search"></section>
@@ -152,5 +172,177 @@ function toggleSavedPanel(forceOpen=false){const panel=$('savedPanel');const sho
 $('favoritesJump').addEventListener('click',()=>toggleSavedPanel());$('savedNav').addEventListener('click',()=>toggleSavedPanel());$('profileNav').addEventListener('click',()=>toggleSavedPanel(true));$('homeNav').addEventListener('click',()=>$('savedPanel').classList.remove('is-open'));
 initBrands();render();renderFavorites();
 </script>
+
+<div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <section class="auth-panel">
+    <div class="auth-top"><div><div style="font-size:10px;font-weight:950;letter-spacing:1.4px;color:#9a6900">HEAVYMATCH</div><h2 id="authTitle">Entre na sua conta</h2></div><button class="close" id="authClose" type="button" aria-label="Fechar">×</button></div>
+    <p class="auth-subtitle" id="authSubtitle">Acesse sua conta para salvar equipamentos e acompanhar seus interesses.</p>
+    <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
+    <form class="auth-form" id="authForm">
+      <label id="authNameWrap" hidden>Nome completo<input id="authName" name="name" autocomplete="name" maxlength="120" placeholder="Seu nome completo"></label>
+      <label id="authPhoneWrap" hidden>Telefone / WhatsApp<input id="authPhone" name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="(31) 99999-9999"></label>
+      <label id="authAddressWrap" hidden>Endereço<input id="authAddress" name="address" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado"></label>
+      <label>E-mail<input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="voce@exemplo.com"></label>
+      <label>Senha<input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres"></label>
+      <button class="auth-submit" id="authSubmit" type="submit">Entrar</button>
+    </form>
+    <button class="auth-switch" id="authSwitch" type="button">Ainda não tem conta? Criar cadastro</button>
+    <button class="auth-switch" id="authSignOut" type="button" hidden>Sair da minha conta</button>
+    <p class="auth-privacy">Ao criar sua conta, seus dados serão usados para administrar seu acesso ao HeavyMatch. Não informe dados de pagamento neste formulário.</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  const byId = id => document.getElementById(id);
+  const authOverlay = byId('authOverlay');
+  const authForm = byId('authForm');
+  const statusEl = byId('authStatus');
+  let supabaseClient = null;
+  let authMode = 'login';
+  let currentAuthUser = null;
+  function authStatus(message, isError = false) {
+    statusEl.textContent = message;
+    statusEl.classList.toggle('error', isError);
+    statusEl.style.display = message ? 'block' : 'none';
+  }
+  function setAuthMode(mode) {
+    authMode = mode;
+    const signup = mode === 'signup';
+    byId('authTitle').textContent = signup ? 'Crie sua conta' : (currentAuthUser ? 'Sua conta' : 'Entre na sua conta');
+    byId('authSubtitle').textContent = signup
+      ? 'Cadastre-se como cliente para salvar equipamentos e falar com os vendedores.'
+      : (currentAuthUser ? 'Sua conta de cliente está conectada.' : 'Acesse sua conta para salvar equipamentos e acompanhar seus interesses.');
+    byId('authNameWrap').hidden = !signup;
+    byId('authPhoneWrap').hidden = !signup;
+    byId('authAddressWrap').hidden = !signup;
+    byId('authName').required = signup;
+    byId('authPhone').required = signup;
+    byId('authAddress').required = signup;
+    byId('authPassword').autocomplete = signup ? 'new-password' : 'current-password';
+    byId('authSubmit').hidden = !!currentAuthUser;
+    byId('authForm').hidden = !!currentAuthUser;
+    byId('authSwitch').hidden = !!currentAuthUser;
+    byId('authSignOut').hidden = !currentAuthUser;
+    byId('authSubmit').textContent = signup ? 'Criar minha conta' : 'Entrar';
+    byId('authSwitch').textContent = signup ? 'Já tem conta? Entrar' : 'Ainda não tem conta? Criar cadastro';
+    if (!currentAuthUser) authStatus('');
+  }
+  async function initAuth() {
+    try {
+      const response = await fetch('/api/supabase-config', { headers: { 'Accept': 'application/json' } });
+      if (!response.ok) throw new Error('Configuração de autenticação indisponível.');
+      const config = await response.json();
+      if (!config.url || !config.anonKey || !window.supabase) throw new Error('Configuração do Supabase incompleta.');
+      supabaseClient = window.supabase.createClient(config.url, config.anonKey, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      currentAuthUser = data.session?.user || null;
+      updateAuthButton();
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        currentAuthUser = session?.user || null;
+        updateAuthButton();
+        if (currentAuthUser && authOverlay.classList.contains('open')) setAuthMode('account');
+      });
+    } catch (error) {
+      console.error('HeavyMatch auth init:', error);
+      byId('authOpen').title = 'Autenticação ainda não disponível';
+    }
+  }
+  function updateAuthButton() {
+    const button = byId('authOpen');
+    if (!button) return;
+    button.textContent = currentAuthUser
+      ? ((currentAuthUser.user_metadata?.full_name || currentAuthUser.email || 'Minha conta').split(' ')[0].slice(0, 18))
+      : 'Entrar';
+    button.setAttribute('aria-label', currentAuthUser ? 'Abrir minha conta' : 'Entrar ou criar conta');
+  }
+  function openAuth() {
+    authOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setAuthMode(currentAuthUser ? 'account' : 'login');
+    if (!supabaseClient) authStatus('Não foi possível carregar a configuração de autenticação. Confira as variáveis SUPABASE_URL e SUPABASE_ANON_KEY no Vercel e tente novamente.', true);
+    else if (authMode !== 'account') setTimeout(() => byId('authEmail').focus(), 50);
+  }
+  function closeAuth() {
+    authOverlay.classList.remove('open');
+    document.body.style.overflow = byId('chatOverlay')?.classList.contains('open') || byId('galleryModal')?.classList.contains('open') ? 'hidden' : '';
+  }
+  byId('authOpen').addEventListener('click', openAuth);
+  byId('authClose').addEventListener('click', closeAuth);
+  authOverlay.addEventListener('click', event => { if (event.target === authOverlay) closeAuth(); });
+  byId('authSwitch').addEventListener('click', () => setAuthMode(authMode === 'signup' ? 'login' : 'signup'));
+  byId('authSignOut').addEventListener('click', async () => {
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) { authStatus('Não foi possível sair da conta. Tente novamente.', true); return; }
+    currentAuthUser = null;
+    updateAuthButton();
+    setAuthMode('login');
+    authStatus('Você saiu da sua conta.');
+  });
+  authForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!supabaseClient) { authStatus('A autenticação não foi carregada. Confira a configuração do Supabase no Vercel.', true); return; }
+    const submit = byId('authSubmit');
+    submit.disabled = true;
+    submit.textContent = authMode === 'signup' ? 'Criando conta…' : 'Entrando…';
+    authStatus('');
+    try {
+      const email = byId('authEmail').value.trim();
+      const password = byId('authPassword').value;
+      if (authMode === 'signup') {
+        const fullName = byId('authName').value.trim();
+        const phone = byId('authPhone').value.trim();
+        const address = byId('authAddress').value.trim();
+        if (!fullName || !phone || !address) throw new Error('Preencha nome, telefone e endereço.');
+        const { data, error } = await supabaseClient.auth.signUp({
+          email, password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: fullName, phone, address, account_type: 'buyer' }
+          }
+        });
+        if (error) throw error;
+        // Após cadastrar, sempre voltar à tela de login para o cliente entrar com e-mail e senha.
+        if (data.session) {
+          const { error: signOutError } = await supabaseClient.auth.signOut();
+          if (signOutError) throw signOutError;
+        }
+        currentAuthUser = null;
+        updateAuthButton();
+        authForm.reset();
+        setAuthMode('login');
+        byId('authEmail').value = email;
+        authStatus(data.session
+          ? 'Cadastro concluído! Agora entre usando seu e-mail e sua senha.'
+          : 'Cadastro iniciado! Se a confirmação por e-mail estiver ativada, confirme sua conta e depois entre com e-mail e senha.');
+      } else {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        currentAuthUser = data.user;
+        updateAuthButton();
+        setAuthMode('account');
+        authStatus('Você entrou na sua conta com sucesso.');
+      }
+    } catch (error) {
+      const message = error?.message || '';
+      const friendly = /invalid login credentials/i.test(message) ? 'E-mail ou senha incorretos.' :
+        /user already registered/i.test(message) ? 'Este e-mail já possui cadastro. Entre na sua conta.' :
+        /password should be at least/i.test(message) ? 'A senha precisa ter pelo menos 8 caracteres.' :
+        (message || 'Não foi possível concluir. Confira os dados e tente novamente.');
+      authStatus(friendly, true);
+    } finally {
+      submit.disabled = false;
+      submit.textContent = authMode === 'signup' ? 'Criar minha conta' : 'Entrar';
+    }
+  });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && authOverlay.classList.contains('open')) closeAuth(); });
+  initAuth();
+})();
+</script>
+
 </body>
 </html>
