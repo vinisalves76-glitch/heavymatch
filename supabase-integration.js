@@ -179,7 +179,7 @@
   });
   document.getElementById("hmAdminLogout").addEventListener("click", async () => {
     if (supabaseClient) await supabaseClient.auth.signOut();
-    currentUser = null; currentRole = "buyer"; adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar";
+    currentUser = null; currentRole = "buyer"; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar";
     closeAdmin(); resetAuthForm(); showAuth();
     message("Você saiu da sua conta.");
   });
@@ -194,7 +194,7 @@
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session?.user) await showSignedIn(session.user);
       supabaseClient.auth.onAuthStateChange((_event, session) => {
-        if (!session?.user) { currentUser = null; currentRole = "buyer"; adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; }
+        if (!session?.user) { currentUser = null; currentRole = "buyer"; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; }
       });
     } catch (error) {
       configError = error?.message || "Falha ao conectar ao Supabase.";
@@ -208,6 +208,7 @@
       const { data: profile, error } = await supabaseClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
       if (error) throw error;
       currentRole = profile?.role || "buyer";
+      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
       adminNav.classList.toggle("hm-visible", currentRole === "admin");
       accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
       message("Login realizado. Perfil: " + currentRole + ".", false);
