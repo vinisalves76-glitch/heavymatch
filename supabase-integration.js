@@ -45,6 +45,7 @@
         <div class="hm-auth-actions"><button type="button" id="hmAuthCancel">Cancelar</button><button class="primary" type="submit" id="hmAuthSubmit">Entrar</button></div>
       </form>
       <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
+      <button type="button" class="hm-auth-switch" id="hmAuthLogout" hidden>Sair da conta e entrar com outro acesso</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
     </section>`;
   document.body.appendChild(overlay);
@@ -129,10 +130,33 @@
   function showAccountInfo() {
     overlay.classList.add("open"); document.body.style.overflow = "hidden";
     document.getElementById("hmAuthTitle").textContent = "Minha conta";
+    document.getElementById("hmAuthSubtitle").textContent = "Sua sessão está ativa. Para entrar com outro e-mail ou criar uma nova conta de cliente, saia primeiro desta conta.";
     document.querySelector("#hmAuthForm").hidden = true;
     document.getElementById("hmAuthSwitch").hidden = true;
+    document.getElementById("hmAuthLogout").hidden = false;
     message("Conectado como " + (currentUser?.email || "") + ". Perfil: " + currentRole + ".", false);
   }
+  document.getElementById("hmAuthLogout").addEventListener("click", async () => {
+    const button = document.getElementById("hmAuthLogout");
+    button.disabled = true; button.textContent = "Saindo…";
+    try {
+      if (supabaseClient) {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+      }
+      currentUser = null; currentRole = "buyer";
+      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+      adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar";
+      document.getElementById("hmAuthLogout").hidden = true;
+      document.getElementById("hmAuthSubtitle").textContent = "Entre com seu e-mail e senha para acessar sua conta.";
+      resetAuthForm();
+      document.getElementById("hmAuthEmail").focus();
+    } catch (error) {
+      message(error?.message || "Não foi possível sair da conta. Tente novamente.", true);
+    } finally {
+      button.disabled = false; button.textContent = "Sair da conta e entrar com outro acesso";
+    }
+  });
   function setAuthMode(mode) {
     authMode = mode === "signup" ? "signup" : "login";
     const signup = authMode === "signup";
