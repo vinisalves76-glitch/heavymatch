@@ -73,7 +73,7 @@
     if(!response.ok)throw new Error(result.error||"Falha ao acessar anúncios.");
     return result;
   }
-  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
+  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[],sellerWhatsapp:v.seller_whatsapp||""};}
   function renderPublic(list) {
     vehicles=list.map(toCatalog); filtered=[...vehicles]; index=0;
     const b=$("brand"),m=$("model");
