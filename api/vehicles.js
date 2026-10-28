@@ -120,7 +120,8 @@ export default async function handler(req, res) {
       const { data: oldPhotos, error: oldPhotosError } = await db.from("vehicle_photos").select("id, storage_path").eq("vehicle_id", id);
       if (oldPhotosError) throw oldPhotosError;
       const oldPaths = (oldPhotos || []).map(p => p.storage_path).filter(Boolean);
-      if (oldPaths.length) await db.storage.from(BUCKET).remove(oldPaths);
+      const removedPaths = oldPaths.filter(path => !paths.includes(path));
+      if (removedPaths.length) await db.storage.from(BUCKET).remove(removedPaths);
       const { error: clearError } = await db.from("vehicle_photos").delete().eq("vehicle_id", id);
       if (clearError) throw clearError;
     }
