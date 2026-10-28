@@ -186,6 +186,7 @@ initBrands();render();renderFavorites();
       <label id="authAddressWrap" hidden>Endereço<input id="authAddress" name="address" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado"></label>
       <label>E-mail<input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="voce@exemplo.com"></label>
       <label>Senha<input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres"></label>
+      <label id="authConfirmWrap" hidden>Confirmar senha<input id="authConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente"></label>
       <button class="auth-submit" id="authSubmit" type="submit">Entrar</button>
     </form>
     <button class="auth-switch" id="authSwitch" type="button">Ainda não tem conta? Criar cadastro</button>
@@ -218,10 +219,13 @@ initBrands();render();renderFavorites();
     byId('authNameWrap').hidden = !signup;
     byId('authPhoneWrap').hidden = !signup;
     byId('authAddressWrap').hidden = !signup;
+    byId('authConfirmWrap').hidden = !signup;
     byId('authName').required = signup;
     byId('authPhone').required = signup;
     byId('authAddress').required = signup;
+    byId('authConfirmPassword').required = signup;
     byId('authPassword').autocomplete = signup ? 'new-password' : 'current-password';
+    byId('authConfirmPassword').value = '';
     byId('authSubmit').hidden = !!currentAuthUser;
     byId('authForm').hidden = !!currentAuthUser;
     byId('authSwitch').hidden = !!currentAuthUser;
@@ -299,7 +303,9 @@ initBrands();render();renderFavorites();
         const fullName = byId('authName').value.trim();
         const phone = byId('authPhone').value.trim();
         const address = byId('authAddress').value.trim();
+        const confirmPassword = byId('authConfirmPassword').value;
         if (!fullName || !phone || !address) throw new Error('Preencha nome, telefone e endereço.');
+        if (password !== confirmPassword) throw new Error('As senhas não coincidem. Digite a mesma senha nos dois campos.');
         const { data, error } = await supabaseClient.auth.signUp({
           email, password,
           options: {
