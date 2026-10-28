@@ -203,12 +203,13 @@
   }
   async function showSignedIn(user) {
     currentUser = user;
-    accountButton.textContent = "Minha conta";
+    accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
     try {
       const { data: profile, error } = await supabaseClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
       if (error) throw error;
       currentRole = profile?.role || "buyer";
       adminNav.classList.toggle("hm-visible", currentRole === "admin");
+      accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
       message("Login realizado. Perfil: " + currentRole + ".", false);
       if (currentRole === "seller") message("Login de vendedor confirmado.", false);
     } catch (error) {
