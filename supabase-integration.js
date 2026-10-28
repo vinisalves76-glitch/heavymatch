@@ -6,6 +6,8 @@
     .hm-auth-overlay.open,.hm-admin-overlay.open{display:flex}
     .hm-auth-card,.hm-admin-card{width:100%;max-width:780px;max-height:92vh;overflow:auto;background:#fff;color:#1b2932;border-radius:20px;padding:22px;box-shadow:0 20px 70px #0005}
     .hm-auth-card{max-width:420px}
+    .hm-auth-card [hidden]{display:none!important}
+    .hm-auth-switch{width:100%;border:0;background:transparent;color:#705000;font-weight:850;padding:12px 6px 2px;font-size:12px}
     .hm-auth-card h2,.hm-admin-card h2{margin:0 0 6px;font-size:23px}.hm-auth-card p,.hm-admin-card p{color:#64727c;font-size:13px;line-height:1.5}
     .hm-auth-card label,.hm-admin-card label{display:block;font-size:12px;font-weight:800;margin:13px 0 6px}
     .hm-auth-card input,.hm-admin-card input,.hm-admin-card select{width:100%;height:44px;border:1px solid #dce2e6;border-radius:10px;padding:0 12px;color:#17242e;background:#fff}
@@ -31,13 +33,18 @@
     <section class="hm-auth-card" role="dialog" aria-modal="true" aria-labelledby="hmAuthTitle">
       <button type="button" class="hm-auth-close" aria-label="Fechar">×</button>
       <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">ÁREA SEGURA</div>
-      <h2 id="hmAuthTitle">Entrar no HeavyMatch</h2>
-      <p>Entre com uma conta já cadastrada. O cadastro público de vendedor não está disponível.</p>
+      <h2 id="hmAuthTitle">Entre na sua conta</h2>
+      <p id="hmAuthSubtitle">Entre com seu e-mail e senha para acessar sua conta.</p>
       <form id="hmAuthForm">
-        <label for="hmAuthEmail">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="username" required>
-        <label for="hmAuthPassword">Senha</label><input id="hmAuthPassword" type="password" autocomplete="current-password" required>
+        <label for="hmAuthName" id="hmAuthNameWrap" hidden>Nome completo</label><input id="hmAuthName" type="text" autocomplete="name" maxlength="120" placeholder="Seu nome completo" hidden>
+        <label for="hmAuthPhone" id="hmAuthPhoneWrap" hidden>Telefone / WhatsApp</label><input id="hmAuthPhone" type="tel" autocomplete="tel" maxlength="30" placeholder="(31) 99999-9999" hidden>
+        <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden>
+        <label for="hmAuthEmail">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
+        <label for="hmAuthPassword">Senha</label><input id="hmAuthPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres" required>
+        <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
         <div class="hm-auth-actions"><button type="button" id="hmAuthCancel">Cancelar</button><button class="primary" type="submit" id="hmAuthSubmit">Entrar</button></div>
       </form>
+      <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
     </section>`;
   document.body.appendChild(overlay);
@@ -85,6 +92,7 @@
   let supabaseClient = null;
   let currentUser = null;
   let currentRole = "buyer";
+  let authMode = "login";
   let configError = "";
   const message = (text, error = false) => { const node = document.getElementById("hmAuthMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
   const adminMessage = (text, error = false) => { const node = document.getElementById("hmAdminMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
@@ -101,6 +109,7 @@
   };
   overlay.querySelector(".hm-auth-close").addEventListener("click", closeAuth);
   document.getElementById("hmAuthCancel").addEventListener("click", closeAuth);
+  document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" ? "login" : "signup"));
   overlay.addEventListener("click", e => { if (e.target === overlay) closeAuth(); });
   adminOverlay.querySelector(".hm-admin-close").addEventListener("click", closeAdmin);
   document.getElementById("hmAdminCloseBottom").addEventListener("click", closeAdmin);
@@ -119,9 +128,33 @@
     document.querySelector("#hmAuthForm").hidden = true;
     message("Conectado como " + (currentUser?.email || "") + ". Perfil: " + currentRole + ".", false);
   }
+  function setAuthMode(mode) {
+    authMode = mode === "signup" ? "signup" : "login";
+    const signup = authMode === "signup";
+    document.getElementById("hmAuthTitle").textContent = signup ? "Crie sua conta" : "Entre na sua conta";
+    document.getElementById("hmAuthSubtitle").textContent = signup
+      ? "Cadastre-se como cliente para salvar equipamentos e acompanhar seus interesses."
+      : "Entre com seu e-mail e senha para acessar sua conta.";
+    ["Name", "Phone", "Address"].forEach(field => {
+      const wrap = document.getElementById("hmAuth" + field + "Wrap");
+      const input = document.getElementById("hmAuth" + field);
+      wrap.hidden = !signup; input.hidden = !signup; input.required = signup;
+    });
+    document.getElementById("hmAuthConfirmWrap").hidden = !signup;
+    document.getElementById("hmAuthConfirmPassword").hidden = !signup;
+    document.getElementById("hmAuthConfirmPassword").required = signup;
+    document.getElementById("hmAuthPassword").autocomplete = signup ? "new-password" : "current-password";
+    document.getElementById("hmAuthConfirmPassword").value = "";
+    document.getElementById("hmAuthForm").hidden = !!currentUser;
+    document.getElementById("hmAuthSwitch").hidden = !!currentUser;
+    document.getElementById("hmAuthSubmit").textContent = signup ? "Criar minha conta" : "Entrar";
+    document.getElementById("hmAuthSwitch").textContent = signup ? "Já tem conta? Entrar" : "Ainda não tem conta? Fazer cadastro";
+    message("");
+  }
   function resetAuthForm() {
-    document.getElementById("hmAuthTitle").textContent = "Entrar no HeavyMatch";
-    document.querySelector("#hmAuthForm").hidden = false;
+    document.getElementById("hmAuthForm").hidden = false;
+    document.getElementById("hmAuthSwitch").hidden = false;
+    setAuthMode("login");
     message("");
   }
   async function apiAdmin(action, payload = {}) {
@@ -221,18 +254,60 @@
   document.getElementById("hmAuthForm").addEventListener("submit", async event => {
     event.preventDefault();
     const submit = document.getElementById("hmAuthSubmit");
-    submit.disabled = true; submit.textContent = "Entrando…";
+    submit.disabled = true;
+    submit.textContent = authMode === "signup" ? "Criando conta…" : "Entrando…";
     try {
       if (!supabaseClient) throw new Error(configError || "A conexão ainda está carregando. Feche esta janela e tente novamente.");
       const email = document.getElementById("hmAuthEmail").value.trim();
       const password = document.getElementById("hmAuthPassword").value;
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      await showSignedIn(data.user);
-      if (currentRole === "admin") { closeAuth(); await openAdmin(); }
-      else { message("Login realizado. Perfil: " + currentRole + ".", false); window.setTimeout(closeAuth, 1400); }
-    } catch (error) { message(error?.message || "Não foi possível entrar. Confira o e-mail e a senha.", true); }
-    finally { submit.disabled = false; submit.textContent = "Entrar"; }
+      if (authMode === "signup") {
+        const fullName = document.getElementById("hmAuthName").value.trim();
+        const phone = document.getElementById("hmAuthPhone").value.trim();
+        const address = document.getElementById("hmAuthAddress").value.trim();
+        const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
+        if (!fullName || !phone || !address) throw new Error("Preencha nome, telefone e endereço.");
+        if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite a mesma senha nos dois campos.");
+        const { data, error } = await supabaseClient.auth.signUp({
+          email, password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: fullName, phone, address, account_type: "buyer" }
+          }
+        });
+        if (error) throw error;
+        if (data.session) {
+          const { error: signOutError } = await supabaseClient.auth.signOut();
+          if (signOutError) throw signOutError;
+        }
+        currentUser = null;
+        currentRole = "buyer";
+        accountButton.textContent = "Entrar";
+        adminNav.classList.remove("hm-visible");
+        window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+        document.getElementById("hmAuthForm").reset();
+        resetAuthForm();
+        document.getElementById("hmAuthEmail").value = email;
+        message(data.session
+          ? "Cadastro concluído! Agora entre usando seu e-mail e sua senha."
+          : "Cadastro iniciado! Se a confirmação por e-mail estiver ativada, confirme sua conta e depois entre com e-mail e senha.", false);
+      } else {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        await showSignedIn(data.user);
+        if (currentRole === "admin") { closeAuth(); await openAdmin(); }
+        else { message("Login realizado. Perfil: " + currentRole + ".", false); window.setTimeout(closeAuth, 1400); }
+      }
+    } catch (error) {
+      const raw = error?.message || "";
+      const friendly = /invalid login credentials/i.test(raw) ? "E-mail ou senha incorretos."
+        : /user already registered/i.test(raw) ? "Este e-mail já possui cadastro. Entre na sua conta."
+        : /password should be at least/i.test(raw) ? "A senha precisa ter pelo menos 8 caracteres."
+        : (raw || "Não foi possível concluir. Confira os dados e tente novamente.");
+      message(friendly, true);
+    } finally {
+      submit.disabled = false;
+      submit.textContent = authMode === "signup" ? "Criar minha conta" : "Entrar";
+    }
   });
   document.addEventListener("keydown", e => {
     if (e.key === "Escape" && adminOverlay.classList.contains("open")) closeAdmin();
