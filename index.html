@@ -85,5 +85,7 @@ function toggleSavedPanel(forceOpen=false){const panel=$('savedPanel');const sho
 $('favoritesJump').addEventListener('click',()=>toggleSavedPanel());$('savedNav').addEventListener('click',()=>toggleSavedPanel());$('homeNav').addEventListener('click',()=>{$('savedPanel').classList.remove('is-open');$('filters').classList.remove('is-open');$('quickbar').classList.remove('is-open');$('homeNav').classList.add('active');$('exploreNav').classList.remove('active');});
 initBrands();render();renderFavorites();
 </script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/supabase-integration.js"></script>
 </body>
 </html>
