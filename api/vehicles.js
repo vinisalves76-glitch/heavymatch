@@ -88,7 +88,13 @@ export default async function handler(req, res) {
     if (!Number.isInteger(year) || year < 1900 || year > 2100) return reply(res, 400, { error: "Informe um ano válido." });
     if (!priceOnRequest && (!Number.isFinite(price) || price < 0)) return reply(res, 400, { error: "Informe um preço válido ou marque Sob consulta." });
     const paths = Array.isArray(body.photos) ? body.photos.map(clean).filter(Boolean).slice(0, 10) : [];
-    if (paths.some(path => !path.startsWith(user.id + "/"))) return reply(res, 403, { error: "Uma ou mais fotos não pertencem à sua sessão." });
+    const existingPaths = new Set();
+    if (action === "update" && id) {
+      const { data: currentPhotos, error: currentPhotosError } = await db.from("vehicle_photos").select("storage_path").eq("vehicle_id", id);
+      if (currentPhotosError) throw currentPhotosError;
+      (currentPhotos || []).forEach(photo => existingPaths.add(photo.storage_path));
+    }
+    if (paths.some(path => !path.startsWith(user.id + "/") && !existingPaths.has(path))) return reply(res, 403, { error: "Uma ou mais fotos não pertencem à sua sessão ou ao anúncio editado." });
     const record = {
       title, category, brand, model, manufacture_year: year,
       price: priceOnRequest ? null : price, price_on_request: priceOnRequest,
