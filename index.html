@@ -26,6 +26,7 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
 }
 .section-card#savedPanel{display:none}
 .section-card#savedPanel.is-open{display:block;position:fixed;z-index:45;inset:72px 10px 82px;overflow:auto;margin:0;background:#1b1b1b;border:1px solid #444;border-radius:22px;box-shadow:0 16px 50px #000b;padding:18px}
+.saved-panel-close{float:right;border:1px solid #555;background:#292929;color:#fff;border-radius:10px;width:36px;height:36px;font-size:24px;line-height:1;margin:-5px 0 8px 10px}.saved-panel-close:focus-visible{outline:2px solid #f5b323;outline-offset:2px}
 @media(max-width:799px){.filters.is-open{display:grid!important;position:fixed;z-index:46;left:10px;right:10px;bottom:82px;max-height:70svh;overflow:auto;padding:16px;background:#1b1b1b;border:1px solid #444;border-radius:22px;box-shadow:0 16px 50px #000b;grid-template-columns:1fr 1fr}.filters.is-open select,.filters.is-open input{background:#292929;color:#fff;border-color:#444}.filters.is-open .filter-note{color:#c4c4c4}.quickbar.is-open{display:flex!important;position:fixed;z-index:46;left:10px;right:10px;bottom:calc(82px + 235px);padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:18px;flex-wrap:wrap}.quickbar.is-open .chip{background:#292929;color:#fff;border-color:#444}.quickbar.is-open .chip.active{background:#f5b323;color:#171717}}
 .trust{display:none!important}
 @media(max-width:799px){.photo{height:calc(100svh - 142px);min-height:0;max-height:none}.feed{padding:0 4px}.card{border-radius:22px}}
@@ -43,7 +44,7 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
 <div class="bottom-actions" id="bottomActions"><button class="detail-btn" id="detailsBtn">⌄ &nbsp; Ver mais detalhes</button><button class="contact-btn" id="contactBtn">☏ &nbsp; Falar com consultor</button></div>
 <div class="secondary-actions" id="secondaryActions"><button class="round-action pass" id="passBtn" aria-label="Passar">×</button><button class="round-action like" id="likeBtn" aria-label="Curtir e salvar">♥</button></div>
 <div class="swipe-caption">Deslize o anúncio para a direita para salvar · para a esquerda para passar</div>
-<section class="section-card" id="savedPanel"><div class="section-head"><h3>♥ Sua lista de interesse</h3><span class="badge" id="savedBadge">0 salvos</span></div><div id="savedList" class="saved-list"><div class="empty"><div class="heart">♡</div>Curtiu uma máquina? Ela aparece aqui para você consultar depois.</div></div></section>
+<section class="section-card" id="savedPanel"><button type="button" class="saved-panel-close" id="closeSavedPanel" aria-label="Fechar curtidos" title="Fechar">×</button><div class="section-head"><h3>♥ Sua lista de interesse</h3><span class="badge" id="savedBadge">0 salvos</span></div><div id="savedList" class="saved-list"><div class="empty"><div class="heart">♡</div>Curtiu uma máquina? Ela aparece aqui para você consultar depois.</div></div></section>
 <section class="trust"><h3>Encontrou uma máquina interessante?</h3><p>Converse com um consultor para confirmar disponibilidade, especificações e condições comerciais.</p><a href="#" id="generalWhatsapp" target="_blank" rel="noopener">CONVERSAR PELO WHATSAPP ↗</a></section>
 <nav class="bottom-nav" aria-label="Navegação principal"><button class="nav-item active" id="homeNav" aria-label="Deslizar" title="Deslizar"><span aria-hidden="true">🔥</span>Deslizar</button><button class="nav-item" id="exploreNav" aria-label="Filtros" title="Filtros"><span aria-hidden="true">☷</span>Filtros</button><button class="nav-item" id="savedNav" aria-label="Meu interesse" title="Meu interesse"><span aria-hidden="true">♥</span>Interesse</button><button class="nav-item" id="chatNav" aria-label="Chat com consultor" title="Chat com consultor"><span aria-hidden="true">💬</span>Chat</button><button class="nav-item" id="profileNav" aria-label="Perfil" title="Perfil"><span aria-hidden="true">♙</span>Perfil</button></nav>
 </div>
@@ -84,6 +85,10 @@ deckEl.addEventListener('pointerup',e=>{if(startX===null||!current)return;const 
 deckEl.addEventListener('pointercancel',()=>{startX=null;startY=null;},{passive:true});
 deckEl.addEventListener('click',e=>{const photo=e.target.closest('.photo');if(!photo||!current||e.target.closest('.hm-gallery-control'))return;if(suppressPhotoClick){e.preventDefault();e.stopPropagation();return;}changeEquipmentPhoto(1);});
 function toggleSavedPanel(forceOpen=false){const panel=$('savedPanel');const shouldOpen=forceOpen||!panel.classList.contains('is-open');panel.classList.toggle('is-open',shouldOpen);if(shouldOpen)renderFavorites();}
+function closeSavedPanel(){ $('savedPanel').classList.remove('is-open'); }
+$('closeSavedPanel').addEventListener('click',closeSavedPanel);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('savedPanel').classList.contains('is-open'))closeSavedPanel();});
+document.addEventListener('click',e=>{const panel=$('savedPanel');if(!panel.classList.contains('is-open'))return;if(e.target.closest('#favoritesJump,#savedNav,#savedPanel'))return;closeSavedPanel();});
 $('favoritesJump').addEventListener('click',()=>toggleSavedPanel());$('savedNav').addEventListener('click',()=>toggleSavedPanel());$('homeNav').addEventListener('click',()=>{$('savedPanel').classList.remove('is-open');$('filters').classList.remove('is-open');$('quickbar').classList.remove('is-open');$('homeNav').classList.add('active');$('exploreNav').classList.remove('active');});
 initBrands();render();renderFavorites();
 </script>
