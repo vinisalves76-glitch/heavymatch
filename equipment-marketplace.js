@@ -74,6 +74,60 @@
     return result;
   }
   function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
+  // Mostra todas as fotos recebidas da API, em vez de deixar apenas a primeira visível.
+  const galleryStyle = document.createElement("style");
+  galleryStyle.textContent = `
+    .hm-gallery-control{position:absolute;z-index:4;top:50%;transform:translateY(-50%);width:38px;height:38px;border:1px solid #ffffff70;border-radius:50%;background:#101820b8;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .hm-gallery-control.prev{left:10px}.hm-gallery-control.next{right:10px}
+    .hm-gallery-count{position:absolute;z-index:4;top:14px;right:14px;border-radius:20px;background:#101820c9;color:#fff;padding:6px 10px;font-size:11px;font-weight:800}
+    .hm-gallery-dots{position:absolute;z-index:4;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:5px;pointer-events:none}
+    .hm-gallery-dot{width:6px;height:6px;border-radius:50%;background:#ffffff80;box-shadow:0 1px 3px #0008}.hm-gallery-dot.active{background:#fff;width:17px;border-radius:5px}
+    .hm-detail-gallery{position:relative;margin:12px 0}.hm-detail-gallery img{display:block;width:100%;max-height:420px;object-fit:contain;border-radius:12px;background:#111}
+    .hm-detail-gallery .hm-gallery-control{top:50%}
+    @media(max-width:650px){.hm-gallery-control{width:34px;height:34px}.hm-gallery-count{top:10px;right:10px}}
+  `;
+  document.head.appendChild(galleryStyle);
+  function photoUrls(v){
+    const urls=(v?.photos||[]).map(p=>typeof p==="string"?p:p?.url).filter(Boolean);
+    if(!urls.length&&v?.image)urls.push(v.image);
+    return [...new Set(urls)];
+  }
+  function buildGallery(container,img,urls){
+    if(!container||!img||!urls.length)return;
+    let active=0;
+    img.src=urls[0];
+    if(urls.length<2)return;
+    const count=document.createElement("span");count.className="hm-gallery-count";
+    const prev=document.createElement("button");prev.type="button";prev.className="hm-gallery-control prev";prev.setAttribute("aria-label","Foto anterior");prev.textContent="‹";
+    const next=document.createElement("button");next.type="button";next.className="hm-gallery-control next";next.setAttribute("aria-label","Próxima foto");next.textContent="›";
+    const dots=document.createElement("div");dots.className="hm-gallery-dots";
+    urls.forEach((_,i)=>{const dot=document.createElement("span");dot.className="hm-gallery-dot"+(i===0?" active":"");dots.appendChild(dot);});
+    function show(step){active=(active+step+urls.length)%urls.length;img.src=urls[active];count.textContent=(active+1)+" / "+urls.length;[...dots.children].forEach((dot,i)=>dot.classList.toggle("active",i===active));}
+    count.textContent="1 / "+urls.length;
+    prev.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();show(-1);});
+    next.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();show(1);});
+    container.append(prev,next,count,dots);
+  }
+  function mountCardGallery(){
+    const v=window.current;
+    const card=document.getElementById("activeCard");
+    if(!v||!card)return;
+    const urls=photoUrls(v), photo=card.querySelector(".photo"), img=photo?.querySelector("img");
+    if(urls.length>1)buildGallery(photo,img,urls);
+  }
+  const originalRender=window.render;
+  if(typeof originalRender==="function")window.render=function(){originalRender();mountCardGallery();};
+  const originalOpenDetails=window.openDetails;
+  if(typeof originalOpenDetails==="function")window.openDetails=function(){
+    originalOpenDetails();
+    const v=window.current, content=document.getElementById("modalContent");
+    const oldImg=content?.querySelector("img");
+    const urls=photoUrls(v);
+    if(oldImg&&urls.length>1){
+      const gallery=document.createElement("div");gallery.className="hm-detail-gallery";
+      oldImg.replaceWith(gallery);gallery.appendChild(oldImg);buildGallery(gallery,oldImg,urls);
+    }
+  };
   function renderPublic(list) {
     vehicles=list.map(toCatalog); filtered=[...vehicles]; index=0;
     const b=$("brand"),m=$("model");
