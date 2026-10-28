@@ -2,6 +2,8 @@
   const css = document.createElement("style");
   css.textContent = `
     .hm-account-btn{border:1px solid #46545e;background:#25343e;color:#fff;border-radius:11px;padding:9px 12px;font-weight:800;font-size:12px}
+    .hm-top-logout{border:1px solid #59636a;background:transparent;color:#fff;border-radius:11px;padding:9px 12px;font-weight:800;font-size:12px;cursor:pointer}
+    .hm-top-logout[hidden]{display:none!important}
     .hm-auth-overlay,.hm-admin-overlay{position:fixed;inset:0;z-index:100;background:#08111ddd;display:none;align-items:center;justify-content:center;padding:14px}
     .hm-auth-overlay.open,.hm-admin-overlay.open{display:flex}
     .hm-auth-card,.hm-admin-card{width:100%;max-width:780px;max-height:92vh;overflow:auto;background:#fff;color:#1b2932;border-radius:20px;padding:22px;box-shadow:0 20px 70px #0005}
@@ -45,6 +47,7 @@
         <div class="hm-auth-actions"><button type="button" id="hmAuthCancel">Cancelar</button><button class="primary" type="submit" id="hmAuthSubmit">Entrar</button></div>
       </form>
       <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
+      <button type="button" class="hm-auth-switch" id="hmAuthLogout" hidden>Sair da conta e entrar com outro acesso</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
     </section>`;
   document.body.appendChild(overlay);
@@ -85,6 +88,9 @@
   const accountButton = document.createElement("button");
   accountButton.type = "button"; accountButton.className = "hm-account-btn"; accountButton.id = "hmAccountButton"; accountButton.textContent = "Entrar";
   document.querySelector(".top-actions")?.prepend(accountButton);
+  const topLogoutButton = document.createElement("button");
+  topLogoutButton.type = "button"; topLogoutButton.className = "hm-top-logout"; topLogoutButton.id = "hmTopLogout"; topLogoutButton.textContent = "Sair"; topLogoutButton.hidden = true; topLogoutButton.setAttribute("aria-label", "Sair da conta");
+  document.querySelector(".top-actions")?.appendChild(topLogoutButton);
   const adminNav = document.createElement("button");
   adminNav.type = "button"; adminNav.className = "nav-item hm-admin-nav"; adminNav.id = "hmAdminNav"; adminNav.title = "ADM Master"; adminNav.setAttribute("aria-label", "ADM Master"); adminNav.innerHTML = '<span aria-hidden="true">⚙</span>ADM';
   document.querySelector(".bottom-nav")?.appendChild(adminNav);
@@ -111,6 +117,21 @@
     document.querySelectorAll(".hm-admin-tab").forEach(button => button.classList.toggle("active", button.dataset.pane === "accounts"));
     await loadUsers();
   };
+  async function signOutFromTopMenu() {
+    if (!currentUser) return;
+    topLogoutButton.disabled = true; topLogoutButton.textContent = "Saindo…";
+    try {
+      if (supabaseClient) { const { error } = await supabaseClient.auth.signOut(); if (error) throw error; }
+      currentUser = null; currentRole = "buyer"; topLogoutButton.hidden = true;
+      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+      adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; topLogoutButton.hidden = true;
+      closeAdmin(); closeAuth(); resetAuthForm();
+      message("Você saiu da sua conta.");
+    } catch (error) {
+      message(error?.message || "Não foi possível sair da conta. Tente novamente.", true);
+    } finally { topLogoutButton.disabled = false; topLogoutButton.textContent = "Sair"; }
+  }
+  topLogoutButton.addEventListener("click", signOutFromTopMenu);
   overlay.querySelector(".hm-auth-close").addEventListener("click", closeAuth);
   document.getElementById("hmAuthCancel").addEventListener("click", closeAuth);
   document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" ? "login" : "signup"));
@@ -129,10 +150,33 @@
   function showAccountInfo() {
     overlay.classList.add("open"); document.body.style.overflow = "hidden";
     document.getElementById("hmAuthTitle").textContent = "Minha conta";
+    document.getElementById("hmAuthSubtitle").textContent = "Sua sessão está ativa. Para entrar com outro e-mail ou criar uma nova conta de cliente, saia primeiro desta conta.";
     document.querySelector("#hmAuthForm").hidden = true;
     document.getElementById("hmAuthSwitch").hidden = true;
+    document.getElementById("hmAuthLogout").hidden = false;
     message("Conectado como " + (currentUser?.email || "") + ". Perfil: " + currentRole + ".", false);
   }
+  document.getElementById("hmAuthLogout").addEventListener("click", async () => {
+    const button = document.getElementById("hmAuthLogout");
+    button.disabled = true; button.textContent = "Saindo…";
+    try {
+      if (supabaseClient) {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+      }
+      currentUser = null; currentRole = "buyer";
+      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+      adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar";
+      document.getElementById("hmAuthLogout").hidden = true;
+      document.getElementById("hmAuthSubtitle").textContent = "Entre com seu e-mail e senha para acessar sua conta.";
+      resetAuthForm();
+      document.getElementById("hmAuthEmail").focus();
+    } catch (error) {
+      message(error?.message || "Não foi possível sair da conta. Tente novamente.", true);
+    } finally {
+      button.disabled = false; button.textContent = "Sair da conta e entrar com outro acesso";
+    }
+  });
   function setAuthMode(mode) {
     authMode = mode === "signup" ? "signup" : "login";
     const signup = authMode === "signup";
@@ -217,7 +261,7 @@
   });
   document.getElementById("hmAdminLogout").addEventListener("click", async () => {
     if (supabaseClient) await supabaseClient.auth.signOut();
-    currentUser = null; currentRole = "buyer"; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar";
+    currentUser = null; currentRole = "buyer"; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; topLogoutButton.hidden = true;
     closeAdmin(); resetAuthForm(); showAuth();
     message("Você saiu da sua conta.");
   });
@@ -232,7 +276,7 @@
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session?.user) await showSignedIn(session.user);
       supabaseClient.auth.onAuthStateChange((_event, session) => {
-        if (!session?.user) { currentUser = null; currentRole = "buyer"; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; }
+        if (!session?.user) { currentUser = null; currentRole = "buyer"; topLogoutButton.hidden = true; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; }
       });
     } catch (error) {
       configError = error?.message || "Falha ao conectar ao Supabase.";
@@ -241,6 +285,7 @@
   }
   async function showSignedIn(user) {
     currentUser = user;
+    topLogoutButton.hidden = false;
     accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
     try {
       const { data: profile, error } = await supabaseClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
@@ -286,6 +331,7 @@
         }
         currentUser = null;
         currentRole = "buyer";
+        topLogoutButton.hidden = true;
         accountButton.textContent = "Entrar";
         adminNav.classList.remove("hm-visible");
         window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
