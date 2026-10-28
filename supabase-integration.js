@@ -99,7 +99,11 @@
   const createMessage = (text, error = false) => { const node = document.getElementById("hmCreateMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
   const closeAuth = () => { overlay.classList.remove("open"); document.body.style.overflow = ""; };
   const closeAdmin = () => { adminOverlay.classList.remove("open"); document.body.style.overflow = ""; };
-  const showAuth = () => { overlay.classList.add("open"); document.body.style.overflow = "hidden"; document.getElementById("hmAuthEmail").focus(); };
+  const showAuth = () => {
+    overlay.classList.add("open"); document.body.style.overflow = "hidden";
+    if (!currentUser) setAuthMode("login");
+    document.getElementById("hmAuthEmail").focus();
+  };
   const openAdmin = async () => {
     if (currentRole !== "admin" || !currentUser) { showAuth(); return; }
     adminOverlay.classList.add("open"); document.body.style.overflow = "hidden";
@@ -126,6 +130,7 @@
     overlay.classList.add("open"); document.body.style.overflow = "hidden";
     document.getElementById("hmAuthTitle").textContent = "Minha conta";
     document.querySelector("#hmAuthForm").hidden = true;
+    document.getElementById("hmAuthSwitch").hidden = true;
     message("Conectado como " + (currentUser?.email || "") + ". Perfil: " + currentRole + ".", false);
   }
   function setAuthMode(mode) {
