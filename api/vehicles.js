@@ -43,13 +43,20 @@ export default async function handler(req, res) {
         if (photoError) throw photoError;
         photos = data || [];
       }
+      const sellerIds = [...new Set((rows || []).map(v => v.seller_id).filter(Boolean))];
+      let sellerPhones = {};
+      if (sellerIds.length) {
+        const { data: profiles, error: profilesError } = await db.from("profiles").select("id, phone").in("id", sellerIds);
+        if (profilesError) throw profilesError;
+        sellerPhones = Object.fromEntries((profiles || []).map(p => [p.id, String(p.phone || "").replace(/\D/g, "")]));
+      }
       const items = await Promise.all((rows || []).map(async v => {
         const related = photos.filter(p => p.vehicle_id === v.id);
         const photoItems = await Promise.all(related.map(async p => {
           const { data } = await db.storage.from(BUCKET).createSignedUrl(p.storage_path, 60 * 60);
           return { id: p.id, path: p.storage_path, url: data?.signedUrl || "", position: p.position };
         }));
-        return { ...v, photos: photoItems, image: photoItems.find(p => p.url)?.url || "" };
+        return { ...v, seller_whatsapp: sellerPhones[v.seller_id] || "", photos: photoItems, image: photoItems.find(p => p.url)?.url || "" };
       }));
       return reply(res, 200, { vehicles: items, role, user_id: user?.id || null });
     }
