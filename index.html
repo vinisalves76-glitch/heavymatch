@@ -100,8 +100,8 @@ $('brand').addEventListener('change',filterVehicles);$('model').addEventListener
 $('quickbar').addEventListener('click',e=>{const btn=e.target.closest('[data-cat]');if(!btn)return;activeCategory=btn.dataset.cat;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c===btn));filterVehicles();});
 document.addEventListener('keydown',e=>{if($('detailModal').classList.contains('open')){if(e.key==='Escape')closeDetails();return;}if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;if(e.key==='ArrowLeft')pass();if(e.key==='ArrowRight')like();if(e.key==='Enter')contact();});
 const deckEl=$('deck');
-deckEl.addEventListener('pointerdown',e=>{if(!e.target.closest('.photo'))return;startX=e.clientX;startY=e.clientY;try{e.target.closest('.photo').setPointerCapture(e.pointerId);}catch(_){}},{passive:true});
-deckEl.addEventListener('pointerup',e=>{if(startX===null||!current)return;const dx=e.clientX-startX,dy=e.clientY-startY;startX=null;startY=null;if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.25){suppressPhotoClick=true;if(dx>0)like();else pass();setTimeout(()=>{suppressPhotoClick=false;},350);}},{passive:true});
+deckEl.addEventListener('pointerdown',e=>{if(!e.target.closest('.photo'))return;startX=e.clientX;startY=e.clientY;},{passive:true});
+deckEl.addEventListener('pointerup',e=>{if(startX===null||!current)return;const dx=e.clientX-startX,dy=e.clientY-startY;startX=null;startY=null;if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.25){suppressPhotoClick=true;if(dx>0){like();}else{pass();}setTimeout(()=>{suppressPhotoClick=false;},350);}},{passive:true});
 deckEl.addEventListener('pointercancel',()=>{startX=null;startY=null;},{passive:true});
 deckEl.addEventListener('click',e=>{const photo=e.target.closest('.photo');if(!photo||!current||e.target.closest('.hm-gallery-control'))return;if(suppressPhotoClick){e.preventDefault();e.stopPropagation();return;}changeEquipmentPhoto(1);});
 function toggleSavedPanel(forceOpen=false){const panel=$('savedPanel');const shouldOpen=forceOpen||!panel.classList.contains('is-open');panel.classList.toggle('is-open',shouldOpen);if(shouldOpen)renderFavorites();}
