@@ -306,17 +306,19 @@ initBrands();render();renderFavorites();
           }
         });
         if (error) throw error;
+        // Após cadastrar, sempre voltar à tela de login para o cliente entrar com e-mail e senha.
         if (data.session) {
-          currentAuthUser = data.user;
-          updateAuthButton();
-          setAuthMode('account');
-          authStatus('Cadastro criado com sucesso! Sua conta de cliente está conectada.');
-        } else {
-          authForm.reset();
-          authStatus('Cadastro iniciado! Confira seu e-mail para confirmar a conta antes de entrar.');
-          setAuthMode('login');
-          authStatus('Cadastro iniciado! Confira seu e-mail para confirmar a conta antes de entrar.');
+          const { error: signOutError } = await supabaseClient.auth.signOut();
+          if (signOutError) throw signOutError;
         }
+        currentAuthUser = null;
+        updateAuthButton();
+        authForm.reset();
+        setAuthMode('login');
+        byId('authEmail').value = email;
+        authStatus(data.session
+          ? 'Cadastro concluído! Agora entre usando seu e-mail e sua senha.'
+          : 'Cadastro iniciado! Se a confirmação por e-mail estiver ativada, confirme sua conta e depois entre com e-mail e senha.');
       } else {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
