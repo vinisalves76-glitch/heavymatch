@@ -78,6 +78,8 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
 .auth-status{display:none;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.5;background:#eef6ef;color:#24623b;margin:0 0 12px}
 .auth-status.error{background:#fff0f0;color:#9b2929}
 .auth-privacy{font-size:10px;line-height:1.5;color:#77838a;margin:13px 0 0}
+/* Garante que os campos marcados como hidden realmente não apareçam; o display:grid dos formulários não pode sobrescrever hidden. */
+.auth-overlay [hidden]{display:none!important}
 @media(max-width:799px){.auth-trigger{font-size:12px!important;padding:8px 10px!important}.auth-panel{padding:19px;border-radius:20px}.auth-overlay{padding:10px}}
 
 </style>
