@@ -95,6 +95,13 @@
   let authMode = "login";
   let configError = "";
   const message = (text, error = false) => { const node = document.getElementById("hmAuthMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
+  const withTimeout = (promise, ms, label) => {
+    let timer;
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => { timer = window.setTimeout(() => reject(new Error(label)), ms); })
+    ]).finally(() => window.clearTimeout(timer));
+  };
   const adminMessage = (text, error = false) => { const node = document.getElementById("hmAdminMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
   const createMessage = (text, error = false) => { const node = document.getElementById("hmCreateMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
   const closeAuth = () => { overlay.classList.remove("open"); document.body.style.overflow = ""; };
@@ -243,7 +250,11 @@
     currentUser = user;
     accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
     try {
-      const { data: profile, error } = await supabaseClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
+      const { data: profile, error } = await withTimeout(
+        supabaseClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle(),
+        10000,
+        "A consulta do perfil demorou demais. Você entrou, mas o perfil não respondeu a tempo."
+      );
       if (error) throw error;
       currentRole = profile?.role || "buyer";
       window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
@@ -296,7 +307,11 @@
           ? "Cadastro concluído! Agora entre usando seu e-mail e sua senha."
           : "Cadastro iniciado! Se a confirmação por e-mail estiver ativada, confirme sua conta e depois entre com e-mail e senha.", false);
       } else {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        const { data, error } = await withTimeout(
+          supabaseClient.auth.signInWithPassword({ email, password }),
+          15000,
+          "O login demorou mais que 15 segundos. Verifique sua conexão e tente novamente."
+        );
         if (error) throw error;
         await showSignedIn(data.user);
         if (currentRole === "admin") { closeAuth(); await openAdmin(); }
