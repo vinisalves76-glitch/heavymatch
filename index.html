@@ -117,7 +117,7 @@ function closeSavedPanel(){ $('savedPanel').classList.remove('is-open'); }
 $('closeSavedPanel').addEventListener('click',closeSavedPanel);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('savedPanel').classList.contains('is-open'))closeSavedPanel();});
 document.addEventListener('click',e=>{const panel=$('savedPanel');if(!panel.classList.contains('is-open'))return;if(e.target.closest('#favoritesJump,#savedNav,#savedPanel'))return;closeSavedPanel();});
-$('favoritesJump').addEventListener('click',()=>toggleSavedPanel());$('savedNav').addEventListener('click',()=>toggleSavedPanel());$('homeNav').addEventListener('click',()=>{$('savedPanel').classList.remove('is-open');$('filters').classList.remove('is-open');$('quickbar').classList.remove('is-open');document.querySelectorAll('.bottom-nav .nav-item').forEach(n=>n.classList.remove('active'));$('homeNav').classList.add('active');window.scrollTo({top:0,behavior:'smooth'});});
+$('savedNav').addEventListener('click',()=>toggleSavedPanel());$('homeNav').addEventListener('click',()=>{$('savedPanel').classList.remove('is-open');$('filters').classList.remove('is-open');$('quickbar').classList.remove('is-open');document.querySelectorAll('.bottom-nav .nav-item').forEach(n=>n.classList.remove('active'));$('homeNav').classList.add('active');window.scrollTo({top:0,behavior:'smooth'});});
 initBrands();render();renderFavorites();
 </script>
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
