@@ -26,6 +26,7 @@
     <section class="hm-vehicle-card" role="dialog" aria-modal="true" aria-labelledby="hmVehiclesTitle">
       <div class="hm-vehicle-head"><div><div style="font-size:10px;letter-spacing:1.4px;font-weight:900;color:#946000;margin-bottom:5px">HEAVYMATCH · GESTÃO DE ANÚNCIOS</div><h2 id="hmVehiclesTitle">Equipamentos</h2></div><button type="button" class="hm-vehicle-close" aria-label="Fechar">×</button></div>
       <p style="font-size:12px;line-height:1.5;color:#687680;margin:8px 0">Cadastre equipamentos com fotos. O administrador gerencia todos os anúncios; cada vendedor gerencia apenas os próprios.</p>
+      <section class="hm-vehicle-section" style="margin-top:14px"><h3>WhatsApp do vendedor</h3><p style="font-size:12px;line-height:1.5;color:#687680;margin:0 0 8px">Esse número será usado automaticamente no botão de conversa dos seus anúncios.</p><div class="hm-vehicle-form"><div class="hm-vehicle-field full"><label for="hmSellerWhatsApp">Seu WhatsApp com DDD *</label><input id="hmSellerWhatsApp" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="(31) 99999-9999"></div><div class="hm-vehicle-field full"><div class="hm-vehicle-actions"><button type="button" class="primary" id="hmSaveSellerWhatsApp">Salvar WhatsApp</button><span id="hmSellerWhatsAppStatus" role="status" style="font-size:11px;align-self:center"></span></div></div></div></section>
       <div class="hm-vehicle-layout">
         <section class="hm-vehicle-section"><h3 id="hmVehicleFormTitle">Cadastrar equipamento</h3>
           <form id="hmVehicleForm" class="hm-vehicle-form">
@@ -92,6 +93,8 @@
     $("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">Carregando anúncios…</div>';
     try {
       const data=await request("list"); items=data.vehicles||[];
+      $("hmSellerWhatsApp").value = data.seller_whatsapp || "";
+      $("hmSellerWhatsAppStatus").textContent = data.seller_whatsapp ? "Número salvo" : "Cadastre seu número para receber contatos.";
       if(!items.length){$("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">Nenhum equipamento cadastrado. Use o formulário ao lado para adicionar o primeiro anúncio.</div>';return;}
       $("hmVehicleItems").innerHTML=items.map(v=>'<article class="hm-vehicle-item"><img src="'+esc(v.image||"https://placehold.co/160x120/e0e5e9/26343e?text=Sem+foto")+'" alt=""><div><strong>'+esc(v.title||v.brand+" "+v.model)+'</strong><small>'+esc(v.brand+" "+v.model+" · "+v.manufacture_year+" · "+money(v))+'<br>'+esc(v.status==="published"?"Publicado":"Rascunho")+'</small><div class="hm-vehicle-actions"><button type="button" data-edit="'+esc(v.id)+'">Editar</button><button type="button" data-delete="'+esc(v.id)+'">Remover</button></div></div></article>').join("");
     } catch(error) {$("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">'+esc(error.message)+'</div>';}
@@ -101,6 +104,15 @@
       overlay.classList.add("open");document.body.style.overflow="hidden";clearForm();await loadManage();
     } catch(error){alert(error.message);}
   }
+  $("hmSaveSellerWhatsApp").addEventListener("click", async () => {
+    const status = $("hmSellerWhatsAppStatus");
+    status.textContent = "Salvando…";
+    try {
+      const result = await request("update_whatsapp", { phone: $("hmSellerWhatsApp").value });
+      $("hmSellerWhatsApp").value = result.phone || $("hmSellerWhatsApp").value;
+      status.textContent = "WhatsApp salvo com sucesso.";
+    } catch (error) { status.textContent = error.message; }
+  });
   openButton.addEventListener("click",open);
   $("hmVTakePhoto").addEventListener("click",()=> $("hmVCameraPhotos").click());
   $("hmVChoosePhotos").addEventListener("click",()=> $("hmVPhotos").click());
