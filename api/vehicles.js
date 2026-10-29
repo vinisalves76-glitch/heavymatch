@@ -69,9 +69,9 @@ export default async function handler(req, res) {
     const body = req.body || {};
     const action = clean(body.action);
     if (action === "update_whatsapp") {
-      let phone = clean(body.phone).replace(/\\D/g, "");
+      let phone = clean(body.phone).replace(/\D/g, "");
       if (phone.length === 10 || phone.length === 11) phone = "55" + phone;
-      if (!/^55\\d{10,11}$/.test(phone)) return reply(res, 400, { error: "Informe um WhatsApp brasileiro válido com DDD, por exemplo (31) 99999-9999." });
+      if (!/^55\d{10,11}$/.test(phone)) return reply(res, 400, { error: "Informe um WhatsApp brasileiro válido com DDD, por exemplo (31) 99999-9999." });
       const { error } = await db.from("profiles").update({ phone }).eq("id", user.id);
       if (error) throw error;
       return reply(res, 200, { message: "WhatsApp salvo para seus anúncios.", phone });
