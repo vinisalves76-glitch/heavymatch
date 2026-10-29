@@ -72,7 +72,7 @@
     if(!response.ok)throw new Error(result.error||"Falha ao acessar anúncios.");
     return result;
   }
-  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
+  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[],seller_whatsapp:v.seller_whatsapp||""};}
   function renderPublic(list) {
     vehicles=list.map(toCatalog); filtered=[...vehicles]; index=0;
     const b=$("brand"),m=$("model");
@@ -90,7 +90,7 @@
   async function loadManage() {
     $("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">Carregando anúncios…</div>';
     try {
-      const data=await request("list"); items=data.vehicles||[]; if(data.seller_whatsapp) $("hmSellerWhatsApp").value=data.seller_whatsapp;
+      const data=await request("list"); items=data.vehicles||[]; $("hmSellerWhatsApp").value=data.seller_whatsapp||"";
       if(!items.length){$("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">Nenhum equipamento cadastrado. Use o formulário ao lado para adicionar o primeiro anúncio.</div>';return;}
       $("hmVehicleItems").innerHTML=items.map(v=>'<article class="hm-vehicle-item"><img src="'+esc(v.image||"https://placehold.co/160x120/e0e5e9/26343e?text=Sem+foto")+'" alt=""><div><strong>'+esc(v.title||v.brand+" "+v.model)+'</strong><small>'+esc(v.brand+" "+v.model+" · "+v.manufacture_year+" · "+money(v))+'<br>'+esc(v.status==="published"?"Publicado":"Rascunho")+'</small><div class="hm-vehicle-actions"><button type="button" data-edit="'+esc(v.id)+'">Editar</button><button type="button" data-delete="'+esc(v.id)+'">Remover</button></div></div></article>').join("");
     } catch(error) {$("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">'+esc(error.message)+'</div>';}
