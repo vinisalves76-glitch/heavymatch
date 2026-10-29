@@ -14,16 +14,17 @@ export default async function handler(req, res) {
   const db = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
 
   try {
-    let user = null, role = "buyer";
+    let user = null, role = "buyer", profilePhone = "";
     const auth = req.headers.authorization || "";
     const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
     if (token) {
       const { data, error } = await publicClient.auth.getUser(token);
       if (!error && data?.user) {
         user = data.user;
-        const { data: profile, error: profileError } = await db.from("profiles").select("role").eq("id", user.id).maybeSingle();
+        const { data: profile, error: profileError } = await db.from("profiles").select("role, phone").eq("id", user.id).maybeSingle();
         if (profileError) throw profileError;
         role = profile?.role || "buyer";
+        profilePhone = clean(profile?.phone);
       }
     }
 
@@ -37,6 +38,13 @@ export default async function handler(req, res) {
       const { data: rows, error } = await query;
       if (error) throw error;
       const ids = (rows || []).map(v => v.id);
+      const sellerIds = [...new Set((rows || []).map(v => v.seller_id).filter(Boolean))];
+      let sellerPhones = {};
+      if (sellerIds.length) {
+        const { data: sellerProfiles, error: sellerProfileError } = await db.from("profiles").select("id, phone").in("id", sellerIds);
+        if (sellerProfileError) throw sellerProfileError;
+        sellerPhones = Object.fromEntries((sellerProfiles || []).map(p => [p.id, clean(p.phone)]));
+      }
       let photos = [];
       if (ids.length) {
         const { data, error: photoError } = await db.from("vehicle_photos").select("id, vehicle_id, storage_path, position").in("vehicle_id", ids).order("position", { ascending: true });
@@ -49,9 +57,9 @@ export default async function handler(req, res) {
           const { data } = await db.storage.from(BUCKET).createSignedUrl(p.storage_path, 60 * 60);
           return { id: p.id, path: p.storage_path, url: data?.signedUrl || "", position: p.position };
         }));
-        return { ...v, photos: photoItems, image: photoItems.find(p => p.url)?.url || "" };
+        return { ...v, seller_whatsapp: sellerPhones[v.seller_id] || "", photos: photoItems, image: photoItems.find(p => p.url)?.url || "" };
       }));
-      return reply(res, 200, { vehicles: items, role, user_id: user?.id || null });
+      return reply(res, 200, { vehicles: items, role, user_id: user?.id || null, seller_whatsapp: manage ? profilePhone : undefined });
     }
 
     if (req.method !== "POST") { res.setHeader("Allow", "GET, POST"); return reply(res, 405, { error: "Método não permitido." }); }
@@ -60,6 +68,14 @@ export default async function handler(req, res) {
 
     const body = req.body || {};
     const action = clean(body.action);
+    if (action === "update_whatsapp") {
+      let phone = clean(body.phone).replace(/\\D/g, "");
+      if (phone.length === 10 || phone.length === 11) phone = "55" + phone;
+      if (!/^55\\d{10,11}$/.test(phone)) return reply(res, 400, { error: "Informe um WhatsApp brasileiro válido com DDD, por exemplo (31) 99999-9999." });
+      const { error } = await db.from("profiles").update({ phone }).eq("id", user.id);
+      if (error) throw error;
+      return reply(res, 200, { message: "WhatsApp salvo para seus anúncios.", phone });
+    }
     if (action === "delete") {
       const id = clean(body.id);
       if (!id) return reply(res, 400, { error: "Equipamento inválido." });
