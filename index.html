@@ -50,6 +50,15 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
  .filters.is-open{padding-top:145px}
 }
 @media(min-width:800px){.filter-actions{display:none}}
+/* Ajustes finais do cabeçalho após remover os atalhos duplicados */
+@media(max-width:799px){
+  .brand{font-size:18px!important;gap:7px!important;letter-spacing:-.5px!important}
+  .brand .mark{display:grid!important;width:29px;height:29px;border-radius:8px}
+  .brand em{display:inline!important;color:var(--site-primary)!important}
+  .brand:after{content:none!important}
+  .top-actions{gap:3px!important;align-items:center}
+  .hm-account-btn,.hm-top-logout,.hm-tour-help{font-size:10px!important;padding:8px 7px!important;border-radius:9px!important}
+}
 </style>
 </head>
 <body>
