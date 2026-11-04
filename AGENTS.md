@@ -10,10 +10,13 @@ O produto deve transmitir robustez, confiança e facilidade de uso. A experiênc
 
 ## 2. Regras críticas de trabalho
 
-1. **Nunca publicar em produção sem autorização explícita do responsável pelo projeto.** Fazer commit, abrir PR ou gerar Preview não significa autorização para produção.
-2. A branch **`main` é a referência de produção**. Não usar outra branch como substituta e não fazer alterações diretamente nela durante o desenvolvimento normal.
-3. O trabalho de desenvolvimento deve ocorrer na branch de funcionalidade/correção indicada pelo responsável. No contexto desta reestruturação, a branch de trabalho é **`feature/modular-architecture`**. Antes de escrever, confirme a branch atual.
-4. **Não fazer deploy de produção, merge em `main`, promoção de deployment ou alteração de variáveis/recursos de produção sem autorização explícita.**
+1. **É PROIBIDO trabalhar diretamente no código de produção.** Nunca editar, commitar ou desenvolver diretamente na branch `main`, nem alterar o deployment de produção durante a implementação.
+2. A branch **`main` é a referência de produção**. Ela deve permanecer protegida durante o desenvolvimento normal; não usar outra branch como substituta dessa referência.
+3. **Todo trabalho deve começar e acontecer em uma branch separada de teste/desenvolvimento**, criada a partir da versão atualizada de `main` (ou da branch-base explicitamente indicada). Use uma branch específica para cada funcionalidade ou correção, salvo orientação diferente do responsável. No contexto desta reestruturação, a branch de trabalho existente é **`feature/modular-architecture`**. Antes de escrever, confirme a branch atual e a branch-base.
+4. **É obrigatório gerar uma Preview vinculada à branch de teste para toda alteração que precise ser avaliada no sistema.** A Preview deve ser separada do ambiente de produção. Não considerar apenas o commit, build ou inspeção estática como substituto do teste visual/funcional na Preview.
+5. **O fluxo obrigatório é: branch de teste → implementação → verificações técnicas → deploy de Preview → teste e validação do responsável → autorização explícita para produção → publicação em produção.** Se a Preview não puder ser criada ou testada, interrompa o fluxo antes de produção e informe o impedimento.
+6. **Nunca fazer deploy de produção, merge em `main`, promoção de deployment ou alteração de variáveis/recursos de produção sem autorização explícita do responsável.** A aprovação da Preview não autoriza automaticamente a publicação; peça confirmação específica para colocar em produção.
+7. Fazer commit, abrir PR ou gerar Preview não significa autorização para produção.
 5. Antes de modificar qualquer área, inspecione a implementação atual, seus chamadores, dependências, integrações e histórico/diff relevante. Não reescreva arquivos inteiros sem necessidade.
 6. Preserve funcionalidades existentes. Evite regressões em login, anúncios, filtros, favoritos, galeria, WhatsApp, painel administrativo, permissões e integrações Supabase.
 7. Não invente dados, integrações, credenciais, resultados de testes ou status de deploy. Nunca exponha chaves, tokens, senhas ou dados privados em commits, logs ou respostas.
@@ -127,15 +130,18 @@ Não fazer uma migração ampla de arquitetura apenas por preferência estética
 3. Ler o `README.md` e inspecionar o `index.html` e os módulos relacionados à tarefa.
 4. Identificar dependências, funções globais, eventos, integrações e possíveis efeitos colaterais.
 5. Definir escopo mínimo e arquivos que serão alterados.
-6. Implementar na branch de trabalho, nunca diretamente em `main` sem instrução explícita.
+6. Criar ou selecionar uma branch separada de teste/desenvolvimento e implementar somente nela. **Nunca editar diretamente `main` ou o código/deployment de produção.**
 7. Executar verificações adequadas:
    - sintaxe/compilação dos arquivos alterados;
    - testes automatizados disponíveis;
    - build/lint, se configurados;
-   - Preview e testes reais de interface quando a mudança afetar comportamento visual/interativo.
-8. Conferir o diff para detectar alterações acidentais, segredos ou arquivos fora do escopo.
-9. Registrar no commit uma mensagem objetiva.
-10. Relatar claramente: alterações, validações executadas, limitações conhecidas, branch, commit e link da Preview (se existir).
+   - deploy de Preview associado à branch de teste;
+   - testes reais na Preview, em desktop e celular quando aplicável.
+8. Disponibilizar o link da Preview ao responsável e aguardar sua avaliação. Corrigir problemas e gerar uma nova Preview quando necessário.
+9. Conferir o diff para detectar alterações acidentais, segredos ou arquivos fora do escopo.
+10. Registrar no commit uma mensagem objetiva.
+11. Somente depois da validação da Preview, solicitar autorização explícita e específica para publicar em produção. Sem essa autorização, manter as alterações apenas na branch de teste/Preview.
+12. Relatar claramente: alterações, validações executadas, limitações conhecidas, branch, commit e link funcional da Preview.
 
 ## 8. Checklist de regressão para mudanças no marketplace
 
@@ -173,4 +179,4 @@ Antes de responder ou executar qualquer tarefa de código neste repositório:
 3. consulte os arquivos atuais para confirmar o contexto;
 4. se não conseguir ler este arquivo, **não faça alterações**: informe a limitação e solicite acesso/conteúdo.
 
-**Resumo inegociável:** preservar o produto existente, trabalhar em branch de desenvolvimento, validar antes de concluir e nunca publicar em produção sem autorização explícita.
+**Resumo inegociável:** nunca trabalhar diretamente em produção ou na `main`; sempre desenvolver em uma branch separada de teste, gerar uma Preview, testar e obter a validação do responsável. Só então, mediante autorização explícita e específica, publicar em produção. Sem autorização, produção permanece intocada.
