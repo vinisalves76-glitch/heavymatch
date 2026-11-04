@@ -74,20 +74,44 @@
     return result;
   }
   function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
-  function renderPublic(list) {
-    vehicles=list.map(toCatalog); filtered=[...vehicles]; index=0;
+  function renderPublic(list, append=false) {
+    const mapped=(list||[]).map(toCatalog);
+    vehicles=append?vehicles.concat(mapped):mapped;
+    filtered=[...vehicles];
+    if(!append)index=0;
     const b=$("brand"),m=$("model");
-    if(b){b.innerHTML='<option value="">Todas as marcas</option>';[...new Set(vehicles.map(v=>v.brand))].sort().forEach(x=>b.add(new Option(x,x)));}
-    if(m){m.innerHTML='<option value="">Todos os modelos</option>';[...new Set(vehicles.map(v=>v.model))].sort().forEach(x=>m.add(new Option(x,x)));}
-    if(typeof filterVehicles==="function")filterVehicles();else render();
+    if(b){const selected=b.value;const values=[...new Set(vehicles.map(v=>v.brand).filter(Boolean))].sort();b.innerHTML='<option value="">Todas as marcas</option>';values.forEach(x=>b.add(new Option(x,x)));if(selected&&!values.includes(selected))b.add(new Option(selected,selected));b.value=selected;}
+    if(m){const selected=m.value;const values=[...new Set(vehicles.map(v=>v.model).filter(Boolean))].sort();m.innerHTML='<option value="">Todos os modelos</option>';values.forEach(x=>m.add(new Option(x,x)));if(selected&&!values.includes(selected))m.add(new Option(selected,selected));m.value=selected;}
+    render();
   }
-  async function loadPublic() {
+  let catalogOffset=0,catalogHasMore=false,catalogLoading=false,catalogRequest=0;
+  async function loadPublic({append=false}={}) {
+    if(append&&catalogLoading)return;
+    const requestId=++catalogRequest;
+    catalogLoading=true;
+    if(!append){catalogOffset=0;catalogHasMore=false;window.hmCatalogHasMore=false;}
+    const params=new URLSearchParams({limit:"20",offset:String(append?catalogOffset:0)});
+    const values={brand:$("brand")?.value,model:$("model")?.value,category:activeCategory,sort:$("sort")?.value,q:$("search")?.value,minPrice:$("priceMin")?.value,maxPrice:$("priceMax")?.value};
+    Object.entries(values).forEach(([key,value])=>{if(value!==undefined&&value!==null&&String(value).trim()!=="")params.set(key,String(value).trim());});
     try {
-      const response=await fetch("/api/vehicles",{headers:{"Accept":"application/json"}});
+      const response=await fetch("/api/vehicles?"+params.toString(),{headers:{"Accept":"application/json"}});
       const data=await response.json(); if(!response.ok)throw new Error(data.error||"Não foi possível carregar os anúncios.");
-      renderPublic(data.vehicles||[]);
-    } catch(error) { console.error("[HeavyMatch catálogo]",error); vehicles=[];filtered=[];index=0;render(); }
+      if(requestId!==catalogRequest)return;
+      const page=data.vehicles||[];
+      renderPublic(page,append);
+      catalogOffset=data.pagination?.nextOffset??(catalogOffset+page.length);
+      catalogHasMore=!!data.pagination?.hasMore;
+      if(append&&!page.length)catalogHasMore=false;
+      window.hmCatalogHasMore=catalogHasMore;
+    } catch(error) {
+      if(requestId===catalogRequest){console.error("[HeavyMatch catálogo]",error);if(!append){vehicles=[];filtered=[];index=0;render();}catalogHasMore=false;window.hmCatalogHasMore=false;}
+    } finally {
+      if(requestId===catalogRequest)catalogLoading=false;
+    }
   }
+  window.hmReloadCatalog=()=>loadPublic({append:false});
+  window.hmLoadMoreCatalog=()=>loadPublic({append:true});
+  window.hmCatalogHasMore=false;
   async function loadManage() {
     $("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">Carregando anúncios…</div>';
     try {
