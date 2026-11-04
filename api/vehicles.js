@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const BUCKET = "vehicle-photos";
 const headers = { "Cache-Control": "no-store", "Content-Type": "application/json; charset=utf-8" };
-function reply(res, status, body) { Object.entries(headers).forEach(([k,v]) => res.setHeader(k,v)); return res.status(status).json(body); }
+function reply(res, status, body, cacheControl = headers["Cache-Control"]) { res.setHeader("Cache-Control", cacheControl); res.setHeader("Content-Type", headers["Content-Type"]); return res.status(status).json(body); }
 function clean(v) { return typeof v === "string" ? v.trim() : ""; }
 function boundedInt(value, fallback, min, max) {
   const parsed = Number.parseInt(value, 10);
@@ -97,9 +97,8 @@ export default async function handler(req, res) {
       if (maxPrice !== null && Number.isFinite(maxPrice) && maxPrice >= 0) priceParts.push("price.lte." + maxPrice);
       const searchParts = search ? ["brand.ilike.%"+search+"%", "model.ilike.%"+search+"%", "category.ilike.%"+search+"%"] : [];
       if (priceParts.length && searchParts.length) {
-        const numeric = priceParts.length > 1 ? "and(" + priceParts.join(",") + ")" : priceParts[0];
         const textMatch = "or(" + searchParts.join(",") + ")";
-        query = query.or("and(" + numeric + "," + textMatch + "),and(price.is.null," + textMatch + ")");
+        query = query.or("and(" + priceParts.join(",") + "," + textMatch + "),and(price.is.null," + textMatch + ")");
       } else if (priceParts.length) {
         const numeric = priceParts.length > 1 ? "and(" + priceParts.join(",") + ")" : priceParts[0];
         query = query.or(numeric + ",price.is.null");
@@ -122,10 +121,8 @@ export default async function handler(req, res) {
       const items = await attachPhotos(db, visibleRows);
       return reply(res, 200, {
         vehicles: items,
-        role,
-        user_id: user?.id || null,
         pagination: { limit, offset, hasMore, nextOffset: offset + visibleRows.length }
-      });
+      }, "public, max-age=30, s-maxage=60, stale-while-revalidate=300");
     }
 
     if (req.method !== "POST") { res.setHeader("Allow", "GET, POST"); return reply(res, 405, { error: "Método não permitido." }); }
