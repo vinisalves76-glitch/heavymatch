@@ -52,6 +52,16 @@ Os arquivos do frontend são carregados como scripts clássicos em ordem explíc
 
 Execute `npm test` para verificar a centralização dos listeners da interface e as regras essenciais de curtir, passar e gestos.
 
+
+## Desempenho do catálogo
+
+- A API pública carrega até 20 anúncios por página (máximo permitido: 30), usando `offset` e indicador `hasMore`.
+- O feed solicita a próxima página quando o usuário chega ao fim dos cartões, sem trocar a experiência de deslizar.
+- Marca, modelo, categoria, texto, preço e ordenação são enviados à API para filtrar antes de paginar. Anúncios sem preço numérico continuam incluídos quando há filtro de valor.
+- As URLs temporárias das fotos são geradas em lote por página, em vez de uma chamada individual por foto.
+- Respostas públicas recebem cache curto; a área de gestão continua sem cache compartilhado.
+- Execute `npm test` para verificar os contratos de paginação, filtros, cache e eventos do marketplace.
+
 ## Próximas etapas da modularização
 
 - Separar o CSS por domínio visual além da divisão inicial entre tokens, base e responsividade.
