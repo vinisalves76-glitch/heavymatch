@@ -74,7 +74,7 @@ export default async function handler(req, res) {
       let query = db.from("vehicles").select("*");
       if (manage) {
         if (role !== "admin") query = query.eq("seller_id", user.id);
-        query = query.order("created_at", { ascending: false });
+        query = query.order("created_at", { ascending: false }).order("id", { ascending: true });
         const { data: rows, error } = await query;
         if (error) throw error;
         const items = await attachPhotos(db, rows || []);
@@ -107,9 +107,9 @@ export default async function handler(req, res) {
       }
 
       const sort = clean(params.sort);
-      if (sort === "year") query = query.order("manufacture_year", { ascending: false }).order("created_at", { ascending: false });
-      else if (sort === "az") query = query.order("brand", { ascending: true }).order("model", { ascending: true });
-      else query = query.order("created_at", { ascending: false });
+      if (sort === "year") query = query.order("manufacture_year", { ascending: false }).order("created_at", { ascending: false }).order("id", { ascending: true });
+      else if (sort === "az") query = query.order("brand", { ascending: true }).order("model", { ascending: true }).order("created_at", { ascending: false }).order("id", { ascending: true });
+      else query = query.order("created_at", { ascending: false }).order("id", { ascending: true });
 
       const limit = boundedInt(params.limit, 20, 1, 30);
       const offset = boundedInt(params.offset, 0, 0, 1000000);
