@@ -1,0 +1,3 @@
+function catalogPhotos(v){const list=(v.photos||[]).map(p=>typeof p==="string"?p:p&&p.url).filter(Boolean);if(!list.length&&v.image)list.push(v.image);return [...new Set(list)];}
+
+function changeEquipmentPhoto(step){const v=current;if(!v)return;const photos=catalogPhotos(v);if(photos.length<2)return;activePhotoIndex=(activePhotoIndex+step+photos.length)%photos.length;const img=$('activeEquipmentPhoto');if(img)img.src=photos[activePhotoIndex];const count=$('equipmentPhotoCount');if(count)count.textContent=(activePhotoIndex+1)+' / '+photos.length;document.querySelectorAll('#equipmentPhotoDots .hm-gallery-dot').forEach((dot,i)=>dot.classList.toggle('active',i===activePhotoIndex));}
