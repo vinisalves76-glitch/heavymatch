@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 
 const cards = await readFile(new URL('../modules/marketplace/cards.js', import.meta.url), 'utf8');
 const interactions = await readFile(new URL('../modules/marketplace/interactions.js', import.meta.url), 'utf8');
@@ -16,13 +17,17 @@ test('cada controle principal tem um único registro centralizado', () => {
 });
 
 test('curtir move o cartão para a direita e salva o anúncio', () => {
-  const body = cards.match(/function like\(\)\s*\{[\s\S]*?\n\}/)?.[0] || '';
+  const start = cards.indexOf('function like(){');
+  const end = cards.indexOf('\n\nfunction resetFeed', start);
+  const body = cards.slice(start, end);
   assert.match(body, /favorites\.push\(v\)/);
   assert.match(body, /translateX\(115%\)/);
 });
 
 test('passar move o cartão para a esquerda', () => {
-  const body = cards.match(/function pass\(\)\s*\{[\s\S]*?\n\}/)?.[0] || '';
+  const start = cards.indexOf('function pass(){');
+  const end = cards.indexOf('\n\nfunction like', start);
+  const body = cards.slice(start, end);
   assert.match(body, /translateX\(-115%\)/);
 });
 
@@ -30,7 +35,6 @@ test('gesto para direita curte e para esquerda passa', () => {
   assert.match(interactions, /if\(dx>0\)like\(\);else pass\(\)/);
 });
 
-import { readFile } from 'node:fs/promises';
 
 const apiSource = await readFile(new URL('../api/vehicles.js', import.meta.url), 'utf8');
 const catalogSource = await readFile(new URL('../equipment-marketplace.js', import.meta.url), 'utf8');
