@@ -74,14 +74,16 @@
     return result;
   }
   function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
+  const knownBrands=new Set(),knownModels=new Set();
   function renderPublic(list, append=false) {
     const mapped=(list||[]).map(toCatalog);
+    mapped.forEach(v=>{if(v.brand)knownBrands.add(v.brand);if(v.model)knownModels.add(v.model);});
     vehicles=append?vehicles.concat(mapped):mapped;
     filtered=[...vehicles];
     if(!append)index=0;
     const b=$("brand"),m=$("model");
-    if(b){const selected=b.value;const values=[...new Set(vehicles.map(v=>v.brand).filter(Boolean))].sort();b.innerHTML='<option value="">Todas as marcas</option>';values.forEach(x=>b.add(new Option(x,x)));if(selected&&!values.includes(selected))b.add(new Option(selected,selected));b.value=selected;}
-    if(m){const selected=m.value;const values=[...new Set(vehicles.map(v=>v.model).filter(Boolean))].sort();m.innerHTML='<option value="">Todos os modelos</option>';values.forEach(x=>m.add(new Option(x,x)));if(selected&&!values.includes(selected))m.add(new Option(selected,selected));m.value=selected;}
+    if(b){const selected=b.value;const values=[...knownBrands].sort();b.innerHTML='<option value="">Todas as marcas</option>';values.forEach(x=>b.add(new Option(x,x)));if(selected&&!values.includes(selected))b.add(new Option(selected,selected));b.value=selected;}
+    if(m){const selected=m.value;const values=[...knownModels].sort();m.innerHTML='<option value="">Todos os modelos</option>';values.forEach(x=>m.add(new Option(x,x)));if(selected&&!values.includes(selected))m.add(new Option(selected,selected));m.value=selected;}
     render();
   }
   let catalogOffset=0,catalogHasMore=false,catalogLoading=false,catalogRequest=0;
