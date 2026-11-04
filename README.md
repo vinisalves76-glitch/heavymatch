@@ -48,6 +48,10 @@ Os arquivos do frontend são carregados como scripts clássicos em ordem explíc
 4. Só mesclar em `main` e publicar em produção após autorização explícita.
 5. A branch `main` deve refletir a versão aprovada para produção.
 
+## Testes automatizados
+
+Execute `npm test` para verificar a centralização dos listeners da interface e as regras essenciais de curtir, passar e gestos.
+
 ## Próximas etapas da modularização
 
 - Separar o CSS por domínio visual além da divisão inicial entre tokens, base e responsividade.
