@@ -85,7 +85,7 @@ export default async function handler(req, res) {
       const brand = clean(params.brand).slice(0, 80);
       const model = clean(params.model).slice(0, 100);
       const category = clean(params.category).slice(0, 80);
-      const search = clean(params.q).replace(/[^a-zA-Z0-9À-ÿ\\s-]/g, " ").replace(/\\s+/g, " ").trim().slice(0, 80);
+      const search = clean(params.q).replace(/[^a-zA-Z0-9À-ÿ\s-]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
       if (brand) query = query.eq("brand", brand);
       if (model) query = query.eq("model", model);
       if (category) query = query.eq("category", category);
