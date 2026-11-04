@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 
 const cards = await readFile(new URL('../modules/marketplace/cards.js', import.meta.url), 'utf8');
 const interactions = await readFile(new URL('../modules/marketplace/interactions.js', import.meta.url), 'utf8');
