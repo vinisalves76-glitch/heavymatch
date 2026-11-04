@@ -2,28 +2,55 @@
 
 Marketplace digital com experiência mobile de descoberta de caminhões, carretas e máquinas pesadas.
 
-## Estrutura atual
-- Interface principal em `index.html`.
-- Comportamentos de anúncios/equipamentos em `equipment-marketplace.js`.
-- Integração com Supabase em `supabase-integration.js`.
-- APIs da aplicação em `api/config.js`, `api/vehicles.js` e `api/admin/users.js`.
-- Tour guiado em `guided-tour.js`.
-- Dependência `@supabase/supabase-js` declarada em `package.json`.
+## Estrutura do frontend
 
-A presença desses arquivos representa a estrutura implementada no repositório; fluxos como login, permissões, upload de fotos e gestão de anúncios precisam ser validados na preview com as configurações reais do Supabase antes de serem considerados testados.
+```text
+index.html
+styles/
+  main.css                 # ponto de entrada dos estilos
+  tokens.css               # cores e variáveis visuais
+  base.css                 # componentes e estilos gerais
+  responsive.css           # regras responsivas
+modules/
+  state.js                 # estado compartilhado da vitrine
+  shared/
+    helpers.js             # escape de texto, WhatsApp e notificações
+  marketplace/
+    filters.js             # filtros e ordenação
+    gallery.js              # galeria de fotos
+    favorites.js            # lista de interesse
+    cards.js                # cartão, gestos e detalhes do anúncio
+    interactions.js         # eventos e navegação da vitrine
+supabase-integration.js    # autenticação e administração
+equipment-marketplace.js   # cadastro e gestão de anúncios
+guided-tour.js             # tour guiado
+api/
+  config.js
+  vehicles.js
+  admin/users.js
+```
 
-## Fluxo de trabalho acordado
-1. Desenvolver novas funcionalidades na branch `feature/mobile-first-marketplace` ou em outra branch de trabalho.
-2. Publicar uma Preview do Vercel e testar antes de produção.
-3. Corrigir os problemas encontrados e apresentar a versão para aprovação.
-4. Quando houver autorização explícita para colocar em produção, sincronizar/mesclar a versão aprovada em `main` primeiro.
-5. Publicar em produção a versão correspondente à `main` e verificar o resultado do deploy.
+Os arquivos do frontend são carregados como scripts clássicos em ordem explícita no `index.html`. O estado compartilhado fica em `modules/state.js`; por isso, não adicionar `type="module"` isoladamente aos scripts sem migrar também as dependências e o acesso compartilhado.
 
-A `main` deve refletir a última versão aprovada para produção. Não publicar em produção sem autorização explícita.
+## Integrações e segurança
 
-## Configuração e segurança
 - Configure `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` nos ambientes adequados do Vercel.
 - A chave `SUPABASE_SERVICE_ROLE_KEY` é secreta e nunca deve ser enviada ao navegador.
-- Verifique no Supabase a existência das tabelas e do bucket usados pela aplicação, além das políticas de acesso.
-- O catálogo ainda pode conter anúncios/imagens demonstrativos; confirme os dados antes de uso comercial.
-- Configure qualquer contato comercial/WhatsApp real antes de divulgar o site.
+- Verifique no Supabase a existência das tabelas, do bucket e das políticas de acesso usados pela aplicação.
+- Confirme os dados dos anúncios e o contato comercial/WhatsApp antes de uso comercial.
+- A presença dos arquivos e das configurações não substitui testes funcionais com as credenciais reais.
+
+## Fluxo de trabalho
+
+1. Desenvolver em uma branch de trabalho, sem alterar diretamente `main`.
+2. Gerar uma Preview e validar os fluxos principais.
+3. Corrigir os problemas encontrados e solicitar aprovação.
+4. Só mesclar em `main` e publicar em produção após autorização explícita.
+5. A branch `main` deve refletir a versão aprovada para produção.
+
+## Próximas etapas da modularização
+
+- Separar o CSS por domínio visual além da divisão inicial entre tokens, base e responsividade.
+- Isolar os serviços de dados do catálogo e a camada de estado.
+- Migrar os scripts legados de autenticação e administração para módulos menores, preservando as APIs existentes.
+- Criar testes automatizados para filtros, favoritos, galeria e gestos de curtir/passar.
