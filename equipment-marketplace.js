@@ -106,7 +106,7 @@
       if(append&&!page.length)catalogHasMore=false;
       window.hmCatalogHasMore=catalogHasMore;
     } catch(error) {
-      if(requestId===catalogRequest){console.error("[HeavyMatch catálogo]",error);if(!append){vehicles=[];filtered=[];index=0;render();}catalogHasMore=false;window.hmCatalogHasMore=false;}
+      if(requestId===catalogRequest){console.error("[HeavyMatch catálogo]",error);if(!append){vehicles=[];filtered=[];index=0;render();}catalogHasMore=false;window.hmCatalogHasMore=false;if(append)render();}
     } finally {
       if(requestId===catalogRequest)catalogLoading=false;
     }
