@@ -4,6 +4,45 @@ const BUCKET = "vehicle-photos";
 const headers = { "Cache-Control": "no-store", "Content-Type": "application/json; charset=utf-8" };
 function reply(res, status, body) { Object.entries(headers).forEach(([k,v]) => res.setHeader(k,v)); return res.status(status).json(body); }
 function clean(v) { return typeof v === "string" ? v.trim() : ""; }
+function boundedInt(value, fallback, min, max) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) ? Math.min(max, Math.max(min, parsed)) : fallback;
+}
+
+async function attachPhotos(db, rows) {
+  const ids = rows.map(v => v.id);
+  if (!ids.length) return rows.map(v => ({ ...v, photos: [], image: "" }));
+  const { data: photoRows, error } = await db.from("vehicle_photos")
+    .select("id, vehicle_id, storage_path, position")
+    .in("vehicle_id", ids)
+    .order("position", { ascending: true });
+  if (error) throw error;
+
+  const paths = [...new Set((photoRows || []).map(p => p.storage_path).filter(Boolean))];
+  let signedByPath = new Map();
+  if (paths.length) {
+    const { data: signed, error: signedError } = await db.storage.from(BUCKET).createSignedUrls(paths, 60 * 60);
+    if (signedError) console.error("[HeavyMatch photos] Falha ao assinar lote de fotos:", signedError.message);
+    for (const item of signed || []) {
+      if (item.path && item.signedUrl) signedByPath.set(item.path, item.signedUrl);
+    }
+  }
+
+  const byVehicle = new Map();
+  for (const photo of photoRows || []) {
+    if (!byVehicle.has(photo.vehicle_id)) byVehicle.set(photo.vehicle_id, []);
+    byVehicle.get(photo.vehicle_id).push({
+      id: photo.id,
+      path: photo.storage_path,
+      url: signedByPath.get(photo.storage_path) || "",
+      position: photo.position
+    });
+  }
+  return rows.map(v => {
+    const photos = byVehicle.get(v.id) || [];
+    return { ...v, photos, image: photos.find(p => p.url)?.url || "" };
+  });
+}
 
 export default async function handler(req, res) {
   const url = process.env.SUPABASE_URL;
@@ -28,30 +67,53 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "GET") {
-      const manage = req.query?.manage === "1";
+      const params = req.query || {};
+      const manage = params.manage === "1";
       if (manage && (!user || !["seller", "admin"].includes(role))) return reply(res, 403, { error: "Entre com uma conta de vendedor ou administrador para gerenciar anúncios." });
+
       let query = db.from("vehicles").select("*").order("created_at", { ascending: false });
       if (manage) {
         if (role !== "admin") query = query.eq("seller_id", user.id);
-      } else query = query.eq("status", "published");
-      const { data: rows, error } = await query;
-      if (error) throw error;
-      const ids = (rows || []).map(v => v.id);
-      let photos = [];
-      if (ids.length) {
-        const { data, error: photoError } = await db.from("vehicle_photos").select("id, vehicle_id, storage_path, position").in("vehicle_id", ids).order("position", { ascending: true });
-        if (photoError) throw photoError;
-        photos = data || [];
+        const { data: rows, error } = await query;
+        if (error) throw error;
+        const items = await attachPhotos(db, rows || []);
+        return reply(res, 200, { vehicles: items, role, user_id: user?.id || null });
       }
-      const items = await Promise.all((rows || []).map(async v => {
-        const related = photos.filter(p => p.vehicle_id === v.id);
-        const photoItems = await Promise.all(related.map(async p => {
-          const { data } = await db.storage.from(BUCKET).createSignedUrl(p.storage_path, 60 * 60);
-          return { id: p.id, path: p.storage_path, url: data?.signedUrl || "", position: p.position };
-        }));
-        return { ...v, photos: photoItems, image: photoItems.find(p => p.url)?.url || "" };
-      }));
-      return reply(res, 200, { vehicles: items, role, user_id: user?.id || null });
+
+      query = query.eq("status", "published");
+      const brand = clean(params.brand).slice(0, 80);
+      const model = clean(params.model).slice(0, 100);
+      const category = clean(params.category).slice(0, 80);
+      const search = clean(params.q).replace(/[^a-zA-Z0-9À-ÿ\\s-]/g, " ").replace(/\\s+/g, " ").trim().slice(0, 80);
+      if (brand) query = query.eq("brand", brand);
+      if (model) query = query.eq("model", model);
+      if (category) query = query.eq("category", category);
+
+      const minPrice = params.minPrice === undefined || params.minPrice === "" ? null : Number(params.minPrice);
+      const maxPrice = params.maxPrice === undefined || params.maxPrice === "" ? null : Number(params.maxPrice);
+      if (minPrice !== null && Number.isFinite(minPrice) && minPrice >= 0) query = query.or("price.gte." + minPrice + ",price.is.null");
+      if (maxPrice !== null && Number.isFinite(maxPrice) && maxPrice >= 0) query = query.or("price.lte." + maxPrice + ",price.is.null");
+      if (search) query = query.or("brand.ilike.%"+search+"%,model.ilike.%"+search+"%,category.ilike.%"+search+"%");
+
+      const sort = clean(params.sort);
+      if (sort === "year") query = query.order("manufacture_year", { ascending: false }).order("created_at", { ascending: false });
+      else if (sort === "az") query = query.order("brand", { ascending: true }).order("model", { ascending: true });
+      else query = query.order("created_at", { ascending: false });
+
+      const limit = boundedInt(params.limit, 20, 1, 30);
+      const offset = boundedInt(params.offset, 0, 0, 1000000);
+      const { data: pageRows, error } = await query.range(offset, offset + limit);
+      if (error) throw error;
+      const rows = pageRows || [];
+      const hasMore = rows.length > limit;
+      const visibleRows = hasMore ? rows.slice(0, limit) : rows;
+      const items = await attachPhotos(db, visibleRows);
+      return reply(res, 200, {
+        vehicles: items,
+        role,
+        user_id: user?.id || null,
+        pagination: { limit, offset, hasMore, nextOffset: offset + visibleRows.length }
+      });
     }
 
     if (req.method !== "POST") { res.setHeader("Allow", "GET, POST"); return reply(res, 405, { error: "Método não permitido." }); }
