@@ -71,9 +71,10 @@ export default async function handler(req, res) {
       const manage = params.manage === "1";
       if (manage && (!user || !["seller", "admin"].includes(role))) return reply(res, 403, { error: "Entre com uma conta de vendedor ou administrador para gerenciar anúncios." });
 
-      let query = db.from("vehicles").select("*").order("created_at", { ascending: false });
+      let query = db.from("vehicles").select("*");
       if (manage) {
         if (role !== "admin") query = query.eq("seller_id", user.id);
+        query = query.order("created_at", { ascending: false });
         const { data: rows, error } = await query;
         if (error) throw error;
         const items = await attachPhotos(db, rows || []);
@@ -91,9 +92,20 @@ export default async function handler(req, res) {
 
       const minPrice = params.minPrice === undefined || params.minPrice === "" ? null : Number(params.minPrice);
       const maxPrice = params.maxPrice === undefined || params.maxPrice === "" ? null : Number(params.maxPrice);
-      if (minPrice !== null && Number.isFinite(minPrice) && minPrice >= 0) query = query.or("price.gte." + minPrice + ",price.is.null");
-      if (maxPrice !== null && Number.isFinite(maxPrice) && maxPrice >= 0) query = query.or("price.lte." + maxPrice + ",price.is.null");
-      if (search) query = query.or("brand.ilike.%"+search+"%,model.ilike.%"+search+"%,category.ilike.%"+search+"%");
+      const priceParts = [];
+      if (minPrice !== null && Number.isFinite(minPrice) && minPrice >= 0) priceParts.push("price.gte." + minPrice);
+      if (maxPrice !== null && Number.isFinite(maxPrice) && maxPrice >= 0) priceParts.push("price.lte." + maxPrice);
+      const searchParts = search ? ["brand.ilike.%"+search+"%", "model.ilike.%"+search+"%", "category.ilike.%"+search+"%"] : [];
+      if (priceParts.length && searchParts.length) {
+        const numeric = priceParts.length > 1 ? "and(" + priceParts.join(",") + ")" : priceParts[0];
+        const textMatch = "or(" + searchParts.join(",") + ")";
+        query = query.or("and(" + numeric + "," + textMatch + "),and(price.is.null," + textMatch + ")");
+      } else if (priceParts.length) {
+        const numeric = priceParts.length > 1 ? "and(" + priceParts.join(",") + ")" : priceParts[0];
+        query = query.or(numeric + ",price.is.null");
+      } else if (searchParts.length) {
+        query = query.or(searchParts.join(","));
+      }
 
       const sort = clean(params.sort);
       if (sort === "year") query = query.order("manufacture_year", { ascending: false }).order("created_at", { ascending: false });
