@@ -70,7 +70,8 @@ Estrutura conhecida na branch de trabalho:
 ├── modules/
 │   ├── state.js                      # estado compartilhado legado
 │   ├── shared/
-│   │   └── helpers.js                # funções utilitárias compartilhadas
+│   │   ├── helpers.js                # funções utilitárias compartilhadas
+  │   └── api.js                    # chamadas HTTP compartilhadas
 │   └── marketplace/
 │       ├── filters.js                # filtros
 │       ├── gallery.js                # galeria de imagens
@@ -96,7 +97,7 @@ Estrutura conhecida na branch de trabalho:
 
 A modularização atual é uma primeira separação, não uma arquitetura final. Evoluir gradualmente, preferindo:
 - separar responsabilidades de interface, estado e acesso a dados;
-- centralizar serviços de Supabase em módulos próprios;
+- centralizar chamadas HTTP e serviços de acesso a dados em módulos próprios;
 - reduzir dependências globais de forma incremental;
 - evitar duplicação de regras de negócio;
 - introduzir testes automatizados para gestos, filtros, favoritos, galeria e permissões;

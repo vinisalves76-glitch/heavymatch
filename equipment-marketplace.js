@@ -66,12 +66,17 @@
   }
   async function refreshRole(){try{await getSession();}catch(_){}}
   async function request(action,payload={}) {
-    const {data}=await client.auth.getSession(); const token=data?.session?.access_token;
+    const {data}=await client.auth.getSession();
+    const token=data?.session?.access_token;
     if(!token)throw new Error("Sua sessão expirou. Entre novamente.");
-    const response=await fetch("/api/vehicles"+(action==="list"?"?manage=1":""),{method:action==="list"?"GET":"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},...(action==="list"?{}:{body:JSON.stringify({action,...payload})})});
-    const result=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error(result.error||"Falha ao acessar anúncios.");
-    return result;
+    const method=action==="list"?"GET":"POST";
+    const path="/api/vehicles"+(action==="list"?"?manage=1":"");
+    return window.hmApiRequest(path,{
+      method,
+      token,
+      ...(action==="list"?{}:{body:{action,...payload}}),
+      errorMessage:"Falha ao acessar anúncios."
+    });
   }
   function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
   const knownBrands=new Set(),knownModels=new Set();

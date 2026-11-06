@@ -210,13 +210,12 @@
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const token = sessionData?.session?.access_token;
     if (!token) throw new Error("Sua sessão expirou. Entre novamente.");
-    const response = await fetch("/api/admin/users", {
-      method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-      body: JSON.stringify({ action, ...payload })
+    return window.hmApiRequest("/api/admin/users", {
+      method: "POST",
+      token,
+      body: { action, ...payload },
+      errorMessage: "Falha na operação administrativa."
     });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(result.error || "Falha na operação administrativa.");
-    return result;
   }
   async function loadUsers() {
     const table = document.getElementById("hmUsersTable");

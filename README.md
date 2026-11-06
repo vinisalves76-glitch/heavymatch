@@ -15,6 +15,7 @@ modules/
   state.js                 # estado compartilhado da vitrine
   shared/
     helpers.js             # escape de texto, WhatsApp e notificações
+  api.js                 # cliente HTTP compartilhado e autenticação das chamadas
   marketplace/
     filters.js             # filtros e ordenação
     gallery.js              # galeria de fotos
@@ -68,3 +69,12 @@ Execute `npm test` para verificar a centralização dos listeners da interface e
 - Isolar os serviços de dados do catálogo e a camada de estado.
 - Migrar os scripts legados de autenticação e administração para módulos menores, preservando as APIs existentes.
 - Criar testes automatizados para filtros, favoritos, galeria e gestos de curtir/passar.
+
+
+## Etapa 3 — camada compartilhada de serviços
+
+- As chamadas autenticadas para as APIs de administração e anúncios usam `modules/shared/api.js`.
+- O cliente centraliza cabeçalhos JSON, token Bearer, leitura da resposta e mensagens de erro.
+- Os módulos de interface continuam responsáveis por obter a sessão Supabase e decidir o endpoint/ação.
+- O arquivo é carregado como script clássico antes dos módulos que o utilizam; não converter scripts isoladamente para ES Modules.
+- Execute `npm test` para validar o contrato HTTP compartilhado e os consumidores.
