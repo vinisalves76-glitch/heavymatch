@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feat/phase-2-performance
+      - refactor/phase-3-business-modules
   pull_request:
     branches:
       - main
