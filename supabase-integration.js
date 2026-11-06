@@ -68,6 +68,7 @@
             <form id="hmCreateUserForm">
               <label for="hmNewName">Nome completo</label><input id="hmNewName" autocomplete="name" placeholder="Nome do usuário" required>
               <label for="hmNewEmail">E-mail de acesso</label><input id="hmNewEmail" type="email" autocomplete="off" placeholder="nome@empresa.com.br" required>
+              <label for="hmNewPhone">WhatsApp do vendedor</label><input id="hmNewPhone" type="tel" autocomplete="tel" maxlength="24" placeholder="DDD + número (ex.: 31999999999)">
               <label for="hmNewPassword">Senha inicial</label><input id="hmNewPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" required>
               <label for="hmNewRole">Tipo de acesso</label><select id="hmNewRole"><option value="seller">Vendedor</option><option value="admin">Administrador</option></select>
               <div class="hm-admin-actions"><button class="primary" id="hmCreateUserSubmit" type="submit">Criar conta</button><button type="button" id="hmReloadUsers">Atualizar lista</button></div>
@@ -249,6 +250,7 @@
       const result = await apiAdmin("create", {
         full_name: document.getElementById("hmNewName").value.trim(),
         email: document.getElementById("hmNewEmail").value.trim(),
+        phone: document.getElementById("hmNewPhone").value.trim(),
         password: document.getElementById("hmNewPassword").value,
         role: document.getElementById("hmNewRole").value
       });
