@@ -38,9 +38,26 @@ async function attachPhotos(db, rows) {
       position: photo.position
     });
   }
+  const sellerIds = [...new Set(rows.map(v => v.seller_id).filter(Boolean))];
+  let sellersById = new Map();
+  if (sellerIds.length) {
+    const { data: sellers, error: sellersError } = await db.from("profiles")
+      .select("id, full_name, phone")
+      .in("id", sellerIds);
+    if (sellersError) throw sellersError;
+    sellersById = new Map((sellers || []).map(seller => [seller.id, seller]));
+  }
+
   return rows.map(v => {
     const photos = byVehicle.get(v.id) || [];
-    return { ...v, photos, image: photos.find(p => p.url)?.url || "" };
+    const seller = sellersById.get(v.seller_id);
+    return {
+      ...v,
+      photos,
+      image: photos.find(p => p.url)?.url || "",
+      seller_name: seller?.full_name || "",
+      seller_phone: seller?.phone || ""
+    };
   });
 }
 
