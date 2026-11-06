@@ -70,6 +70,7 @@ export default async function handler(req, res) {
           email: user.email || "",
           created_at: user.created_at,
           full_name: byId.get(user.id)?.full_name || "",
+          phone: byId.get(user.id)?.phone || "",
           role: byId.get(user.id)?.role || "buyer"
         }))
       });
@@ -80,6 +81,15 @@ export default async function handler(req, res) {
       const password = String(body.password || "");
       const fullName = String(body.full_name || "").trim();
       const role = String(body.role || "");
+      const rawPhone = String(body.phone || "").trim();
+      let phone = rawPhone.replace(/\\D/g, "");
+      if (phone && !phone.startsWith("55") && (phone.length === 10 || phone.length === 11)) phone = "55" + phone;
+      if (role === "seller" && phone.length < 12) {
+        return reply(res, 400, { error: "Informe o WhatsApp do vendedor com DDD e número." });
+      }
+      if (phone && (phone.length < 12 || phone.length > 13)) {
+        return reply(res, 400, { error: "WhatsApp inválido. Informe DDD e número com código do país quando necessário." });
+      }
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return reply(res, 400, { error: "Informe um e-mail válido." });
@@ -101,6 +111,7 @@ export default async function handler(req, res) {
       const { error: profileUpsertError } = await adminClient.from("profiles").upsert({
         id: created.user.id,
         full_name: fullName || null,
+        phone: phone || null,
         role
       }, { onConflict: "id" });
 
@@ -111,7 +122,7 @@ export default async function handler(req, res) {
 
       return reply(res, 201, {
         message: role === "admin" ? "Administrador criado com sucesso." : "Vendedor criado com sucesso.",
-        user: { id: created.user.id, email, full_name: fullName, role }
+        user: { id: created.user.id, email, full_name: fullName, phone: phone || "", role }
       });
     }
 
