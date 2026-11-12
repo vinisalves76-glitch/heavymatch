@@ -78,3 +78,13 @@ Execute `npm test` para verificar a centralização dos listeners da interface e
 - Os módulos de interface continuam responsáveis por obter a sessão Supabase e decidir o endpoint/ação.
 - O arquivo é carregado como script clássico antes dos módulos que o utilizam; não converter scripts isoladamente para ES Modules.
 - Execute `npm test` para validar o contrato HTTP compartilhado e os consumidores.
+
+## Etapa 4 — Gestão comercial (primeiro incremento)
+
+- A API pública e a listagem de gestão incluem nome e telefone do vendedor associado ao anúncio, obtidos de `profiles`.
+- O catálogo preserva `seller_phone` ao transformar registros para cartões. O WhatsApp de um anúncio deve usar o telefone de seu vendedor.
+- O ADM Master pode informar WhatsApp ao criar um vendedor; o número é salvo em `profiles.phone` e exibido na listagem de contas.
+- Anúncios sem WhatsApp cadastrado exibem orientação em vez de redirecionar para um telefone genérico de outro vendedor.
+- Testes de contrato e de geração de links estão em `tests/commercial-contact.test.js`.
+- Ainda pendente nesta etapa: edição do telefone de vendedores existentes, registro de leads/histórico e painel comercial. Não presumir essas funções como entregues.
+- Validar na Preview antes de publicar; nenhuma mudança de schema ou RLS foi aplicada.
