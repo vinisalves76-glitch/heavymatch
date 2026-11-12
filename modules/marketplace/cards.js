@@ -12,4 +12,4 @@ function openDetails(){if(!current)return;const v=current;$('modalContent').inne
 
 function closeDetails(){$('detailModal').classList.remove('open');document.body.style.overflow='';}
 
-function contact(){if(current)window.open(waUrl(current),'_blank','noopener');}
+function contact(){if(!current){toast('Selecione um anúncio para falar com o vendedor.');return;}const url=waUrl(current);if(!url){toast('WhatsApp do vendedor ainda não foi cadastrado.');return;}window.open(url,'_blank','noopener');}

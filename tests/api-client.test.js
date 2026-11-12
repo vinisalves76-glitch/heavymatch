@@ -70,3 +70,34 @@ test('administração e gestão de anúncios usam o cliente HTTP compartilhado',
   assert.doesNotMatch(adminSource, /fetch\("\/api\/admin\/users"/);
   assert.doesNotMatch(vehicleSource, /fetch\("\/api\/vehicles"/);
 });
+
+test('autenticação e anúncios compartilham uma única instância Supabase', async () => {
+  let createCount = 0;
+  const window = {
+    supabase: {
+      createClient() {
+        createCount += 1;
+        return { instance: createCount };
+      }
+    }
+  };
+  vm.runInNewContext(source, {
+    window,
+    fetch: async () => ({
+      ok: true,
+      json: async () => ({ url: 'https://example.supabase.co', anonKey: 'publishable' })
+    }),
+    Promise,
+    Error
+  });
+
+  const [first, second] = await Promise.all([
+    window.hmGetSupabaseClient(),
+    window.hmGetSupabaseClient()
+  ]);
+
+  assert.equal(createCount, 1);
+  assert.equal(first, second);
+  assert.match(adminSource, /window\.hmGetSupabaseClient\(\)/);
+  assert.match(vehicleSource, /window\.hmGetSupabaseClient\(\)/);
+});

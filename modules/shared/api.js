@@ -23,3 +23,28 @@ window.hmApiRequest = async function hmApiRequest(path, options = {}) {
   if (!response.ok) throw new Error(result.error || errorMessage);
   return result;
 };
+
+// Uma única instância de autenticação evita concorrência no armazenamento da
+// sessão quando autenticação e gestão de anúncios carregam ao mesmo tempo.
+window.hmGetSupabaseClient = function hmGetSupabaseClient() {
+  if (window.hmSupabaseClient) return Promise.resolve(window.hmSupabaseClient);
+  if (window.hmSupabaseClientPromise) return window.hmSupabaseClientPromise;
+
+  window.hmSupabaseClientPromise = (async () => {
+    const config = await window.hmApiRequest("/api/config", {
+      errorMessage: "Não foi possível carregar a configuração do Supabase."
+    });
+    if (!window.supabase?.createClient) {
+      throw new Error("A biblioteca de conexão não carregou. Verifique sua conexão e tente novamente.");
+    }
+    window.hmSupabaseClient = window.supabase.createClient(config.url, config.anonKey, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    return window.hmSupabaseClient;
+  })().catch(error => {
+    window.hmSupabaseClientPromise = null;
+    throw error;
+  });
+
+  return window.hmSupabaseClientPromise;
+};

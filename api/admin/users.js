@@ -10,6 +10,18 @@ function reply(res, status, body) {
   return res.status(status).json(body);
 }
 
+function normalizePhone(value) {
+  let phone = String(value || "").trim().replace(/\D/g, "");
+  if (phone && !phone.startsWith("55") && (phone.length === 10 || phone.length === 11)) phone = "55" + phone;
+  return phone;
+}
+
+function phoneError(phone) {
+  return phone.length < 12 || phone.length > 13
+    ? "WhatsApp inválido. Informe DDD e número com código do país quando necessário."
+    : "";
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -76,20 +88,37 @@ export default async function handler(req, res) {
       });
     }
 
+    if (body.action === "update_phone") {
+      const id = String(body.id || "").trim();
+      const phone = normalizePhone(body.phone);
+      if (!id) return reply(res, 400, { error: "Usuário inválido." });
+      const validationError = phoneError(phone);
+      if (validationError) return reply(res, 400, { error: validationError });
+
+      const { data: target, error: targetError } = await adminClient
+        .from("profiles").select("id, role").eq("id", id).maybeSingle();
+      if (targetError) throw targetError;
+      if (!target) return reply(res, 404, { error: "Perfil não encontrado." });
+      if (!["seller", "admin"].includes(target.role)) {
+        return reply(res, 400, { error: "O WhatsApp comercial só pode ser vinculado a vendedor ou administrador." });
+      }
+
+      const { error: updateError } = await adminClient.from("profiles").update({ phone }).eq("id", id);
+      if (updateError) throw updateError;
+      return reply(res, 200, { message: "WhatsApp comercial atualizado com sucesso.", id, phone });
+    }
+
     if (body.action === "create") {
       const email = String(body.email || "").trim().toLowerCase();
       const password = String(body.password || "");
       const fullName = String(body.full_name || "").trim();
       const role = String(body.role || "");
-      const rawPhone = String(body.phone || "").trim();
-      let phone = rawPhone.replace(/\\D/g, "");
-      if (phone && !phone.startsWith("55") && (phone.length === 10 || phone.length === 11)) phone = "55" + phone;
-      if (role === "seller" && phone.length < 12) {
+      const phone = normalizePhone(body.phone);
+      if (role === "seller" && !phone) {
         return reply(res, 400, { error: "Informe o WhatsApp do vendedor com DDD e número." });
       }
-      if (phone && (phone.length < 12 || phone.length > 13)) {
-        return reply(res, 400, { error: "WhatsApp inválido. Informe DDD e número com código do país quando necessário." });
-      }
+      const validationError = phone ? phoneError(phone) : "";
+      if (validationError) return reply(res, 400, { error: validationError });
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return reply(res, 400, { error: "Informe um e-mail válido." });

@@ -20,7 +20,7 @@
     .hm-admin-kpi{padding:13px;background:#f3f5f6;border-radius:13px}.hm-admin-kpi small{display:block;color:#687680;font-size:11px}.hm-admin-kpi strong{font-size:23px;display:block;margin-top:4px}
     .hm-admin-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
     .hm-admin-section{border:1px solid #e3e7ea;border-radius:15px;padding:15px;min-width:0}.hm-admin-section h3{margin:0 0 8px;font-size:15px}
-    .hm-admin-table-wrap{overflow:auto;margin-top:10px}.hm-admin-table{border-collapse:collapse;width:100%;font-size:12px}.hm-admin-table th,.hm-admin-table td{text-align:left;border-bottom:1px solid #e6e9eb;padding:10px 7px;white-space:nowrap}.hm-admin-role{display:inline-block;padding:4px 7px;border-radius:20px;background:#edf0f2;font-size:10px;font-weight:800}.hm-admin-role.admin{background:#fff0c9;color:#805600}.hm-admin-role.seller{background:#e0f6e9;color:#176b3d}
+    .hm-admin-table-wrap{overflow:auto;margin-top:10px}.hm-admin-table{border-collapse:collapse;width:100%;font-size:12px}.hm-admin-table th,.hm-admin-table td{text-align:left;border-bottom:1px solid #e6e9eb;padding:10px 7px;white-space:nowrap}.hm-admin-table input{min-width:170px;height:36px}.hm-admin-table button{border:1px solid #d7dfe3;border-radius:8px;background:#f5b323;color:#17212a;padding:8px 10px;font-weight:850}.hm-admin-role{display:inline-block;padding:4px 7px;border-radius:20px;background:#edf0f2;font-size:10px;font-weight:800}.hm-admin-role.admin{background:#fff0c9;color:#805600}.hm-admin-role.seller{background:#e0f6e9;color:#176b3d}
     .hm-admin-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}.hm-admin-tab{border:1px solid #dce2e6;background:#fff;color:#25343e;border-radius:10px;padding:9px 12px;font-weight:800;font-size:12px}.hm-admin-tab.active{background:#17242e;color:#fff}
     .hm-admin-note{background:#fff7e5;border:1px solid #f4dfad;padding:10px;border-radius:10px;font-size:11px;line-height:1.5;color:#654a10}
     .hm-admin-nav{display:none!important}.hm-admin-nav.hm-visible{display:grid!important;color:#f5b323!important}
@@ -60,7 +60,7 @@
       <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">HEAVYMATCH · ACESSO RESTRITO</div>
       <h2 id="hmAdminTitle">ADM Master</h2>
       <p>Gerencie os acessos da plataforma. Somente administradores autorizados conseguem criar novas contas privilegiadas.</p>
-      <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button></div>
+      <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="future">Fluxo de anúncios</button></div>
       <div id="hmAdminAccounts">
         <div class="hm-admin-kpis"><div class="hm-admin-kpi"><small>Total de contas</small><strong id="hmTotalUsers">—</strong></div><div class="hm-admin-kpi"><small>Vendedores</small><strong id="hmTotalSellers">—</strong></div><div class="hm-admin-kpi"><small>Administradores</small><strong id="hmTotalAdmins">—</strong></div></div>
         <div class="hm-admin-grid">
@@ -76,11 +76,11 @@
             <div class="hm-admin-message" id="hmCreateMessage" role="status" aria-live="polite"></div>
           </section>
           <section class="hm-admin-section"><h3>Contas cadastradas</h3><p>Lista de acessos existentes e seus níveis de permissão.</p>
-            <div class="hm-admin-table-wrap"><table class="hm-admin-table"><thead><tr><th>Usuário</th><th>Perfil</th><th>Criado em</th></tr></thead><tbody id="hmUsersTable"><tr><td colspan="3">Carregando…</td></tr></tbody></table></div>
+            <div class="hm-admin-table-wrap"><table class="hm-admin-table"><thead><tr><th>Usuário</th><th>Perfil</th><th>WhatsApp comercial</th><th>Criado em</th><th>Ação</th></tr></thead><tbody id="hmUsersTable"><tr><td colspan="5">Carregando…</td></tr></tbody></table></div>
           </section>
         </div>
       </div>
-      <div id="hmAdminFuture" hidden><div class="hm-admin-section"><h3>Gestão de equipamentos e operação</h3><p>Esta aba será conectada ao cadastro real de anúncios, fotos, conversas e métricas nas próximas etapas. O catálogo da vitrine ainda contém itens de demonstração; não publicaremos dados como se já estivessem integrados.</p><div class="hm-admin-note">A criação segura de contas está sendo implementada agora. Para habilitar a operação completa, ainda é necessário conectar os formulários de equipamentos, o armazenamento de fotos e o chat às tabelas do Supabase.</div></div></div>
+      <div id="hmAdminFuture" hidden><div class="hm-admin-section"><h3>Gestão de equipamentos</h3><p>O cadastro, a edição, a publicação, as fotos e a remoção dos anúncios já estão conectados ao Supabase.</p><div class="hm-admin-note">Feche o ADM e use <strong>Meus anúncios</strong> no topo. Administradores gerenciam todos os equipamentos; vendedores gerenciam apenas os próprios anúncios.</div></div></div>
       <div class="hm-admin-actions"><button type="button" id="hmAdminLogout">Sair da conta</button><button type="button" class="primary" id="hmAdminCloseBottom">Fechar ADM</button></div>
       <div class="hm-admin-message" id="hmAdminMessage" role="status" aria-live="polite"></div>
     </section>`;
@@ -220,7 +220,7 @@
   }
   async function loadUsers() {
     const table = document.getElementById("hmUsersTable");
-    table.innerHTML = '<tr><td colspan="3">Carregando contas…</td></tr>';
+    table.innerHTML = '<tr><td colspan="5">Carregando contas…</td></tr>';
     adminMessage("");
     try {
       const result = await apiAdmin("list");
@@ -228,20 +228,47 @@
       document.getElementById("hmTotalUsers").textContent = users.length;
       document.getElementById("hmTotalSellers").textContent = users.filter(u => u.role === "seller").length;
       document.getElementById("hmTotalAdmins").textContent = users.filter(u => u.role === "admin").length;
-      if (!users.length) { table.innerHTML = '<tr><td colspan="3">Nenhuma conta encontrada.</td></tr>'; return; }
+      if (!users.length) { table.innerHTML = '<tr><td colspan="5">Nenhuma conta encontrada.</td></tr>'; return; }
       table.innerHTML = users.map(user => {
         const role = ["admin", "seller", "buyer"].includes(user.role) ? user.role : "buyer";
         const roleLabel = role === "admin" ? "Administrador" : role === "seller" ? "Vendedor" : "Comprador";
         const date = user.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "—";
-        return '<tr><td><strong>' + escapeHtml(user.full_name || user.email || "Usuário") + '</strong><br><span style="color:#71808a">' + escapeHtml(user.email) + '</span></td><td><span class="hm-admin-role ' + role + '">' + roleLabel + '</span></td><td>' + date + '</td></tr>';
+        const canHaveCommercialPhone = role === "seller" || role === "admin";
+        const phoneField = canHaveCommercialPhone
+          ? '<input type="tel" inputmode="tel" data-phone-input="' + escapeHtml(user.id) + '" value="' + escapeHtml(user.phone || "") + '" placeholder="DDD + número" aria-label="WhatsApp comercial de ' + escapeHtml(user.full_name || user.email || "usuário") + '">'
+          : '<span style="color:#71808a">Não se aplica</span>';
+        const phoneAction = canHaveCommercialPhone
+          ? '<button type="button" data-save-phone="' + escapeHtml(user.id) + '">Salvar</button>'
+          : '—';
+        return '<tr><td><strong>' + escapeHtml(user.full_name || user.email || "Usuário") + '</strong><br><span style="color:#71808a">' + escapeHtml(user.email) + '</span></td><td><span class="hm-admin-role ' + role + '">' + roleLabel + '</span></td><td>' + phoneField + '</td><td>' + date + '</td><td>' + phoneAction + '</td></tr>';
       }).join("");
     } catch (error) {
-      table.innerHTML = '<tr><td colspan="3">Não foi possível carregar a lista.</td></tr>';
+      table.innerHTML = '<tr><td colspan="5">Não foi possível carregar a lista.</td></tr>';
       adminMessage(error.message, true);
     }
   }
   function escapeHtml(value) { return String(value || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
   document.getElementById("hmReloadUsers").addEventListener("click", loadUsers);
+  document.getElementById("hmUsersTable").addEventListener("click", async event => {
+    const button = event.target.closest("[data-save-phone]");
+    if (!button) return;
+    const id = button.dataset.savePhone;
+    const input = document.querySelector('[data-phone-input="' + CSS.escape(id) + '"]');
+    button.disabled = true;
+    const previousLabel = button.textContent;
+    button.textContent = "Salvando…";
+    adminMessage("");
+    try {
+      const result = await apiAdmin("update_phone", { id, phone: input?.value || "" });
+      if (input) input.value = result.phone || input.value;
+      adminMessage(result.message || "WhatsApp atualizado.");
+    } catch (error) {
+      adminMessage(error.message, true);
+    } finally {
+      button.disabled = false;
+      button.textContent = previousLabel;
+    }
+  });
   document.getElementById("hmCreateUserForm").addEventListener("submit", async event => {
     event.preventDefault();
     const button = document.getElementById("hmCreateUserSubmit");
@@ -269,11 +296,7 @@
 
   async function initialize() {
     try {
-      const response = await fetch("/api/config", { headers: { Accept: "application/json" } });
-      const config = await response.json();
-      if (!response.ok) throw new Error(config.error || "Não foi possível carregar a configuração.");
-      if (!window.supabase?.createClient) throw new Error("A biblioteca de conexão não carregou. Verifique sua conexão e tente novamente.");
-      supabaseClient = window.supabase.createClient(config.url, config.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+      supabaseClient = await window.hmGetSupabaseClient();
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session?.user) await showSignedIn(session.user);
       supabaseClient.auth.onAuthStateChange((_event, session) => {

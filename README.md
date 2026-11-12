@@ -41,6 +41,13 @@ Os arquivos do frontend são carregados como scripts clássicos em ordem explíc
 - Confirme os dados dos anúncios e o contato comercial/WhatsApp antes de uso comercial.
 - A presença dos arquivos e das configurações não substitui testes funcionais com as credenciais reais.
 
+## Contato comercial
+
+- Cada anúncio usa prioritariamente o WhatsApp salvo no perfil do vendedor responsável.
+- O ADM Master pode cadastrar o WhatsApp ao criar um vendedor e atualizar o contato de vendedores já existentes em **Usuários e acessos**.
+- Não existe número de demonstração ativo como fallback. Quando o vendedor não tem contato cadastrado, a interface informa a pendência em vez de abrir um WhatsApp incorreto.
+- Autenticação e gestão de anúncios compartilham a mesma instância do cliente Supabase para evitar concorrência no armazenamento da sessão.
+
 ## Fluxo de trabalho
 
 1. Desenvolver em uma branch de trabalho, sem alterar diretamente `main`.

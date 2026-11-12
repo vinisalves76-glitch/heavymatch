@@ -56,7 +56,7 @@
   const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:2});
   const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   async function getSession() {
-    if (!client) { const response=await fetch("/api/config"); const config=await response.json(); if(!response.ok) throw new Error(config.error||"Configuração indisponível."); client=window.supabase.createClient(config.url,config.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}); client.auth.onAuthStateChange((_e,s)=>{session=s; refreshRole();}); }
+    if (!client) { client=await window.hmGetSupabaseClient(); client.auth.onAuthStateChange((_e,s)=>{session=s; refreshRole();}); }
     const {data}=await client.auth.getSession(); session=data.session;
     user=session?.user||null; role="buyer";
     if(user){const {data:profile}=await client.from("profiles").select("role").eq("id",user.id).maybeSingle();role=profile?.role||"buyer";}
@@ -78,7 +78,7 @@
       errorMessage:"Falha ao acessar anúncios."
     });
   }
-  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
+  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[],seller_name:v.seller_name||"",seller_phone:v.seller_phone||""};}
   const knownBrands=new Set(),knownModels=new Set();
   function renderPublic(list, append=false) {
     const mapped=(list||[]).map(toCatalog);
