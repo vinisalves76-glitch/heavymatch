@@ -78,7 +78,7 @@
       errorMessage:"Falha ao acessar anúncios."
     });
   }
-  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
+  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[],seller_name:v.seller_name||"",seller_phone:v.seller_phone||""};}
   const knownBrands=new Set(),knownModels=new Set();
   function renderPublic(list, append=false) {
     const mapped=(list||[]).map(toCatalog);
