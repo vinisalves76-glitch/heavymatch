@@ -5,6 +5,7 @@ on:
     branches:
       - feat/phase-2-performance
       - refactor/phase-3-business-modules
+      - feat/phase-4-commercial-management
   pull_request:
     branches:
       - main
