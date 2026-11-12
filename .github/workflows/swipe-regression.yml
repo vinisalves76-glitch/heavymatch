@@ -1,0 +1,24 @@
+name: Production swipe hotfix regression
+
+on:
+  push:
+    branches:
+      - release/swipe-buttons-prod-hotfix-20261112
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  swipe-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check left-pass / right-like actions
+        run: node --test tests/swipe-production-hotfix.test.mjs
