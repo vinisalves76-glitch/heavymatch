@@ -112,11 +112,15 @@
   }
   function progress(data){
     var clean=sanitize(data);
-    var completed=allFields.filter(function(field){
+    // Quem não possui equipamento de troca não deve ser penalizado por campos ocultos.
+    var relevant=allFields.filter(function(field){
+      return clean.has_trade==="Sim"||!field.key.startsWith("trade_");
+    });
+    var completed=relevant.filter(function(field){
       var value=clean[field.key];
       return Array.isArray(value)?value.length>0:typeof value==="boolean"?value:!!value;
     }).length;
-    return {filled:completed,total:allFields.length,percent:Math.round(completed/allFields.length*100)};
+    return {filled:completed,total:relevant.length,percent:Math.round(completed/relevant.length*100)};
   }
   root.hmBuyerProfileModel={version:1,metadataKey:"hm_buyer_profile_v1",groups:groups,keys:keys,sanitize:sanitize,progress:progress};
 })(typeof window==="undefined"?globalThis:window);
