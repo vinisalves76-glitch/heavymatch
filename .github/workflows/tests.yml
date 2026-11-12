@@ -7,6 +7,7 @@ on:
       - refactor/phase-3-business-modules
       - feat/phase-4-commercial-management
       - fix/buyer-signup-profile
+      - fix/swipe-buttons-direction
   pull_request:
     branches:
       - main
