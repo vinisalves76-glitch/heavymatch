@@ -273,6 +273,7 @@
       if (!response.ok) throw new Error(config.error || "Não foi possível carregar a configuração.");
       if (!window.supabase?.createClient) throw new Error("A biblioteca de conexão não carregou. Verifique sua conexão e tente novamente.");
       supabaseClient = window.supabase.createClient(config.url, config.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+      window.hmSupabaseClient = supabaseClient; // reutilizar a mesma sessão no perfil, sem criar outro cliente Supabase
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session?.user) await showSignedIn(session.user);
       supabaseClient.auth.onAuthStateChange((_event, session) => {
