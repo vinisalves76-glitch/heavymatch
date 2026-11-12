@@ -12,4 +12,4 @@ function openDetails(){if(!current)return;const v=current;$('modalContent').inne
 
 function closeDetails(){$('detailModal').classList.remove('open');document.body.style.overflow='';}
 
-function contact(){if(current)window.open(waUrl(current),'_blank','noopener');}
+function contact(){if(!current)return;const url=waUrl(current);if(!url){toast('Este vendedor ainda não cadastrou um WhatsApp.');return;}window.open(url,'_blank','noopener');}
