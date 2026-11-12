@@ -76,7 +76,7 @@
             <div class="hm-admin-message" id="hmCreateMessage" role="status" aria-live="polite"></div>
           </section>
           <section class="hm-admin-section"><h3>Contas cadastradas</h3><p>Lista de acessos existentes e seus níveis de permissão.</p>
-            <div class="hm-admin-table-wrap"><table class="hm-admin-table"><thead><tr><th>Usuário</th><th>Perfil</th><th>Criado em</th></tr></thead><tbody id="hmUsersTable"><tr><td colspan="3">Carregando…</td></tr></tbody></table></div>
+            <div class="hm-admin-table-wrap"><table class="hm-admin-table"><thead><tr><th>Usuário</th><th>WhatsApp</th><th>Perfil</th><th>Criado em</th></tr></thead><tbody id="hmUsersTable"><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
           </section>
         </div>
       </div>
@@ -220,7 +220,7 @@
   }
   async function loadUsers() {
     const table = document.getElementById("hmUsersTable");
-    table.innerHTML = '<tr><td colspan="3">Carregando contas…</td></tr>';
+    table.innerHTML = '<tr><td colspan="4">Carregando contas…</td></tr>';
     adminMessage("");
     try {
       const result = await apiAdmin("list");
@@ -228,15 +228,15 @@
       document.getElementById("hmTotalUsers").textContent = users.length;
       document.getElementById("hmTotalSellers").textContent = users.filter(u => u.role === "seller").length;
       document.getElementById("hmTotalAdmins").textContent = users.filter(u => u.role === "admin").length;
-      if (!users.length) { table.innerHTML = '<tr><td colspan="3">Nenhuma conta encontrada.</td></tr>'; return; }
+      if (!users.length) { table.innerHTML = '<tr><td colspan="4">Nenhuma conta encontrada.</td></tr>'; return; }
       table.innerHTML = users.map(user => {
         const role = ["admin", "seller", "buyer"].includes(user.role) ? user.role : "buyer";
         const roleLabel = role === "admin" ? "Administrador" : role === "seller" ? "Vendedor" : "Comprador";
         const date = user.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "—";
-        return '<tr><td><strong>' + escapeHtml(user.full_name || user.email || "Usuário") + '</strong><br><span style="color:#71808a">' + escapeHtml(user.email) + '</span></td><td><span class="hm-admin-role ' + role + '">' + roleLabel + '</span></td><td>' + date + '</td></tr>';
+        return '<tr><td><strong>' + escapeHtml(user.full_name || user.email || "Usuário") + '</strong><br><span style="color:#71808a">' + escapeHtml(user.email) + '</span></td><td>' + escapeHtml(user.phone || "—") + '</td><td><span class="hm-admin-role ' + role + '">' + roleLabel + '</span></td><td>' + date + '</td></tr>';
       }).join("");
     } catch (error) {
-      table.innerHTML = '<tr><td colspan="3">Não foi possível carregar a lista.</td></tr>';
+      table.innerHTML = '<tr><td colspan="4">Não foi possível carregar a lista.</td></tr>';
       adminMessage(error.message, true);
     }
   }
