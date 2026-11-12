@@ -66,3 +66,10 @@ test("interações de swipe existentes continuam associadas às direções corre
   assert.match(indexSource,/const swipeActions=\{left:pass,right:like\}/);
   assert.match(indexSource,/if\(dx>0\)\{like\(\);\}else\{pass\(\);\}/);
 });
+
+test("progresso não cobra dados da troca quando o cliente não tem veículo",()=>{
+  const noTrade=model.progress({has_trade:"Não"});
+  const withTrade=model.progress({has_trade:"Sim"});
+  assert.ok(noTrade.total<withTrade.total);
+  assert.ok(noTrade.percent>=0&&noTrade.percent<=100);
+});
