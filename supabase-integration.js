@@ -321,6 +321,10 @@
         const address = document.getElementById("hmAuthAddress").value.trim();
         const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
         if (!fullName || !phone || !address) throw new Error("Preencha nome, telefone e endereço.");
+        const phoneDigits = phone.replace(/[^0-9]/g, "");
+        const validPhone = [10, 11].includes(phoneDigits.length) ||
+          (phoneDigits.startsWith("55") && [12, 13].includes(phoneDigits.length));
+        if (!validPhone) throw new Error("Informe um telefone válido com DDD.");
         if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite a mesma senha nos dois campos.");
         const { data, error } = await supabaseClient.auth.signUp({
           email, password,
