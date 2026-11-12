@@ -82,7 +82,7 @@ export default async function handler(req, res) {
       const fullName = String(body.full_name || "").trim();
       const role = String(body.role || "");
       const rawPhone = String(body.phone || "").trim();
-      let phone = rawPhone.replace(/\\D/g, "");
+      let phone = rawPhone.replace(/[^0-9]/g, "");
       if (phone && !phone.startsWith("55") && (phone.length === 10 || phone.length === 11)) phone = "55" + phone;
       if (role === "seller" && phone.length < 12) {
         return reply(res, 400, { error: "Informe o WhatsApp do vendedor com DDD e número." });
