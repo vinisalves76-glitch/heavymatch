@@ -60,3 +60,6 @@
   .hm-profile-field.wide{grid-column:auto}
   .hm-profile-footer{padding:11px 14px calc(10px + env(safe-area-inset-bottom))}
 }
+
+.hm-profile-footer[hidden]{display:none!important}
+.hm-profile-desktop-btn[hidden]{display:none!important}
