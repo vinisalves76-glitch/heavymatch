@@ -6,6 +6,7 @@ on:
       - feat/phase-2-performance
       - refactor/phase-3-business-modules
       - feat/phase-4-commercial-management
+      - fix/buyer-signup-profile
   pull_request:
     branches:
       - main
