@@ -88,3 +88,13 @@ Execute `npm test` para verificar a centralização dos listeners da interface e
 - Testes de contrato e de geração de links estão em `tests/commercial-contact.test.js`.
 - Ainda pendente nesta etapa: edição do telefone de vendedores existentes, registro de leads/histórico e painel comercial. Não presumir essas funções como entregues.
 - Validar na Preview antes de publicar; nenhuma mudança de schema ou RLS foi aplicada.
+
+## Correção do cadastro de clientes — branch de teste
+
+- O formulário mantém **Entrar** (e-mail e senha) separado de **Fazer cadastro** (nome, telefone, endereço, e-mail e confirmação de senha).
+- O cadastro grava esses dados no metadata de autenticação do Supabase. Nome e telefone são copiados para `profiles` quando a sessão autenticada é criada; o endereço permanece no metadata enquanto não houver campo próprio no schema.
+- A nova API `POST /api/auth/profile` confirma o JWT do usuário antes de criar seu perfil com `role=buyer`; ignora `role` e `account_type` informados nos metadados. Perfis existentes de seller/admin nunca são substituídos.
+- Para cadastros com confirmação de e-mail, o perfil é provisionado no primeiro login autenticado. Contas antigas sem linha em `profiles` também são recuperadas nesse fluxo.
+- Testes de contrato: `tests/account-profile.test.js`. Nenhuma conta real foi criada nem banco modificado durante a implementação.
+- **Segurança pendente do banco compartilhado:** a política atual permite que o próprio usuário altere `profiles.role` ou insira um perfil privilegiado. O roteiro SQL de revisão está em `docs/SUPABASE_PROFILE_SECURITY_REVIEW.sql`. Só executar com autorização específica, após revisão dos consumidores; o novo endpoint sozinho não neutraliza permissões diretas existentes.
+- Validar Preview, confirmação por e-mail, login do comprador, sessão recuperada, logout e acesso de vendedor/admin. Somente publicar em produção após aprovação específica.
