@@ -284,23 +284,27 @@
       console.error("[HeavyMatch] Supabase:", configError);
     }
   }
+  async function ensureAccountProfile(token) {
+    if (!token) throw new Error("Sessão indisponível. Entre novamente.");
+    const result = await window.hmApiRequest("/api/auth/profile", {
+      method: "POST",
+      token,
+      errorMessage: "Não foi possível preparar seu cadastro."
+    });
+    if (!result?.profile?.role) throw new Error("Seu perfil ainda não está disponível.");
+    return result.profile;
+  }
   async function showSignedIn(user) {
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    if (sessionError) throw sessionError;
+    const profile = await ensureAccountProfile(sessionData?.session?.access_token);
     currentUser = user;
+    currentRole = profile.role;
     topLogoutButton.hidden = false;
+    window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
+    adminNav.classList.toggle("hm-visible", currentRole === "admin");
     accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
-    try {
-      const { data: profile, error } = await supabaseClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
-      if (error) throw error;
-      currentRole = profile?.role || "buyer";
-      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
-      adminNav.classList.toggle("hm-visible", currentRole === "admin");
-      accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
-      message("Login realizado. Perfil: " + currentRole + ".", false);
-      if (currentRole === "seller") message("Login de vendedor confirmado.", false);
-    } catch (error) {
-      currentRole = "buyer"; adminNav.classList.remove("hm-visible");
-      message("Login realizado, mas não foi possível ler seu perfil. Confira as políticas RLS da tabela profiles.", true);
-    }
+    message(currentRole === "seller" ? "Login de vendedor confirmado." : "Login realizado. Perfil: " + currentRole + ".", false);
   }
   document.getElementById("hmAuthForm").addEventListener("submit", async event => {
     event.preventDefault();
@@ -327,6 +331,7 @@
         });
         if (error) throw error;
         if (data.session) {
+          await ensureAccountProfile(data.session.access_token);
           const { error: signOutError } = await supabaseClient.auth.signOut();
           if (signOutError) throw signOutError;
         }
