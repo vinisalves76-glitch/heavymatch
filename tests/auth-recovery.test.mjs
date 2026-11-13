@@ -7,11 +7,11 @@ const profile = await readFile(new URL("../api/auth/profile.js", import.meta.url
 const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
 
 test("login exibe recuperação de senha com email obrigatório", () => {
-  assert.match(ui, /id="hmAuthForgot">Esqueci minha senha/);
+  assert.match(ui, /id="hmAuthRecovery">Esqueci minha senha/);
   assert.match(ui, /resetPasswordForEmail\(email, \{ redirectTo \}\)/);
   assert.match(ui, /\?hmRecovery=1/);
-  assert.match(ui, /authMode === "forgot"/);
-  assert.match(ui, /password\.required = !forgot/);
+  assert.match(ui, /authMode === "recover"/);
+  assert.match(ui, /passwordInput\.required = !recover/);
 });
 
 test("link de recuperação apresenta nova senha com confirmação", () => {
