@@ -370,12 +370,35 @@
     event.preventDefault();
     const submit = document.getElementById("hmAuthSubmit");
     submit.disabled = true;
-    submit.textContent = authMode === "signup" ? "Criando conta…" : "Entrando…";
+    submit.textContent = authMode === "signup" ? "Criando conta…" : authMode === "forgot" ? "Enviando link…" : authMode === "reset" ? "Salvando senha…" : "Entrando…";
     try {
       if (!supabaseClient) throw new Error(configError || "A conexão ainda está carregando. Feche esta janela e tente novamente.");
-      const email = document.getElementById("hmAuthEmail").value.trim();
+      const email = document.getElementById("hmAuthEmail").value.trim().toLowerCase();
       const password = document.getElementById("hmAuthPassword").value;
-      if (authMode === "signup") {
+      if (authMode === "forgot") {
+        if (!email) throw new Error("Informe seu e-mail para recuperar o acesso.");
+        const redirectTo = window.location.origin + window.location.pathname + "?hmRecovery=1";
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+        if (error) throw error;
+        message("Se houver uma conta com esse e-mail, você receberá um link para criar uma nova senha. Confira também o spam.");
+      } else if (authMode === "reset") {
+        const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
+        if (password.length < 8) throw new Error("A nova senha precisa ter pelo menos 8 caracteres.");
+        if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite novamente.");
+        const { error } = await supabaseClient.auth.updateUser({ password });
+        if (error) throw error;
+        const { error: signOutError } = await supabaseClient.auth.signOut();
+        if (signOutError) throw signOutError;
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("hmRecovery");
+        cleanUrl.hash = "";
+        window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+        currentUser = null;
+        currentRole = "buyer";
+        document.getElementById("hmAuthForm").reset();
+        setAuthMode("login");
+        message("Senha atualizada com sucesso! Entre com seu e-mail e a nova senha.");
+      } else if (authMode === "signup") {
         const fullName = document.getElementById("hmAuthName").value.trim();
         const phone = document.getElementById("hmAuthPhone").value.trim();
         const address = document.getElementById("hmAuthAddress").value.trim();
@@ -391,6 +414,7 @@
         });
         if (error) throw error;
         if (data.session) {
+          await ensureAccountProfile();
           const { error: signOutError } = await supabaseClient.auth.signOut();
           if (signOutError) throw signOutError;
         }
@@ -405,7 +429,7 @@
         document.getElementById("hmAuthEmail").value = email;
         message(data.session
           ? "Cadastro concluído! Agora entre usando seu e-mail e sua senha."
-          : "Cadastro iniciado! Se a confirmação por e-mail estiver ativada, confirme sua conta e depois entre com e-mail e senha.", false);
+          : "Solicitação recebida. Verifique seu e-mail para confirmar o cadastro. Se você já tinha uma conta, use Entrar ou Esqueci minha senha.", false);
       } else {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -415,14 +439,16 @@
       }
     } catch (error) {
       const raw = error?.message || "";
-      const friendly = /invalid login credentials/i.test(raw) ? "E-mail ou senha incorretos."
-        : /user already registered/i.test(raw) ? "Este e-mail já possui cadastro. Entre na sua conta."
+      const friendly = /invalid login credentials/i.test(raw) ? "Não foi possível entrar com esse e-mail e senha. Se esqueceu a senha, toque em Esqueci minha senha."
+        : /email not confirmed/i.test(raw) ? "Confirme seu e-mail antes de entrar. Verifique a caixa de entrada e o spam."
+        : /user already registered/i.test(raw) ? "Este e-mail já possui cadastro. Entre na sua conta ou recupere a senha."
         : /password should be at least/i.test(raw) ? "A senha precisa ter pelo menos 8 caracteres."
+        : /rate limit|over_email_send_rate_limit/i.test(raw) ? "Muitas tentativas de envio. Aguarde um pouco antes de solicitar outro link."
         : (raw || "Não foi possível concluir. Confira os dados e tente novamente.");
       message(friendly, true);
     } finally {
       submit.disabled = false;
-      submit.textContent = authMode === "signup" ? "Criar minha conta" : "Entrar";
+      submit.textContent = authMode === "signup" ? "Criar minha conta" : authMode === "forgot" ? "Enviar link de recuperação" : authMode === "reset" ? "Salvar nova senha" : "Entrar";
     }
   });
   document.addEventListener("keydown", e => {
