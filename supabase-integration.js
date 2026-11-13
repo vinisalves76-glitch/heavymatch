@@ -292,6 +292,32 @@
     message("Você saiu da sua conta.");
   });
 
+  function enterResetFlow() {
+    currentUser = null;
+    currentRole = "buyer";
+    topLogoutButton.hidden = true;
+    accountButton.textContent = "Entrar";
+    setAuthMode("reset");
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+    document.getElementById("hmAuthPassword").value = "";
+    message("Link de recuperação reconhecido. Digite a nova senha e confirme para salvar.");
+    document.getElementById("hmAuthPassword").focus();
+  }
+  async function ensureAccountProfile() {
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    if (sessionError) throw sessionError;
+    const token = sessionData?.session?.access_token;
+    if (!token) throw new Error("Sessão expirada. Entre novamente.");
+    const response = await fetch("/api/auth/profile", {
+      method: "POST",
+      headers: { "Accept": "application/json", "Authorization": "Bearer " + token }
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || "Não foi possível concluir a preparação do seu perfil.");
+    if (!result.profile?.role) throw new Error("O perfil da conta ainda não está disponível.");
+    return result.profile;
+  }
   async function initialize() {
     try {
       const response = await fetch("/api/config", { headers: { Accept: "application/json" } });
@@ -299,34 +325,46 @@
       if (!response.ok) throw new Error(config.error || "Não foi possível carregar a configuração.");
       if (!window.supabase?.createClient) throw new Error("A biblioteca de conexão não carregou. Verifique sua conexão e tente novamente.");
       supabaseClient = window.supabase.createClient(config.url, config.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-      window.hmSupabaseClient = supabaseClient; // reutilizar a mesma sessão no perfil, sem criar outro cliente Supabase
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session?.user) await showSignedIn(session.user);
-      supabaseClient.auth.onAuthStateChange((_event, session) => {
-        if (!session?.user) { currentUser = null; currentRole = "buyer"; topLogoutButton.hidden = true; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; }
+      window.hmSupabaseClient = supabaseClient;
+      // Registrar antes de recuperar a sessão: o link de senha pode emitir PASSWORD_RECOVERY nessa etapa.
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === "PASSWORD_RECOVERY") { enterResetFlow(); return; }
+        if (!session?.user) {
+          currentUser = null;
+          currentRole = "buyer";
+          topLogoutButton.hidden = true;
+          adminNav.classList.remove("hm-visible");
+          accountButton.textContent = "Entrar";
+          window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+        }
       });
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const recoveryLanding = new URLSearchParams(window.location.search).get("hmRecovery") === "1";
+      if (recoveryLanding) {
+        if (session?.user) enterResetFlow();
+        else {
+          setAuthMode("forgot");
+          overlay.classList.add("open");
+          document.body.style.overflow = "hidden";
+          message("Se o link de recuperação expirou, solicite um novo e-mail.");
+        }
+      } else if (session?.user && authMode !== "reset") {
+        await showSignedIn(session.user);
+      }
     } catch (error) {
       configError = error?.message || "Falha ao conectar ao Supabase.";
       console.error("[HeavyMatch] Supabase:", configError);
     }
   }
   async function showSignedIn(user) {
+    const profile = await ensureAccountProfile();
     currentUser = user;
+    currentRole = profile.role;
     topLogoutButton.hidden = false;
+    window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
+    adminNav.classList.toggle("hm-visible", currentRole === "admin");
     accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
-    try {
-      const { data: profile, error } = await supabaseClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
-      if (error) throw error;
-      currentRole = profile?.role || "buyer";
-      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
-      adminNav.classList.toggle("hm-visible", currentRole === "admin");
-      accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
-      message("Login realizado. Perfil: " + currentRole + ".", false);
-      if (currentRole === "seller") message("Login de vendedor confirmado.", false);
-    } catch (error) {
-      currentRole = "buyer"; adminNav.classList.remove("hm-visible");
-      message("Login realizado, mas não foi possível ler seu perfil. Confira as políticas RLS da tabela profiles.", true);
-    }
+    message(currentRole === "seller" ? "Login de vendedor confirmado." : "Login realizado. Perfil: " + currentRole + ".", false);
   }
   document.getElementById("hmAuthForm").addEventListener("submit", async event => {
     event.preventDefault();
