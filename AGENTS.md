@@ -25,7 +25,8 @@ A área de **perfil de comprador** é um recurso de testes desenvolvido na branc
 - buyer-profile.js: UI de bio, compras, financiamento, troca e preferências.
 - styles/buyer-profile.css: estilos desktop/mobile da nova área.
 - tests/buyer-profile.test.mjs: contratos, regressão e validações.
-- api/: APIs legadas de veículos e usuários.
+- api/: APIs de veículos, usuários e api/auth/profile.js, que cria perfil buyer ausente após validar JWT.
+- supabase-integration.js também contém os modos de login, cadastro, recuperação de senha por e-mail e atualização de senha.
 
 ## Perfil de comprador e dados
 O perfil usa a sessão existente do Supabase e salva metadados pessoais em
@@ -43,3 +44,11 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
    persistência após fechar e reabrir, e saída da conta.
 5. Valide também ambos os gestos e botões, fotos, filtros, contatos e login.
 6. Aguarde aprovação do usuário antes de publicar produção.
+
+## Recuperação de senha e acesso
+- O fluxo correto é login normal, Esqueci minha senha (envia e-mail) e link validado pelo Supabase para cadastrar nova senha.
+- Preservar os modos 'login', 'signup', 'recover', 'reset' e apenas um botão de recuperação, com confirmação obrigatória da nova senha.
+- Nunca gravar ou solicitar senha no backend próprio, logs, GitHub ou banco de perfis.
+- Não elevar role via metadata editável do usuário; a API cria somente buyer quando o perfil não existe e preserva papéis anteriores.
+- O domínio de Preview precisa constar na lista de URLs de redirecionamento permitidas no Supabase Auth antes de validar o e-mail de recuperação.
+- Não executar mudanças de RLS nem alterar usuários/credenciais em produção sem autorização explícita do responsável.
