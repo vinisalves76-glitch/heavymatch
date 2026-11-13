@@ -369,23 +369,27 @@
     event.preventDefault();
     const submit = document.getElementById("hmAuthSubmit");
     submit.disabled = true;
-    submit.textContent = authMode === "signup" ? "Criando conta…" : authMode === "forgot" ? "Enviando link…" : authMode === "reset" ? "Salvando senha…" : "Entrando…";
+    submit.textContent = authMode === "signup" ? "Criando conta…" : authMode === "recover" ? "Enviando link…" : authMode === "reset" ? "Salvando senha…" : "Entrando…";
     try {
       if (!supabaseClient) throw new Error(configError || "A conexão ainda está carregando. Feche esta janela e tente novamente.");
       const email = document.getElementById("hmAuthEmail").value.trim().toLowerCase();
       const password = document.getElementById("hmAuthPassword").value;
-      if (authMode === "forgot") {
+      if (authMode === "recover") {
         if (!email) throw new Error("Informe seu e-mail para recuperar o acesso.");
         const redirectTo = window.location.origin + window.location.pathname + "?hmRecovery=1";
         const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
         if (error) throw error;
         message("Se houver uma conta com esse e-mail, você receberá um link para criar uma nova senha. Confira também o spam.");
       } else if (authMode === "reset") {
+        if (!recoveryPending) throw new Error("Abra um link de recuperação válido enviado por e-mail.");
         const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
         if (password.length < 8) throw new Error("A nova senha precisa ter pelo menos 8 caracteres.");
         if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite novamente.");
+        const { data: recoveryIdentity, error: verifyError } = await supabaseClient.auth.getUser();
+        if (verifyError || !recoveryIdentity?.user) throw new Error("Link expirado. Solicite outra recuperação de senha.");
         const { error } = await supabaseClient.auth.updateUser({ password });
         if (error) throw error;
+        recoveryPending = false;
         const { error: signOutError } = await supabaseClient.auth.signOut();
         if (signOutError) throw signOutError;
         const cleanUrl = new URL(window.location.href);
@@ -447,7 +451,7 @@
       message(friendly, true);
     } finally {
       submit.disabled = false;
-      submit.textContent = authMode === "signup" ? "Criar minha conta" : authMode === "forgot" ? "Enviar link de recuperação" : authMode === "reset" ? "Salvar nova senha" : "Entrar";
+      submit.textContent = authMode === "signup" ? "Criar minha conta" : authMode === "recover" ? "Enviar link de recuperação" : authMode === "reset" ? "Salvar nova senha" : "Entrar";
     }
   });
   document.addEventListener("keydown", e => {
