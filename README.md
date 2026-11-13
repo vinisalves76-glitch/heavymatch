@@ -69,3 +69,15 @@ Fotos do veículo de troca exigirão storage e políticas específicas; ainda n�
 - node --check buyer-profile.js
 - Testar no celular: login, salvar, sair, entrar de novo, trocar de abas, habilitar e desabilitar troca.
 - Confirmar regressão de swipe, filtros, fotos, cadastro e WhatsApp.
+
+## Correção de login e recuperação — Preview
+
+- O login existente continua usando e-mail e senha pelo Supabase Auth.
+- A aba Entrar agora oferece **Esqueci minha senha**. Ela envia e-mail pelo Supabase com redirect para a origem atual e marcador hmRecovery=1.
+- O retorno do link é reconhecido pelo evento PASSWORD_RECOVERY; o usuário define e confirma uma nova senha, e o aplicativo o redireciona ao login após fazer logout.
+- Se um cadastro é solicitado com e-mail já registrado, a mensagem é neutra e orienta a usar Entrar ou Esqueci minha senha. O aplicativo não tenta recriar nem excluir usuários existentes.
+- A API api/auth/profile.js garante a criação de um perfil buyer ausente, somente depois de validar o JWT. Perfis seller/admin existentes são preservados.
+- **Configuração externa obrigatória:** a URL de Preview deve estar autorizada em Supabase Auth > URL Configuration > Redirect URLs. Caso contrário, o e-mail pode direcionar para outro endereço ou não completar a recuperação. Conferir também configuração de SMTP, limites de envio e entrega.
+- A Preview compartilha o mesmo projeto Supabase Auth do site atual. Um login real poderá criar um registro buyer faltante na tabela profiles. Não criar contas fictícias para validar produção sem autorização.
+- Testes: node --test tests/*.test.mjs, node --check supabase-integration.js, node --check api/auth/profile.js.
+- Ainda pendente de validação humana: recebimento do e-mail, link, alteração da senha e login no celular. Não publicar até aprovação específica.
