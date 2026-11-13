@@ -48,7 +48,6 @@
         <div class="hm-auth-actions"><button type="button" id="hmAuthCancel">Cancelar</button><button class="primary" type="submit" id="hmAuthSubmit">Entrar</button></div>
       </form>
       <button type="button" class="hm-auth-recovery" id="hmAuthRecovery">Esqueci minha senha</button>
-      <button type="button" class="hm-auth-switch" id="hmAuthForgot">Esqueci minha senha</button>
       <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
       <button type="button" class="hm-auth-switch" id="hmAuthLogout" hidden>Sair da conta e entrar com outro acesso</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
@@ -139,8 +138,7 @@
   topLogoutButton.addEventListener("click", signOutFromTopMenu);
   overlay.querySelector(".hm-auth-close").addEventListener("click", closeAuth);
   document.getElementById("hmAuthCancel").addEventListener("click", closeAuth);
-  document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" || authMode === "forgot" ? "login" : "signup"));
-  document.getElementById("hmAuthForgot").addEventListener("click", () => setAuthMode("forgot"));
+  document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" || authMode === "recover" ? "login" : "signup"));
   document.getElementById("hmAuthRecovery").addEventListener("click", () => setAuthMode("recover"));
   overlay.addEventListener("click", e => { if (e.target === overlay) closeAuth(); });
   adminOverlay.querySelector(".hm-admin-close").addEventListener("click", closeAdmin);
@@ -293,6 +291,7 @@
   });
 
   function enterResetFlow() {
+    recoveryPending = true;
     currentUser = null;
     currentRole = "buyer";
     topLogoutButton.hidden = true;
@@ -343,7 +342,7 @@
       if (recoveryLanding) {
         if (session?.user) enterResetFlow();
         else {
-          setAuthMode("forgot");
+          setAuthMode("recover");
           overlay.classList.add("open");
           document.body.style.overflow = "hidden";
           message("Se o link de recuperação expirou, solicite um novo e-mail.");
