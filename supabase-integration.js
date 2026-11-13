@@ -15,6 +15,7 @@
     .hm-auth-card input,.hm-admin-card input,.hm-admin-card select{width:100%;height:44px;border:1px solid #dce2e6;border-radius:10px;padding:0 12px;color:#17242e;background:#fff}
     .hm-auth-actions,.hm-admin-actions{display:flex;gap:8px;margin-top:17px;flex-wrap:wrap}.hm-auth-actions button,.hm-admin-actions button{flex:1;min-height:43px;border-radius:10px;font-weight:800;border:1px solid #dce2e6}
     .hm-auth-actions .primary,.hm-admin-actions .primary{background:#f5b323;border-color:#f5b323;color:#17212a}
+    .hm-auth-recovery{color:#705000;font-weight:850;width:100%;padding:9px 5px;border:0;background:transparent;cursor:pointer;font-size:12px;text-align:center}.hm-auth-recovery[hidden]{display:none!important}
     .hm-auth-message,.hm-admin-message{font-size:12px;line-height:1.5;margin-top:12px;overflow-wrap:anywhere}.hm-auth-close,.hm-admin-close{float:right;border:0;background:#eef1f3;border-radius:50%;width:32px;height:32px;font-size:20px}
     .hm-admin-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0}
     .hm-admin-kpi{padding:13px;background:#f3f5f6;border-radius:13px}.hm-admin-kpi small{display:block;color:#687680;font-size:11px}.hm-admin-kpi strong{font-size:23px;display:block;margin-top:4px}
@@ -46,6 +47,7 @@
         <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
         <div class="hm-auth-actions"><button type="button" id="hmAuthCancel">Cancelar</button><button class="primary" type="submit" id="hmAuthSubmit">Entrar</button></div>
       </form>
+      <button type="button" class="hm-auth-recovery" id="hmAuthRecovery">Esqueci minha senha</button>
       <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
       <button type="button" class="hm-auth-switch" id="hmAuthLogout" hidden>Sair da conta e entrar com outro acesso</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
@@ -99,6 +101,7 @@
   let currentUser = null;
   let currentRole = "buyer";
   let authMode = "login";
+  let recoveryPending = false;
   let configError = "";
   const message = (text, error = false) => { const node = document.getElementById("hmAuthMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
   const adminMessage = (text, error = false) => { const node = document.getElementById("hmAdminMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
@@ -135,6 +138,7 @@
   overlay.querySelector(".hm-auth-close").addEventListener("click", closeAuth);
   document.getElementById("hmAuthCancel").addEventListener("click", closeAuth);
   document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" ? "login" : "signup"));
+  document.getElementById("hmAuthRecovery").addEventListener("click", () => setAuthMode("recover"));
   overlay.addEventListener("click", e => { if (e.target === overlay) closeAuth(); });
   adminOverlay.querySelector(".hm-admin-close").addEventListener("click", closeAdmin);
   document.getElementById("hmAdminCloseBottom").addEventListener("click", closeAdmin);
