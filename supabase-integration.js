@@ -42,12 +42,13 @@
         <label for="hmAuthName" id="hmAuthNameWrap" hidden>Nome completo</label><input id="hmAuthName" type="text" autocomplete="name" maxlength="120" placeholder="Seu nome completo" hidden>
         <label for="hmAuthPhone" id="hmAuthPhoneWrap" hidden>Telefone / WhatsApp</label><input id="hmAuthPhone" type="tel" autocomplete="tel" maxlength="30" placeholder="(31) 99999-9999" hidden>
         <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden>
-        <label for="hmAuthEmail">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
+        <label for="hmAuthEmail" id="hmAuthEmailLabel">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
         <label for="hmAuthPassword">Senha</label><input id="hmAuthPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres" required>
         <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
         <div class="hm-auth-actions"><button type="button" id="hmAuthCancel">Cancelar</button><button class="primary" type="submit" id="hmAuthSubmit">Entrar</button></div>
       </form>
       <button type="button" class="hm-auth-recovery" id="hmAuthRecovery">Esqueci minha senha</button>
+      <button type="button" class="hm-auth-switch" id="hmAuthForgot">Esqueci minha senha</button>
       <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
       <button type="button" class="hm-auth-switch" id="hmAuthLogout" hidden>Sair da conta e entrar com outro acesso</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
@@ -137,7 +138,8 @@
   topLogoutButton.addEventListener("click", signOutFromTopMenu);
   overlay.querySelector(".hm-auth-close").addEventListener("click", closeAuth);
   document.getElementById("hmAuthCancel").addEventListener("click", closeAuth);
-  document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" ? "login" : "signup"));
+  document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" || authMode === "forgot" ? "login" : "signup"));
+  document.getElementById("hmAuthForgot").addEventListener("click", () => setAuthMode("forgot"));
   document.getElementById("hmAuthRecovery").addEventListener("click", () => setAuthMode("recover"));
   overlay.addEventListener("click", e => { if (e.target === overlay) closeAuth(); });
   adminOverlay.querySelector(".hm-admin-close").addEventListener("click", closeAdmin);
@@ -182,26 +184,41 @@
     }
   });
   function setAuthMode(mode) {
-    authMode = mode === "signup" ? "signup" : "login";
+    authMode = ["signup", "forgot", "reset"].includes(mode) ? mode : "login";
     const signup = authMode === "signup";
-    document.getElementById("hmAuthTitle").textContent = signup ? "Crie sua conta" : "Entre na sua conta";
+    const forgot = authMode === "forgot";
+    const reset = authMode === "reset";
+    document.getElementById("hmAuthTitle").textContent = signup ? "Crie sua conta" : forgot ? "Recuperar acesso" : reset ? "Defina sua nova senha" : "Entre na sua conta";
     document.getElementById("hmAuthSubtitle").textContent = signup
       ? "Cadastre-se como cliente para salvar equipamentos e acompanhar seus interesses."
+      : forgot ? "Informe o e-mail da sua conta para receber um link de recuperação."
+      : reset ? "Escolha uma nova senha de pelo menos 8 caracteres e confirme para continuar."
       : "Entre com seu e-mail e senha para acessar sua conta.";
     ["Name", "Phone", "Address"].forEach(field => {
       const wrap = document.getElementById("hmAuth" + field + "Wrap");
       const input = document.getElementById("hmAuth" + field);
       wrap.hidden = !signup; input.hidden = !signup; input.required = signup;
     });
-    document.getElementById("hmAuthConfirmWrap").hidden = !signup;
-    document.getElementById("hmAuthConfirmPassword").hidden = !signup;
-    document.getElementById("hmAuthConfirmPassword").required = signup;
-    document.getElementById("hmAuthPassword").autocomplete = signup ? "new-password" : "current-password";
+    const email = document.getElementById("hmAuthEmail");
+    email.hidden = reset;
+    email.required = !reset;
+    document.getElementById("hmAuthEmailLabel").hidden = reset;
+    const password = document.getElementById("hmAuthPassword");
+    const passwordLabel = overlay.querySelector('label[for="hmAuthPassword"]');
+    password.hidden = forgot;
+    password.required = !forgot;
+    passwordLabel.hidden = forgot;
+    passwordLabel.textContent = reset ? "Nova senha" : "Senha";
+    password.autocomplete = signup || reset ? "new-password" : "current-password";
+    document.getElementById("hmAuthConfirmWrap").hidden = !(signup || reset);
+    document.getElementById("hmAuthConfirmPassword").hidden = !(signup || reset);
+    document.getElementById("hmAuthConfirmPassword").required = signup || reset;
     document.getElementById("hmAuthConfirmPassword").value = "";
-    document.getElementById("hmAuthForm").hidden = !!currentUser;
-    document.getElementById("hmAuthSwitch").hidden = !!currentUser;
-    document.getElementById("hmAuthSubmit").textContent = signup ? "Criar minha conta" : "Entrar";
-    document.getElementById("hmAuthSwitch").textContent = signup ? "Já tem conta? Entrar" : "Ainda não tem conta? Fazer cadastro";
+    document.getElementById("hmAuthForm").hidden = !!currentUser && !reset;
+    document.getElementById("hmAuthSwitch").hidden = !!currentUser || reset;
+    document.getElementById("hmAuthSwitch").textContent = signup || forgot ? "Voltar para entrar" : "Ainda não tem conta? Fazer cadastro";
+    document.getElementById("hmAuthForgot").hidden = authMode !== "login" || !!currentUser;
+    document.getElementById("hmAuthSubmit").textContent = signup ? "Criar minha conta" : forgot ? "Enviar link de recuperação" : reset ? "Salvar nova senha" : "Entrar";
     message("");
   }
   function resetAuthForm() {
