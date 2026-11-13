@@ -81,3 +81,28 @@ Fotos do veículo de troca exigirão storage e políticas específicas; ainda n�
 - A Preview compartilha o mesmo projeto Supabase Auth do site atual. Um login real poderá criar um registro buyer faltante na tabela profiles. Não criar contas fictícias para validar produção sem autorização.
 - Testes: node --test tests/*.test.mjs, node --check supabase-integration.js, node --check api/auth/profile.js.
 - Ainda pendente de validação humana: recebimento do e-mail, link, alteração da senha e login no celular. Não publicar até aprovação específica.
+
+
+## Correção de login e recuperação de senha — Preview
+
+Branch de testes: `fix/preview-login-password-recovery` (não publicar em produção antes da aprovação).
+
+- `Entrar`: autenticação normal por e-mail e senha.
+- `Fazer cadastro`: coleta nome, telefone, endereço, e-mail, senha e confirmação. Se uma conta já existir, a mensagem orienta a entrar ou recuperar o acesso, sem afirmar que um novo usuário foi criado.
+- `Esqueci minha senha`: solicita apenas o e-mail e chama `supabase.auth.resetPasswordForEmail` com retorno para `?hmRecovery=1`.
+- Link de recuperação válido: abre formulário de **nova senha + confirmação** e chama `supabase.auth.updateUser({ password })`, depois encerra a sessão e solicita novo login.
+- O login autenticado chama `/api/auth/profile` para provisionar perfis `buyer` ausentes sem substituir papéis já existentes de `seller` e `admin`.
+- Não envia senhas para APIs próprias, não grava senha em `profiles` e não altera contas por SQL.
+
+### Configuração essencial do Supabase Auth
+O domínio de Preview precisa estar permitido em **Authentication → URL Configuration → Redirect URLs** no Supabase para que o e-mail de recuperação retorne a essa versão. A verificação da lista de redirects não está disponível nesta mudança de código. Caso o link retorne à produção ou a outro domínio, revisar a allowlist antes de considerar o fluxo validado.
+
+### Validação
+1. Use uma conta que já possui senha e e-mail confirmado, mas não suponha que a senha digitada esteja correta.
+2. Na Preview toque em `Entrar → Esqueci minha senha`, informe seu e-mail e solicite o link **uma vez**.
+3. Abra o e-mail e confira se o link volta para a Preview e apresenta os campos nova senha/confirmar.
+4. Atualize a senha, entre novamente e acesse `Perfil`.
+5. Reabra o app no celular e confirme que a sessão e os dados do perfil permanecem.
+6. Confira X esquerdo/pular, coração direito/curtir, filtros, favoritos e anúncios.
+
+A aplicação do SQL de endurecimento das permissões `profiles.role` é uma questão separada, ainda pendente de aprovação e validação no banco compartilhado.
