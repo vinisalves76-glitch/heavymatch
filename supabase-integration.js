@@ -148,6 +148,12 @@
   overlay.querySelector(".hm-auth-close").addEventListener("click", closeAuth);
   document.getElementById("hmAuthCancel").addEventListener("click", closeAuth);
   document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" ? "login" : "signup"));
+  document.getElementById("hmAuthForgot").addEventListener("click", () => {
+    document.getElementById("hmRecoveryEmail").value = document.getElementById("hmAuthEmail").value.trim();
+    setAuthMode("reset-request");
+    document.getElementById("hmRecoveryEmail").focus();
+  });
+  document.getElementById("hmRecoveryBack").addEventListener("click", () => setAuthMode("login"));
   overlay.addEventListener("click", e => { if (e.target === overlay) closeAuth(); });
   adminOverlay.querySelector(".hm-admin-close").addEventListener("click", closeAdmin);
   document.getElementById("hmAdminCloseBottom").addEventListener("click", closeAdmin);
@@ -191,12 +197,18 @@
     }
   });
   function setAuthMode(mode) {
-    authMode = mode === "signup" ? "signup" : "login";
+    authMode = ["login", "signup", "reset-request", "reset-update"].includes(mode) ? mode : "login";
     const signup = authMode === "signup";
-    document.getElementById("hmAuthTitle").textContent = signup ? "Crie sua conta" : "Entre na sua conta";
-    document.getElementById("hmAuthSubtitle").textContent = signup
-      ? "Cadastre-se como cliente para salvar equipamentos e acompanhar seus interesses."
-      : "Entre com seu e-mail e senha para acessar sua conta.";
+    const isEntry = signup || authMode === "login";
+    const titles = {login:"Entre na sua conta",signup:"Crie sua conta","reset-request":"Recuperar acesso","reset-update":"Definir nova senha"};
+    const subtitles = {
+      login:"Entre com seu e-mail e senha para acessar sua conta.",
+      signup:"Cadastre-se como cliente para salvar equipamentos e acompanhar seus interesses.",
+      "reset-request":"Informe seu e-mail para receber um link de redefinição. Confira também a caixa de spam.",
+      "reset-update":"Crie uma nova senha para sua conta HeavyMatch."
+    };
+    document.getElementById("hmAuthTitle").textContent = titles[authMode];
+    document.getElementById("hmAuthSubtitle").textContent = subtitles[authMode];
     ["Name", "Phone", "Address"].forEach(field => {
       const wrap = document.getElementById("hmAuth" + field + "Wrap");
       const input = document.getElementById("hmAuth" + field);
@@ -207,15 +219,16 @@
     document.getElementById("hmAuthConfirmPassword").required = signup;
     document.getElementById("hmAuthPassword").autocomplete = signup ? "new-password" : "current-password";
     document.getElementById("hmAuthConfirmPassword").value = "";
-    document.getElementById("hmAuthForm").hidden = !!currentUser;
-    document.getElementById("hmAuthSwitch").hidden = !!currentUser;
+    document.getElementById("hmAuthForm").hidden = !isEntry || !!currentUser;
+    document.getElementById("hmAuthRecoveryRequestForm").hidden = authMode !== "reset-request";
+    document.getElementById("hmAuthNewPasswordForm").hidden = authMode !== "reset-update";
+    document.getElementById("hmAuthSwitch").hidden = !isEntry || !!currentUser;
+    document.getElementById("hmAuthForgot").hidden = authMode !== "login" || !!currentUser;
     document.getElementById("hmAuthSubmit").textContent = signup ? "Criar minha conta" : "Entrar";
     document.getElementById("hmAuthSwitch").textContent = signup ? "Já tem conta? Entrar" : "Ainda não tem conta? Fazer cadastro";
     message("");
   }
   function resetAuthForm() {
-    document.getElementById("hmAuthForm").hidden = false;
-    document.getElementById("hmAuthSwitch").hidden = false;
     setAuthMode("login");
     message("");
   }
