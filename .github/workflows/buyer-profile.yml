@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/buyer-profile-marketplace
+      - fix/preview-login-password-recovery
   pull_request:
     branches:
       - main
@@ -20,5 +21,7 @@ jobs:
         run: |
           node --check buyer-profile-model.js
           node --check buyer-profile.js
+          node --check supabase-integration.js
+          node --check api/auth/profile.js
       - name: Run buyer profile and swipe regression tests
         run: node --test tests/*.test.mjs
