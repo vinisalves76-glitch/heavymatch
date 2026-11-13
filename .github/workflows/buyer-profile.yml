@@ -1,0 +1,27 @@
+name: Buyer profile preview checks
+on:
+  push:
+    branches:
+      - feature/buyer-profile-marketplace
+      - fix/preview-login-password-recovery
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  profile-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check buyer-profile-model.js
+          node --check buyer-profile.js
+          node --check supabase-integration.js
+          node --check api/auth/profile.js
+      - name: Run buyer profile and swipe regression tests
+        run: node --test tests/*.test.mjs

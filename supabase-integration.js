@@ -15,6 +15,7 @@
     .hm-auth-card input,.hm-admin-card input,.hm-admin-card select{width:100%;height:44px;border:1px solid #dce2e6;border-radius:10px;padding:0 12px;color:#17242e;background:#fff}
     .hm-auth-actions,.hm-admin-actions{display:flex;gap:8px;margin-top:17px;flex-wrap:wrap}.hm-auth-actions button,.hm-admin-actions button{flex:1;min-height:43px;border-radius:10px;font-weight:800;border:1px solid #dce2e6}
     .hm-auth-actions .primary,.hm-admin-actions .primary{background:#f5b323;border-color:#f5b323;color:#17212a}
+    .hm-auth-recovery{color:#705000;font-weight:850;width:100%;padding:9px 5px;border:0;background:transparent;cursor:pointer;font-size:12px;text-align:center}.hm-auth-recovery[hidden]{display:none!important}
     .hm-auth-message,.hm-admin-message{font-size:12px;line-height:1.5;margin-top:12px;overflow-wrap:anywhere}.hm-auth-close,.hm-admin-close{float:right;border:0;background:#eef1f3;border-radius:50%;width:32px;height:32px;font-size:20px}
     .hm-admin-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0}
     .hm-admin-kpi{padding:13px;background:#f3f5f6;border-radius:13px}.hm-admin-kpi small{display:block;color:#687680;font-size:11px}.hm-admin-kpi strong{font-size:23px;display:block;margin-top:4px}
@@ -41,11 +42,12 @@
         <label for="hmAuthName" id="hmAuthNameWrap" hidden>Nome completo</label><input id="hmAuthName" type="text" autocomplete="name" maxlength="120" placeholder="Seu nome completo" hidden>
         <label for="hmAuthPhone" id="hmAuthPhoneWrap" hidden>Telefone / WhatsApp</label><input id="hmAuthPhone" type="tel" autocomplete="tel" maxlength="30" placeholder="(31) 99999-9999" hidden>
         <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden>
-        <label for="hmAuthEmail">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
+        <label for="hmAuthEmail" id="hmAuthEmailLabel">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
         <label for="hmAuthPassword">Senha</label><input id="hmAuthPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres" required>
         <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
         <div class="hm-auth-actions"><button type="button" id="hmAuthCancel">Cancelar</button><button class="primary" type="submit" id="hmAuthSubmit">Entrar</button></div>
       </form>
+      <button type="button" class="hm-auth-recovery" id="hmAuthRecovery">Esqueci minha senha</button>
       <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
       <button type="button" class="hm-auth-switch" id="hmAuthLogout" hidden>Sair da conta e entrar com outro acesso</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
@@ -99,6 +101,7 @@
   let currentUser = null;
   let currentRole = "buyer";
   let authMode = "login";
+  let recoveryPending = false;
   let configError = "";
   const message = (text, error = false) => { const node = document.getElementById("hmAuthMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
   const adminMessage = (text, error = false) => { const node = document.getElementById("hmAdminMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
@@ -107,7 +110,8 @@
   const closeAdmin = () => { adminOverlay.classList.remove("open"); document.body.style.overflow = ""; };
   const showAuth = () => {
     overlay.classList.add("open"); document.body.style.overflow = "hidden";
-    if (!currentUser) setAuthMode("login");
+    if (recoveryPending) setAuthMode("reset");
+    else if (!currentUser) setAuthMode("login");
     document.getElementById("hmAuthEmail").focus();
   };
   const openAdmin = async () => {
@@ -134,7 +138,8 @@
   topLogoutButton.addEventListener("click", signOutFromTopMenu);
   overlay.querySelector(".hm-auth-close").addEventListener("click", closeAuth);
   document.getElementById("hmAuthCancel").addEventListener("click", closeAuth);
-  document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" ? "login" : "signup"));
+  document.getElementById("hmAuthSwitch").addEventListener("click", () => setAuthMode(authMode === "signup" || authMode === "recover" ? "login" : "signup"));
+  document.getElementById("hmAuthRecovery").addEventListener("click", () => setAuthMode("recover"));
   overlay.addEventListener("click", e => { if (e.target === overlay) closeAuth(); });
   adminOverlay.querySelector(".hm-admin-close").addEventListener("click", closeAdmin);
   document.getElementById("hmAdminCloseBottom").addEventListener("click", closeAdmin);
@@ -178,26 +183,45 @@
     }
   });
   function setAuthMode(mode) {
-    authMode = mode === "signup" ? "signup" : "login";
+    authMode = ["login", "signup", "recover", "reset"].includes(mode) ? mode : "login";
     const signup = authMode === "signup";
-    document.getElementById("hmAuthTitle").textContent = signup ? "Crie sua conta" : "Entre na sua conta";
+    const recover = authMode === "recover";
+    const reset = authMode === "reset";
+    document.getElementById("hmAuthTitle").textContent = signup ? "Crie sua conta" : recover ? "Recuperar acesso" : reset ? "Escolha uma nova senha" : "Entre na sua conta";
     document.getElementById("hmAuthSubtitle").textContent = signup
       ? "Cadastre-se como cliente para salvar equipamentos e acompanhar seus interesses."
+      : recover ? "Informe seu e-mail para receber um link de recuperação."
+      : reset ? "Digite e confirme sua nova senha para voltar a acessar o HeavyMatch."
       : "Entre com seu e-mail e senha para acessar sua conta.";
     ["Name", "Phone", "Address"].forEach(field => {
       const wrap = document.getElementById("hmAuth" + field + "Wrap");
       const input = document.getElementById("hmAuth" + field);
       wrap.hidden = !signup; input.hidden = !signup; input.required = signup;
     });
-    document.getElementById("hmAuthConfirmWrap").hidden = !signup;
-    document.getElementById("hmAuthConfirmPassword").hidden = !signup;
-    document.getElementById("hmAuthConfirmPassword").required = signup;
-    document.getElementById("hmAuthPassword").autocomplete = signup ? "new-password" : "current-password";
-    document.getElementById("hmAuthConfirmPassword").value = "";
-    document.getElementById("hmAuthForm").hidden = !!currentUser;
-    document.getElementById("hmAuthSwitch").hidden = !!currentUser;
-    document.getElementById("hmAuthSubmit").textContent = signup ? "Criar minha conta" : "Entrar";
-    document.getElementById("hmAuthSwitch").textContent = signup ? "Já tem conta? Entrar" : "Ainda não tem conta? Fazer cadastro";
+    const emailInput = document.getElementById("hmAuthEmail");
+    const emailLabel = document.querySelector('label[for="hmAuthEmail"]');
+    emailInput.hidden = reset; emailInput.required = !reset;
+    if (emailLabel) emailLabel.hidden = reset;
+    const passwordInput = document.getElementById("hmAuthPassword");
+    const passwordLabel = document.querySelector('label[for="hmAuthPassword"]');
+    passwordInput.hidden = recover;
+    passwordInput.required = !recover;
+    if (passwordLabel) passwordLabel.hidden = recover;
+    passwordInput.autocomplete = signup || reset ? "new-password" : "current-password";
+    passwordInput.value = "";
+    const confirm = document.getElementById("hmAuthConfirmPassword");
+    document.getElementById("hmAuthConfirmWrap").hidden = !signup && !reset;
+    confirm.hidden = !signup && !reset;
+    confirm.required = signup || reset;
+    confirm.value = "";
+    document.getElementById("hmAuthForm").hidden = !!currentUser && !reset;
+    document.getElementById("hmAuthSwitch").hidden = (!!currentUser && !reset) || reset;
+    document.getElementById("hmAuthRecovery").hidden = authMode !== "login";
+    document.getElementById("hmAuthLogout").hidden = true;
+    document.getElementById("hmAuthSubmit").textContent =
+      signup ? "Criar minha conta" : recover ? "Enviar link de recuperação" : reset ? "Atualizar senha" : "Entrar";
+    document.getElementById("hmAuthSwitch").textContent = signup || recover
+      ? "Já tem conta? Entrar" : "Ainda não tem conta? Fazer cadastro";
     message("");
   }
   function resetAuthForm() {
@@ -266,6 +290,33 @@
     message("Você saiu da sua conta.");
   });
 
+  function enterResetFlow() {
+    recoveryPending = true;
+    currentUser = null;
+    currentRole = "buyer";
+    topLogoutButton.hidden = true;
+    accountButton.textContent = "Entrar";
+    setAuthMode("reset");
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+    document.getElementById("hmAuthPassword").value = "";
+    message("Link de recuperação reconhecido. Digite a nova senha e confirme para salvar.");
+    document.getElementById("hmAuthPassword").focus();
+  }
+  async function ensureAccountProfile() {
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    if (sessionError) throw sessionError;
+    const token = sessionData?.session?.access_token;
+    if (!token) throw new Error("Sessão expirada. Entre novamente.");
+    const response = await fetch("/api/auth/profile", {
+      method: "POST",
+      headers: { "Accept": "application/json", "Authorization": "Bearer " + token }
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || "Não foi possível concluir a preparação do seu perfil.");
+    if (!result.profile?.role) throw new Error("O perfil da conta ainda não está disponível.");
+    return result.profile;
+  }
   async function initialize() {
     try {
       const response = await fetch("/api/config", { headers: { Accept: "application/json" } });
@@ -273,44 +324,84 @@
       if (!response.ok) throw new Error(config.error || "Não foi possível carregar a configuração.");
       if (!window.supabase?.createClient) throw new Error("A biblioteca de conexão não carregou. Verifique sua conexão e tente novamente.");
       supabaseClient = window.supabase.createClient(config.url, config.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session?.user) await showSignedIn(session.user);
-      supabaseClient.auth.onAuthStateChange((_event, session) => {
-        if (!session?.user) { currentUser = null; currentRole = "buyer"; topLogoutButton.hidden = true; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; }
+      window.hmSupabaseClient = supabaseClient;
+      // Registrar antes de recuperar a sessão: o link de senha pode emitir PASSWORD_RECOVERY nessa etapa.
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === "PASSWORD_RECOVERY") { enterResetFlow(); return; }
+        if (!session?.user) {
+          currentUser = null;
+          currentRole = "buyer";
+          topLogoutButton.hidden = true;
+          adminNav.classList.remove("hm-visible");
+          accountButton.textContent = "Entrar";
+          window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+        }
       });
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const recoveryLanding = new URLSearchParams(window.location.search).get("hmRecovery") === "1";
+      if (recoveryLanding) {
+        if (session?.user) enterResetFlow();
+        else {
+          setAuthMode("recover");
+          overlay.classList.add("open");
+          document.body.style.overflow = "hidden";
+          message("Se o link de recuperação expirou, solicite um novo e-mail.");
+        }
+      } else if (session?.user && authMode !== "reset") {
+        await showSignedIn(session.user);
+      }
     } catch (error) {
       configError = error?.message || "Falha ao conectar ao Supabase.";
       console.error("[HeavyMatch] Supabase:", configError);
     }
   }
   async function showSignedIn(user) {
+    const profile = await ensureAccountProfile();
     currentUser = user;
+    currentRole = profile.role;
     topLogoutButton.hidden = false;
+    window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
+    adminNav.classList.toggle("hm-visible", currentRole === "admin");
     accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
-    try {
-      const { data: profile, error } = await supabaseClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
-      if (error) throw error;
-      currentRole = profile?.role || "buyer";
-      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
-      adminNav.classList.toggle("hm-visible", currentRole === "admin");
-      accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
-      message("Login realizado. Perfil: " + currentRole + ".", false);
-      if (currentRole === "seller") message("Login de vendedor confirmado.", false);
-    } catch (error) {
-      currentRole = "buyer"; adminNav.classList.remove("hm-visible");
-      message("Login realizado, mas não foi possível ler seu perfil. Confira as políticas RLS da tabela profiles.", true);
-    }
+    message(currentRole === "seller" ? "Login de vendedor confirmado." : "Login realizado. Perfil: " + currentRole + ".", false);
   }
   document.getElementById("hmAuthForm").addEventListener("submit", async event => {
     event.preventDefault();
     const submit = document.getElementById("hmAuthSubmit");
     submit.disabled = true;
-    submit.textContent = authMode === "signup" ? "Criando conta…" : "Entrando…";
+    submit.textContent = authMode === "signup" ? "Criando conta…" : authMode === "recover" ? "Enviando link…" : authMode === "reset" ? "Salvando senha…" : "Entrando…";
     try {
       if (!supabaseClient) throw new Error(configError || "A conexão ainda está carregando. Feche esta janela e tente novamente.");
-      const email = document.getElementById("hmAuthEmail").value.trim();
+      const email = document.getElementById("hmAuthEmail").value.trim().toLowerCase();
       const password = document.getElementById("hmAuthPassword").value;
-      if (authMode === "signup") {
+      if (authMode === "recover") {
+        if (!email) throw new Error("Informe seu e-mail para recuperar o acesso.");
+        const redirectTo = window.location.origin + window.location.pathname + "?hmRecovery=1";
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+        if (error) throw error;
+        message("Se houver uma conta com esse e-mail, você receberá um link para criar uma nova senha. Confira também o spam.");
+      } else if (authMode === "reset") {
+        if (!recoveryPending) throw new Error("Abra um link de recuperação válido enviado por e-mail.");
+        const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
+        if (password.length < 8) throw new Error("A nova senha precisa ter pelo menos 8 caracteres.");
+        if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite novamente.");
+        const { data: recoveryIdentity, error: verifyError } = await supabaseClient.auth.getUser();
+        if (verifyError || !recoveryIdentity?.user) throw new Error("Link expirado. Solicite outra recuperação de senha.");
+        const { error } = await supabaseClient.auth.updateUser({ password });
+        if (error) throw error;
+        recoveryPending = false;
+        const { error: signOutError } = await supabaseClient.auth.signOut();
+        if (signOutError) throw signOutError;
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("hmRecovery");
+        cleanUrl.hash = "";
+        window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+        currentUser = null;
+        currentRole = "buyer";
+        document.getElementById("hmAuthForm").reset();
+        setAuthMode("login");
+        message("Senha atualizada com sucesso! Entre com seu e-mail e a nova senha.");
+      } else if (authMode === "signup") {
         const fullName = document.getElementById("hmAuthName").value.trim();
         const phone = document.getElementById("hmAuthPhone").value.trim();
         const address = document.getElementById("hmAuthAddress").value.trim();
@@ -326,6 +417,7 @@
         });
         if (error) throw error;
         if (data.session) {
+          await ensureAccountProfile();
           const { error: signOutError } = await supabaseClient.auth.signOut();
           if (signOutError) throw signOutError;
         }
@@ -340,7 +432,7 @@
         document.getElementById("hmAuthEmail").value = email;
         message(data.session
           ? "Cadastro concluído! Agora entre usando seu e-mail e sua senha."
-          : "Cadastro iniciado! Se a confirmação por e-mail estiver ativada, confirme sua conta e depois entre com e-mail e senha.", false);
+          : "Solicitação recebida. Verifique seu e-mail para confirmar o cadastro. Se você já tinha uma conta, use Entrar ou Esqueci minha senha.", false);
       } else {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -350,14 +442,16 @@
       }
     } catch (error) {
       const raw = error?.message || "";
-      const friendly = /invalid login credentials/i.test(raw) ? "E-mail ou senha incorretos."
-        : /user already registered/i.test(raw) ? "Este e-mail já possui cadastro. Entre na sua conta."
+      const friendly = /invalid login credentials/i.test(raw) ? "Não foi possível entrar com esse e-mail e senha. Se esqueceu a senha, toque em Esqueci minha senha."
+        : /email not confirmed/i.test(raw) ? "Confirme seu e-mail antes de entrar. Verifique a caixa de entrada e o spam."
+        : /user already registered/i.test(raw) ? "Este e-mail já possui cadastro. Entre na sua conta ou recupere a senha."
         : /password should be at least/i.test(raw) ? "A senha precisa ter pelo menos 8 caracteres."
+        : /rate limit|over_email_send_rate_limit/i.test(raw) ? "Muitas tentativas de envio. Aguarde um pouco antes de solicitar outro link."
         : (raw || "Não foi possível concluir. Confira os dados e tente novamente.");
       message(friendly, true);
     } finally {
       submit.disabled = false;
-      submit.textContent = authMode === "signup" ? "Criar minha conta" : "Entrar";
+      submit.textContent = authMode === "signup" ? "Criar minha conta" : authMode === "recover" ? "Enviar link de recuperação" : authMode === "reset" ? "Salvar nova senha" : "Entrar";
     }
   });
   document.addEventListener("keydown", e => {
