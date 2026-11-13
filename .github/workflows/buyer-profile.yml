@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/buyer-profile-marketplace
+      - fix/buyer-login-password-recovery
   pull_request:
     branches:
       - main
