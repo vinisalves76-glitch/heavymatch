@@ -46,6 +46,19 @@
         <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
         <div class="hm-auth-actions"><button type="button" id="hmAuthCancel">Cancelar</button><button class="primary" type="submit" id="hmAuthSubmit">Entrar</button></div>
       </form>
+      <form id="hmAuthRecoveryRequestForm" hidden>
+        <label for="hmRecoveryEmail">E-mail da conta</label>
+        <input id="hmRecoveryEmail" type="email" autocomplete="email" maxlength="254" required placeholder="seuemail@exemplo.com">
+        <div class="hm-auth-actions"><button type="button" id="hmRecoveryBack">Voltar</button><button type="submit" class="primary" id="hmRecoverySend">Enviar link</button></div>
+      </form>
+      <form id="hmAuthNewPasswordForm" hidden>
+        <label for="hmRecoveryNewPassword">Nova senha</label>
+        <input id="hmRecoveryNewPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required placeholder="Mínimo de 8 caracteres">
+        <label for="hmRecoveryConfirmPassword">Confirmar nova senha</label>
+        <input id="hmRecoveryConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required placeholder="Repita a nova senha">
+        <div class="hm-auth-actions"><button type="submit" class="primary" id="hmRecoverySave">Alterar senha</button></div>
+      </form>
+      <button type="button" class="hm-auth-switch" id="hmAuthForgot">Esqueci minha senha</button>
       <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
       <button type="button" class="hm-auth-switch" id="hmAuthLogout" hidden>Sair da conta e entrar com outro acesso</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
