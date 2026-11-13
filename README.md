@@ -69,3 +69,15 @@ Fotos do veículo de troca exigirão storage e políticas específicas; ainda n�
 - node --check buyer-profile.js
 - Testar no celular: login, salvar, sair, entrar de novo, trocar de abas, habilitar e desabilitar troca.
 - Confirmar regressão de swipe, filtros, fotos, cadastro e WhatsApp.
+
+
+## Correção do login e recuperação de senha — Preview
+
+- Cadastro/login continuam separados; contas preexistentes não são recriadas pelo sistema.
+- O formulário de login inclui **Esqueci minha senha**. O próprio Supabase envia um link de redefinição para o e-mail informado.
+- O callback de recuperação abre a tela **Definir nova senha**, verifica se existe sessão de recuperação e chama Supabase Auth updateUser para registrar a nova senha. Depois encerra a sessão e retorna ao login.
+- O destino padrão do link é a mesma origem da Preview com o parâmetro auth=recover. **O endereço da Preview precisa estar permitido em Supabase Auth → URL Configuration → Redirect URLs** para funcionar. Não alterar as URLs de produção sem revisão.
+- Para qualquer e-mail, a mensagem de recuperação não informa se existe uma conta; erros de limite de requisições são tratados.
+- Se um usuário se cadastrar com um e-mail já existente, a mensagem passa a orientar Entrar/Esqueci minha senha, sem confirmar um novo cadastro indevidamente.
+- Nenhuma senha existente foi visualizada, alterada administrativamente ou enviada para agentes. Nenhum envio de recuperação foi disparado pelo desenvolvimento.
+- Teste automatizado: tests/auth-recovery.test.mjs. Validar na Preview com o próprio titular, clicando no e-mail recebido. Somente promover à produção após validação explícita.
