@@ -111,7 +111,8 @@
   const closeAdmin = () => { adminOverlay.classList.remove("open"); document.body.style.overflow = ""; };
   const showAuth = () => {
     overlay.classList.add("open"); document.body.style.overflow = "hidden";
-    if (!currentUser) setAuthMode("login");
+    if (recoveryPending) setAuthMode("reset");
+    else if (!currentUser) setAuthMode("login");
     document.getElementById("hmAuthEmail").focus();
   };
   const openAdmin = async () => {
@@ -184,41 +185,45 @@
     }
   });
   function setAuthMode(mode) {
-    authMode = ["signup", "forgot", "reset"].includes(mode) ? mode : "login";
+    authMode = ["login", "signup", "recover", "reset"].includes(mode) ? mode : "login";
     const signup = authMode === "signup";
-    const forgot = authMode === "forgot";
+    const recover = authMode === "recover";
     const reset = authMode === "reset";
-    document.getElementById("hmAuthTitle").textContent = signup ? "Crie sua conta" : forgot ? "Recuperar acesso" : reset ? "Defina sua nova senha" : "Entre na sua conta";
+    document.getElementById("hmAuthTitle").textContent = signup ? "Crie sua conta" : recover ? "Recuperar acesso" : reset ? "Escolha uma nova senha" : "Entre na sua conta";
     document.getElementById("hmAuthSubtitle").textContent = signup
       ? "Cadastre-se como cliente para salvar equipamentos e acompanhar seus interesses."
-      : forgot ? "Informe o e-mail da sua conta para receber um link de recuperação."
-      : reset ? "Escolha uma nova senha de pelo menos 8 caracteres e confirme para continuar."
+      : recover ? "Informe seu e-mail para receber um link de recuperação."
+      : reset ? "Digite e confirme sua nova senha para voltar a acessar o HeavyMatch."
       : "Entre com seu e-mail e senha para acessar sua conta.";
     ["Name", "Phone", "Address"].forEach(field => {
       const wrap = document.getElementById("hmAuth" + field + "Wrap");
       const input = document.getElementById("hmAuth" + field);
       wrap.hidden = !signup; input.hidden = !signup; input.required = signup;
     });
-    const email = document.getElementById("hmAuthEmail");
-    email.hidden = reset;
-    email.required = !reset;
-    document.getElementById("hmAuthEmailLabel").hidden = reset;
-    const password = document.getElementById("hmAuthPassword");
-    const passwordLabel = overlay.querySelector('label[for="hmAuthPassword"]');
-    password.hidden = forgot;
-    password.required = !forgot;
-    passwordLabel.hidden = forgot;
-    passwordLabel.textContent = reset ? "Nova senha" : "Senha";
-    password.autocomplete = signup || reset ? "new-password" : "current-password";
-    document.getElementById("hmAuthConfirmWrap").hidden = !(signup || reset);
-    document.getElementById("hmAuthConfirmPassword").hidden = !(signup || reset);
-    document.getElementById("hmAuthConfirmPassword").required = signup || reset;
-    document.getElementById("hmAuthConfirmPassword").value = "";
+    const emailInput = document.getElementById("hmAuthEmail");
+    const emailLabel = document.querySelector('label[for="hmAuthEmail"]');
+    emailInput.hidden = reset; emailInput.required = !reset;
+    if (emailLabel) emailLabel.hidden = reset;
+    const passwordInput = document.getElementById("hmAuthPassword");
+    const passwordLabel = document.querySelector('label[for="hmAuthPassword"]');
+    passwordInput.hidden = recover;
+    passwordInput.required = !recover;
+    if (passwordLabel) passwordLabel.hidden = recover;
+    passwordInput.autocomplete = signup || reset ? "new-password" : "current-password";
+    passwordInput.value = "";
+    const confirm = document.getElementById("hmAuthConfirmPassword");
+    document.getElementById("hmAuthConfirmWrap").hidden = !signup && !reset;
+    confirm.hidden = !signup && !reset;
+    confirm.required = signup || reset;
+    confirm.value = "";
     document.getElementById("hmAuthForm").hidden = !!currentUser && !reset;
-    document.getElementById("hmAuthSwitch").hidden = !!currentUser || reset;
-    document.getElementById("hmAuthSwitch").textContent = signup || forgot ? "Voltar para entrar" : "Ainda não tem conta? Fazer cadastro";
-    document.getElementById("hmAuthForgot").hidden = authMode !== "login" || !!currentUser;
-    document.getElementById("hmAuthSubmit").textContent = signup ? "Criar minha conta" : forgot ? "Enviar link de recuperação" : reset ? "Salvar nova senha" : "Entrar";
+    document.getElementById("hmAuthSwitch").hidden = (!!currentUser && !reset) || reset;
+    document.getElementById("hmAuthRecovery").hidden = authMode !== "login";
+    document.getElementById("hmAuthLogout").hidden = true;
+    document.getElementById("hmAuthSubmit").textContent =
+      signup ? "Criar minha conta" : recover ? "Enviar link de recuperação" : reset ? "Atualizar senha" : "Entrar";
+    document.getElementById("hmAuthSwitch").textContent = signup || recover
+      ? "Já tem conta? Entrar" : "Ainda não tem conta? Fazer cadastro";
     message("");
   }
   function resetAuthForm() {
