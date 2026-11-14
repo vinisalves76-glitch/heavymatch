@@ -75,3 +75,13 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - Preservar anúncios anteriores `Carreta` como pertencentes à categoria `Carreta / implemento`; preservar também os perfis de compradores antigos.
 - Testar `tests/listing-categories.test.mjs` junto aos testes de anúncios e preço.
 - Não publicar nem alterar Supabase até aprovação da Preview.
+
+
+## Identidade CatiraMatch e preço na bio — Preview 14/11/2026
+- O app está sendo renomeado **CatiraMatch** (antigo HeavyMatch), mantendo a mesma infraestrutura do projeto `machinematch` até mudança explícita de domínio/projeto.
+- Referência visual fornecida pelo responsável: marca original de **duas setas opostas** em vermelho e carvão e wordmark CatiraMatch. Os arquivos otimizados originados dos anexos estão em `assets/catiramatch-logo.png` e `assets/catiramatch-icon.png`.
+- Paleta oficial: vermelho `#E32227`, carvão `#181818`, branco `#FFFFFF` e cinza-claro `#F3F3F3`. Aplicação centralizada em `styles/catiramatch-theme.css` e nos estilos de componentes legados.
+- Slogan: **Seu próximo negócio começa aqui.** Preservar **Pra você** como orientação de navegação no mobile; não duplicar menus.
+- O preço é armazenado **apenas** no campo numérico `vehicles.price` com flag `price_on_request`. A seção pública **Bio do equipamento** deve exibir o preço formatado (ou Sob consulta) junto à descrição técnica, sem copiar preço para `vehicles.description`.
+- CatiraMatch não muda roles, sessão, tabelas, URL de produção, policies RLS nem a lógica de swipe sem autorização específica.
+- Atualizar nome, paleta e logo sempre em todas as telas (login, perfil, tour, anúncio e área ADM) e validar em Preview antes da publicação.
