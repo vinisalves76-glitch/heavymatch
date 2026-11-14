@@ -65,3 +65,13 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - Antes de promover novas alterações, valide os fluxos autenticados reais e confirme que o endurecimento do banco continua ativo.
 - Preserve fotos e anúncios existentes; uploads devem manter as imagens atuais a menos que o responsável solicite exclusão.
 - Rodar `node --test tests/*.test.mjs` e inspeções de segurança de foto/contato no GitHub Actions, validar deployment Preview.
+
+
+## Classificação de equipamentos rodoviários — Preview 14/11/2026
+- **Caminhão** e **Cavalo mecânico** são categorias distintas; o formulário oferece configurações 4x2, 6x2, 6x4, 8x2, 8x4, 10x4 e Outra.
+- **Carreta / implemento** não é caminhão ou cavalo mecânico. Oferecer tipos de implemento: Prancha, Basculante, Graneleira, Baú, Sider, Tanque, Frigorífica, Porta-contêiner, Florestal e outros.
+- `listing-categories.js` contém as funções de composição, leitura e filtro. Reutilizar este módulo, sem criar taxonomias divergentes.
+- A categoria e sua configuração são armazenadas em `vehicles.category` (ex.: `Cavalo mecânico 6x4`), sem alteração do schema.
+- Preservar anúncios anteriores `Carreta` como pertencentes à categoria `Carreta / implemento`; preservar também os perfis de compradores antigos.
+- Testar `tests/listing-categories.test.mjs` junto aos testes de anúncios e preço.
+- Não publicar nem alterar Supabase até aprovação da Preview.
