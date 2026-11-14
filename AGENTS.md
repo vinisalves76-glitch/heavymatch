@@ -127,3 +127,11 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - A barra inferior de quatro destinos continua sendo **a única navegação permanente**. Os botões de ações são controles do anúncio, não uma segunda barra de navegação.
 - A barra inferior do navegador iOS (voltar/compartilhar/atualizar) é do navegador e não deve ser confundida com UI do aplicativo; não tentar ocultá-la por CSS do site.
 - Regressão: `tests/immersive-discovery.test.mjs` exige ausência de fundo/borda no wrapper e presença das ações. Preservar produção até aprovação.
+
+
+## Correção definitiva do segundo menu no celular — 14/11/2026
+- Após duas tentativas cosméticas, ficou explícito que **quatro botões alinhados acima da barra inferior continuam parecendo dois menus**. Não recriar essa fileira nem mesmo sem fundo.
+- No mobile, `#secondaryActions` usa `display:contents` e os atalhos de informação e WhatsApp dessa fileira ficam ocultos. **Somente X e coração permanecem, pequenos e posicionados nos cantos superiores da foto**, fora de qualquer barra.
+- `#hmPhotoBio` fica no rodapé do texto do anúncio. Ao clicar, chama `openDetails()`, e dentro da bio o botão existente `#modalContact` abre o WhatsApp do vendedor. Clicar nesse link não avança a galeria de fotos.
+- A **única barra de navegação visível** permanece com Descobrir, Buscar, Salvos e Conta. O desktop conserva os controles anteriores.
+- Preservar swipe direita=curtir e esquerda=passar, foto grande, menu Conta vendedor/ADM, e fotos. Não mexer em produção até validação.
