@@ -31,7 +31,9 @@ test("logo do cabeçalho é PNG transparente, sem fundo branco ou moldura",async
   const b=await readFile(path);
   assert.deepEqual(Array.from(b.subarray(0,8)),[137,80,78,71,13,10,26,10]);
   assert.match(theme,/\.brand \.brand-logo\{[^}]*background:transparent;[^}]*border:0;[^}]*border-radius:0;[^}]*padding:0;[^}]*box-shadow:none/);
-  assert.match(theme,/\.brand \.brand-logo\{display:block;width:clamp\(155px,47vw,200px\);/);
+  assert.match(theme,/\.topbar \.brand \.brand-logo\{display:block;flex:0 1 auto;width:clamp\(155px,49vw,210px\);/);
+  assert.match(theme,/\.topbar \.brand\{grid-column:1;grid-row:1;/);
+  assert.match(theme,/\.topbar \.top-actions\{grid-column:1;grid-row:2;/);
   assert.doesNotMatch(theme,/\.brand \.brand-logo\{[^}]*background:#fff/);
 });
 
