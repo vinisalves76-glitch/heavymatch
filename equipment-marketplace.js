@@ -1,7 +1,7 @@
 (() => {
   const style = document.createElement("style");
   style.textContent = `
-    .hm-listings-btn{border:1px solid #46545e;background:#25343e;color:#fff;border-radius:11px;padding:9px 10px;font-weight:850;font-size:12px;display:none}
+    .hm-listings-btn{border:0;background:#f5b323;color:#17212a;border-radius:12px;padding:11px 16px;font-weight:900;font-size:13px;display:none;margin-top:12px;box-shadow:0 5px 14px #ac75002c}
     .hm-vehicle-overlay{position:fixed;inset:0;z-index:110;background:#08111de8;display:none;align-items:center;justify-content:center;padding:10px}
     .hm-vehicle-overlay.open{display:flex}
     .hm-vehicle-card{width:100%;max-width:920px;max-height:96vh;overflow:auto;background:#fff;color:#18242d;border-radius:20px;padding:20px}
@@ -27,8 +27,8 @@
   document.head.appendChild(style);
   const topActions = document.querySelector(".top-actions");
   const openButton = document.createElement("button");
-  openButton.type = "button"; openButton.className = "hm-listings-btn"; openButton.textContent = "Meus anúncios";
-  topActions?.prepend(openButton);
+  openButton.type = "button"; openButton.className = "hm-listings-btn"; openButton.textContent = "📸 Cadastrar / gerenciar anúncios";
+  (document.querySelector(".intro") || topActions)?.appendChild(openButton);
   const overlay = document.createElement("div");
   overlay.className = "hm-vehicle-overlay";
   overlay.innerHTML = `
