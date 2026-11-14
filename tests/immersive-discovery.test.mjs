@@ -19,28 +19,33 @@ test("a imagem domina a tela no celular com fotos horizontais inteiras",()=>{
   assert.match(css,/\.feed \.photo #activeEquipmentPhoto\{[^}]*object-fit:contain/);
   assert.match(css,/\.feed \.photo \.hm-photo-backdrop\{[^}]*object-fit:cover/);
   assert.match(css,/filter:blur\(19px\) brightness\(\.52\)/);
-  assert.match(css,/\.feed \.photo-info\{[^}]*bottom:105px/);
+  assert.match(css,/\.feed \.photo-info\{[^}]*bottom:22px/);
   assert.match(html,/class="hm-hero-price">\$\{esc\(v\.price\)\}/);
   assert.match(css,/\.feed \.hm-hero-price\{display:block/);
 });
 
-test("X, detalhes, WhatsApp e coração acessíveis sobre a foto",()=>{
+test("não existe segunda barra de menu: só X e coração discretos nos cantos da foto",()=>{
   const action=html.match(/<div class="secondary-actions"[^>]*>([\s\S]*?)<\/div>/)?.[1]||"";
-  const expected=["passBtn","hmMobileDetails","hmMobileContact","likeBtn"];
-  let last=-1;for(const id of expected){const at=action.indexOf('id="'+id+'"');assert.ok(at>last,'ordem '+id);last=at;}
-  assert.match(css,/#secondaryActions #passBtn\{order:0/);
-  assert.match(css,/#secondaryActions #hmMobileContact\{order:2/);
-  assert.match(css,/#secondaryActions #likeBtn\{order:3/);
-  // A linha flutuante não pode se parecer com outro menu: sem cápsula nem fundo.
-  assert.match(css,/#secondaryActions\{[^}]*background:transparent;backdrop-filter:none/);
-  assert.match(css,/#secondaryActions\{[^}]*border:0;border-radius:0/);
-  assert.match(css,/#secondaryActions\{[^}]*pointer-events:none/);
-  assert.match(css,/#secondaryActions \.round-action\{[^}]*pointer-events:auto/);
-  assert.match(css,/#secondaryActions #passBtn\{[^}]*width:52px;height:52px/);
-  assert.match(css,/#secondaryActions #likeBtn\{[^}]*width:52px;height:52px/);
-  assert.ok(html.includes("$(\'hmMobileDetails\').addEventListener(\'click\',openDetails)"));
-  assert.ok(html.includes("$(\'hmMobileContact\').addEventListener(\'click\',contact)"));
+  assert.match(action,/id="passBtn" data-swipe-action="left"/);
+  assert.match(action,/id="likeBtn" data-swipe-action="right"/);
+  assert.match(css,/#secondaryActions\{display:contents!important\}/);
+  assert.match(css,/#secondaryActions\[style\*="display: none"\]\{display:none!important\}/);
+  assert.match(css,/#secondaryActions \.hm-mobile-card-action\{display:none!important\}/);
+  assert.match(css,/#secondaryActions #passBtn,#secondaryActions #likeBtn\{position:fixed;[^}]*top:170px/);
+  assert.match(css,/#secondaryActions #passBtn\{left:max\(14px/);
+  assert.match(css,/#secondaryActions #likeBtn\{right:max\(14px/);
+  assert.doesNotMatch(css,/#secondaryActions\{[^}]*width:min\(296px/);
   assert.match(html,/const swipeActions=\{left:pass,right:like\}/);
+});
+
+test("bio e WhatsApp continuam acessíveis a partir da foto, sem outra barra",()=>{
+  assert.match(html,/id="hmPhotoBio" aria-label="Ver bio, detalhes e WhatsApp do vendedor"/);
+  assert.match(html,/Ver bio e contato ›/);
+  assert.match(css,/\.feed \.hm-photo-bio-link\{display:inline-flex/);
+  assert.ok(html.includes("if(e.target.closest('#hmPhotoBio')){e.preventDefault();e.stopPropagation();openDetails();return;}"));
+  assert.match(html,/id="modalContact"[^>]*>☏ &nbsp; Conversar com o vendedor no WhatsApp/);
+  assert.ok(html.includes("$(\'modalContact\').addEventListener(\'click\',contact)"));
+  assert.match(html,/changeEquipmentPhoto\(1\);\}\);/);
 });
 
 test("somente quatro destinos principais visíveis no rodapé do comprador",()=>{
@@ -69,8 +74,8 @@ test("CTA do vendedor e do ADM e funções de login estão no menu Conta",()=>{
 
 test("tutorial acompanha os novos atalhos e o desktop permanece independente",()=>{
   assert.match(tour,/selector: "#exploreNav"/);
-  assert.match(tour,/selector: "#hmMobileDetails"/);
-  assert.match(tour,/selector: "#hmMobileContact"/);
+  assert.match(tour,/selector: "#hmPhotoBio"/);
+  assert.match(tour,/selector: "#modalContact"/);
   assert.match(tour,/selector: "#profileNav"/);
   assert.match(css,/@media\(max-width:799px\)/);
   assert.match(css,/@media\(min-width:800px\)\{\.hm-mobile-menu\{display:none!important\}\}/);
