@@ -38,28 +38,32 @@
   .feed .hm-gallery-dots{top:9px;z-index:5;max-width:47%}
   .feed .hm-gallery-count{top:42px;right:12px;z-index:5;font-size:10px;padding:4px 8px}
   .feed .hm-price-photo{display:none}
-  .feed .photo-info{z-index:6;bottom:105px;left:18px;right:18px;text-shadow:0 2px 5px #000a}
+  .feed .photo-info{z-index:6;bottom:22px;left:18px;right:18px;text-shadow:0 2px 5px #000a}
   .feed .location{color:#f2f2f2;font-size:12px;margin:0 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .feed .photo-info h2{font-size:clamp(26px,7.5vw,37px);line-height:1.05;letter-spacing:-.9px;
     margin:0 0 5px;color:#fff;max-width:100%;overflow-wrap:anywhere}
   .feed .photo-info p{font-size:12px;line-height:1.3;color:#eee;margin:0}
   .feed .hm-hero-price{display:block;margin-top:8px;color:#fff;font-size:clamp(20px,5.5vw,28px);font-weight:950;line-height:1.1;letter-spacing:-.5px}
+  .feed .hm-photo-bio-link{display:inline-flex;align-items:center;margin-top:9px;padding:6px 0;border:0;
+    background:transparent;color:#fff;font-size:12px;font-weight:900;text-decoration:underline;text-underline-offset:4px;
+    text-shadow:0 2px 6px #000b;cursor:pointer;position:relative;z-index:9}
+  .feed .hm-photo-bio-link:focus-visible{outline:2px solid #fff;outline-offset:4px;border-radius:4px}
   /* Ações principais estilo swipe, sobre a foto; X=esquerda, coração=direita. */
-  /* NÃO é uma segunda barra de menu: apenas quatro botões flutuantes diretamente SOBRE a fotografia. */
-  #secondaryActions{position:fixed;z-index:26;left:50%;right:auto;bottom:calc(99px + env(safe-area-inset-bottom));
-    transform:translateX(-50%);direction:ltr;display:flex;flex-direction:row;align-items:center;justify-content:space-between;
-    width:min(296px,calc(100vw - 58px));min-height:0;margin:0;padding:0;
-    border:0;border-radius:0;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;
-    box-shadow:none;gap:9px;pointer-events:none}
+  /* Apenas o menu inferior navega pelo app. Não existe uma segunda fileira de ícones. 
+     X e coração ficam em cantos separados da fotografia, sem container de menu.
+     Bio (e WhatsApp) são abertos pelo texto "Ver bio e contato" do próprio anúncio. */
+  #secondaryActions{display:contents!important}
   #secondaryActions[style*="display: none"]{display:none!important}
-  #secondaryActions .round-action{pointer-events:auto;display:flex;align-items:center;justify-content:center;flex:none;
-    border-radius:50%;margin:0;box-shadow:0 5px 17px #000a;font-weight:900;line-height:1;
+  #secondaryActions .hm-mobile-card-action{display:none!important}
+  #secondaryActions #passBtn,#secondaryActions #likeBtn{position:fixed;z-index:26;top:170px;bottom:auto;
+    display:flex;align-items:center;justify-content:center;pointer-events:auto;
+    width:43px;height:43px;margin:0;padding:0;transform:none;border-radius:50%;
+    font-size:23px;font-weight:900;line-height:1;box-shadow:0 4px 15px #0008;
     -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);touch-action:manipulation}
-  #secondaryActions #passBtn{order:0;width:52px;height:52px;background:#181818cf;border:1px solid #b4b4b4a8;color:#fff;font-size:30px}
-  #secondaryActions #likeBtn{order:3;width:52px;height:52px;background:#E32227;border:1px solid #ff686b;color:#fff;font-size:29px}
-  #secondaryActions .hm-mobile-card-action{display:flex;order:1;width:44px;height:44px;color:#fff;
-    background:#202020d9;border:1px solid #c7c7c760;font-size:22px}
-  #secondaryActions #hmMobileContact{order:2;background:#153d2ae5;border-color:#3b9b65;color:#86ffb7}
+  #secondaryActions #passBtn{left:max(14px,calc((100vw - 600px)/2 + 14px));right:auto;
+    background:#181818aa;border:1px solid #ffffff8c;color:#fff}
+  #secondaryActions #likeBtn{right:max(14px,calc((100vw - 600px)/2 + 14px));left:auto;
+    background:#E32227e8;border:1px solid #ff7679;color:#fff}
   #secondaryActions button:focus-visible{outline:3px solid #fff;outline-offset:3px}
   .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;box-sizing:border-box;
     min-height:70px;width:100%;display:flex;justify-content:space-around;align-items:stretch;gap:2px;
@@ -97,10 +101,8 @@
   .hm-mobile-menu-option:focus-visible{outline:2px solid #E32227;outline-offset:2px}
   .hm-mobile-menu-note{margin:14px 3px 0;color:#aaa;font-size:12px;line-height:1.5}
   @media(max-width:360px){
-    .feed .photo-info{left:13px;right:13px;bottom:101px}
-    #secondaryActions{bottom:calc(97px + env(safe-area-inset-bottom));width:min(278px,calc(100vw - 42px));gap:6px;padding:0}
-    #secondaryActions #passBtn,#secondaryActions #likeBtn{width:47px;height:47px}
-    #secondaryActions .hm-mobile-card-action{width:39px;height:39px}
+    .feed .photo-info{left:13px;right:13px;bottom:18px}
+    #secondaryActions #passBtn,#secondaryActions #likeBtn{top:158px;width:40px;height:40px;font-size:22px}
   }
 }
 @media(min-width:800px){.hm-mobile-menu{display:none!important}}
