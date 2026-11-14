@@ -101,3 +101,10 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - O gesto deve funcionar mesmo que o dedo saia da área da foto antes do `pointerup`; por isso o listener de término fica no documento. Não use `setPointerCapture` na foto se isso afetar a galeria.
 - Gestos verticais, cliques curtos e pointer cancelados não devem gerar curtidas ou passar anúncios.
 - Não publicar em produção sem autorização explícita e verificação da Preview.
+
+
+## Correção da sobreposição no cabeçalho mobile — 14/11/2026
+- A logo CatiraMatch deve permanecer visível e sem quadrado branco no celular.
+- O cabeçalho mobile em `styles/catiramatch-theme.css` usa duas linhas: marca + `Pra você` na primeira; ações Entrar/Conta, filtros, favoritos, Sair e Ajuda na segunda.
+- Não recolocar botões dentro da mesma linha da logo. O controle Ajuda fica compacto com ícone `?` no celular, mas seu click handler e nome acessível permanecem.
+- Preservar a nav inferior, perfis e swipe. Rodar `tests/mobile-header-no-overlap.test.mjs` e todos os testes; publicar apenas após validação.
