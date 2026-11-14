@@ -12,16 +12,16 @@
     ".hm-tour-welcome p,.hm-tour-panel p{font-size:13px;line-height:1.6;color:#5d6a73;margin:0}",
     ".hm-tour-welcome-actions,.hm-tour-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:20px}",
     ".hm-tour-btn{border:1px solid #d9e0e4;background:#f4f6f7;color:#23323c;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:850}",
-    ".hm-tour-btn.primary{background:#f5b323;border-color:#f5b323;color:#17212a}",
+    ".hm-tour-btn.primary{background:#E32227;border-color:#E32227;color:#fff}",
     ".hm-tour-btn:disabled{opacity:.4;cursor:not-allowed}",
     ".hm-tour-skip{margin-left:auto;border:0;background:transparent;color:#687680;font-size:11px;font-weight:800;padding:8px}",
     ".hm-tour-panel{padding:19px;left:14px;top:14px}",
     ".hm-tour-progress{font-size:11px;color:#687680;font-weight:850;margin-bottom:9px}",
     ".hm-tour-progress-track{height:4px;background:#edf0f2;border-radius:9px;overflow:hidden;margin-bottom:15px}",
-    ".hm-tour-progress-fill{height:100%;background:#f5b323;width:0;transition:width .2s}",
+    ".hm-tour-progress-fill{height:100%;background:#E32227;width:0;transition:width .2s}",
     ".hm-tour-backdrop{position:fixed;z-index:10000;background:#08131ed1;pointer-events:auto}",
-    ".hm-tour-target{outline:3px solid #f5b323!important;outline-offset:4px!important;border-radius:10px!important;box-shadow:0 0 0 7px #f5b32338!important}",
-    ".hm-tour-panel:focus{outline:2px solid #f5b323}",
+    ".hm-tour-target{outline:3px solid #E32227!important;outline-offset:4px!important;border-radius:10px!important;box-shadow:0 0 0 7px #E3222738!important}",
+    ".hm-tour-panel:focus{outline:2px solid #E32227}",
     "@media(max-width:600px){.hm-tour-welcome{padding:21px}.hm-tour-welcome h2,.hm-tour-panel h2{font-size:20px}.hm-tour-panel{padding:16px}.hm-tour-actions{gap:6px}.hm-tour-btn{padding:10px}.hm-tour-skip{margin-left:0}}",
     "@media(prefers-reduced-motion:reduce){.hm-tour-progress-fill{transition:none}}"
   ].join("\n");
@@ -32,7 +32,7 @@
   help.className = "hm-tour-help";
   help.id = "hmTourHelp";
   help.textContent = "❔ Ajuda";
-  help.setAttribute("aria-label", "Aprender a usar o HeavyMatch");
+  help.setAttribute("aria-label", "Aprender a usar o CatiraMatch");
   document.querySelector(".top-actions")?.appendChild(help);
 
   const welcome = document.createElement("section");
@@ -41,7 +41,7 @@
   welcome.setAttribute("role", "dialog");
   welcome.setAttribute("aria-modal", "true");
   welcome.setAttribute("aria-labelledby", "hmTourWelcomeTitle");
-  welcome.innerHTML = '<div class="hm-tour-kicker">BEM-VINDO AO HEAVYMATCH</div>' +
+  welcome.innerHTML = '<div class="hm-tour-kicker">BEM-VINDO AO CATIRAMATCH</div>' +
     '<h2 id="hmTourWelcomeTitle">Vamos conhecer o sistema?</h2>' +
     '<p>Em poucos passos, você vai aprender a explorar os equipamentos, filtrar anúncios, salvar seus favoritos e falar com um consultor. O tour acompanha a interface real e pode ser aberto novamente em <strong>Ajuda</strong>.</p>' +
     '<div class="hm-tour-welcome-actions"><button type="button" class="hm-tour-btn primary" id="hmTourStart">Iniciar tour</button><button type="button" class="hm-tour-btn" id="hmTourLater">Agora não</button></div>';
@@ -85,7 +85,7 @@
     return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 && rect.top < window.innerHeight && rect.left < window.innerWidth;
   };
   const baseSteps = [
-    { selector: ".intro", title: "Bem-vindo à vitrine", description: "Esta área apresenta o HeavyMatch. Role a página para explorar os anúncios de caminhões, carretas e máquinas pesadas." },
+    { selector: ".intro", title: "Bem-vindo à vitrine", description: "Esta área apresenta o CatiraMatch. Role a página para explorar os anúncios de caminhões, carretas e máquinas pesadas." },
     { selector: "#quickbar", title: "Explore por categoria", description: "Use os atalhos Caminhões, Escavadeiras e outras categorias para restringir a vitrine ao tipo de equipamento que procura." },
     { selector: "#filtersNav", title: "Filtros e busca", description: "Abra os filtros para combinar marca, modelo, faixa de preço e busca por texto. Você também pode ordenar os anúncios.", before: () => { const f = $("filters"); if (f && !f.classList.contains("is-open")) $("filtersNav")?.click(); } },
     { selector: "#deck", title: "Conheça os anúncios", description: "O cartão mostra fotos, marca, modelo, ano e informações do equipamento. Se o anúncio tiver mais de uma foto cadastrada, toque na foto principal para mudar para a próxima imagem; os indicadores no alto mostram quantas fotos existem e qual está aberta. Se houver apenas uma foto, tocar nela não muda a imagem. Em celulares, deslize para a direita para curtir ou para a esquerda para passar." },
