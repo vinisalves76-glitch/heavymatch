@@ -242,3 +242,9 @@ Referência: fluxo de cartões por swipe do Tinder, com fotos ocupando a tela e 
 Após avaliação de captura no celular, `styles/mobile-discovery.css` remove o fundo escuro arredondado, a borda, sombra e desfoque do agrupador de ações na fotografia. X, detalhes, WhatsApp e coração continuam como **botões circulares flutuantes independentes** na foto, sem aparentar uma segunda barra de menu. A navegação inferior mantém somente **Descobrir, Buscar, Salvos, Conta**. Os controles do Safari/visualizador não pertencem ao site.
 
 Nenhuma mudança de API, login, Supabase, banco, anúncios ou produção. Testes de layout em `tests/immersive-discovery.test.mjs`.
+
+
+### Ajuste definitivo: apenas um menu de navegação no celular
+O agrupamento horizontal X/Info/WhatsApp/Coração foi eliminado da experiência mobile. CSS `styles/mobile-discovery.css` usa `display:contents` no contêiner para que não exista outra faixa de ícones; X e coração aparecem **separados em cantos da foto**, mantendo suas funções de passar e curtir. O acesso a informações técnicas e WhatsApp fica no próprio anúncio através de **Ver bio e contato**, que abre a ficha completa com o botão de conversa do vendedor. Isso preserva a galeria ao toque e a lógica de swipe.
+
+Somente **Descobrir, Buscar, Salvos e Conta** formam o menu inferior; a barra do navegador iOS não é uma barra do aplicativo. A mudança está na mesma branch de Preview do PR #15 e não modifica backend, permissões, banco nem produção. Os testes `immersive-discovery.test.mjs` e regressões cobrem a separação.
