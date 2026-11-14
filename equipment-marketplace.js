@@ -1,7 +1,7 @@
 (() => {
   const style = document.createElement("style");
   style.textContent = `
-    .hm-listings-btn{border:0;background:#f5b323;color:#17212a;border-radius:12px;padding:10px 13px;font-weight:900;font-size:12px;display:none;box-shadow:0 5px 14px #ac75002c}
+    .hm-listings-btn{border:0;background:#E32227;color:#fff;border-radius:12px;padding:10px 13px;font-weight:900;font-size:12px;display:none;box-shadow:0 5px 14px #ac75002c}
     @media(max-width:799px){.hm-listings-btn{display:none!important}}
     .hm-vehicle-overlay{position:fixed;inset:0;z-index:110;background:#08111de8;display:none;align-items:center;justify-content:center;padding:10px}
     .hm-vehicle-overlay.open{display:flex}
@@ -21,7 +21,7 @@
     .hm-vehicle-contact label{display:block;font-size:11px;font-weight:850}
     .hm-vehicle-contact input{height:39px;border-radius:9px;border:1px solid #d9e0e5;padding:8px 10px;min-width:200px;max-width:100%}
     .hm-vehicle-contact button{height:39px;padding:0 13px;border:0;border-radius:9px;background:#1b2a34;color:white;font-weight:850}
-    .hm-vehicle-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.hm-vehicle-actions button{border:1px solid #d9e0e4;border-radius:10px;padding:10px 12px;font-weight:850;background:#f5f7f8;color:#17242e}.hm-vehicle-actions .primary{background:#f5b323;border-color:#f5b323}
+    .hm-vehicle-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.hm-vehicle-actions button{border:1px solid #d9e0e4;border-radius:10px;padding:10px 12px;font-weight:850;background:#f5f7f8;color:#17242e}.hm-vehicle-actions .primary{background:#E32227;border-color:#E32227}
     .hm-vehicle-status{font-size:12px;line-height:1.5;margin-top:10px;overflow-wrap:anywhere}.hm-vehicle-items{display:grid;gap:9px}.hm-vehicle-item{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;border:1px solid #e4e8eb;border-radius:12px;padding:9px}.hm-vehicle-item img{width:78px;height:72px;object-fit:cover;border-radius:8px;background:#eef1f3}.hm-vehicle-item strong{font-size:12px;display:block}.hm-vehicle-item small{display:block;color:#6b7780;font-size:10px;margin:4px 0}.hm-vehicle-item .hm-vehicle-actions{margin-top:6px}.hm-vehicle-item .hm-vehicle-actions button{padding:6px 9px;font-size:10px}.hm-vehicle-empty{font-size:12px;color:#687680;line-height:1.6;padding:12px 0}
     @media(max-width:720px){.hm-vehicle-layout{grid-template-columns:1fr}.hm-vehicle-card{padding:13px;border-radius:16px}.hm-vehicle-form{grid-template-columns:1fr 1fr}.hm-vehicle-head h2{font-size:20px}.hm-listings-btn{font-size:10px;padding:8px}}
   `;
@@ -35,7 +35,7 @@
   overlay.className = "hm-vehicle-overlay";
   overlay.innerHTML = `
     <section class="hm-vehicle-card" role="dialog" aria-modal="true" aria-labelledby="hmVehiclesTitle">
-      <div class="hm-vehicle-head"><div><div style="font-size:10px;letter-spacing:1.4px;font-weight:900;color:#946000;margin-bottom:5px">HEAVYMATCH · GESTÃO DE ANÚNCIOS</div><h2 id="hmVehiclesTitle">Equipamentos</h2></div><button type="button" class="hm-vehicle-close" aria-label="Fechar">×</button></div>
+      <div class="hm-vehicle-head"><div><div style="font-size:10px;letter-spacing:1.4px;font-weight:900;color:#946000;margin-bottom:5px">CATIRAMATCH · GESTÃO DE ANÚNCIOS</div><h2 id="hmVehiclesTitle">Equipamentos</h2></div><button type="button" class="hm-vehicle-close" aria-label="Fechar">×</button></div>
       <p style="font-size:12px;line-height:1.5;color:#687680;margin:8px 0">Cadastre equipamentos com fotos. O administrador gerencia todos os anúncios; cada vendedor gerencia apenas os próprios.</p>
       <div class="hm-vehicle-contact">
         <div><label for="hmVWhatsApp">Seu WhatsApp para receber compradores</label><input id="hmVWhatsApp" type="tel" inputmode="tel" placeholder="(31) 99999-9999" autocomplete="tel"></div>
@@ -47,15 +47,18 @@
           <form id="hmVehicleForm" class="hm-vehicle-form">
             <div class="hm-vehicle-field full" id="hmVSellerWrap" hidden><label for="hmVSeller">Vendedor responsável</label><select id="hmVSeller"><option value="">Minha conta (ADM)</option></select><small style="color:#687680;font-size:10px">Escolha o vendedor que receberá os contatos deste anúncio.</small></div>
             <div class="hm-vehicle-field full"><label for="hmVTitle">Título do anúncio *</label><input id="hmVTitle" required maxlength="140" placeholder="Ex.: Escavadeira hidráulica em ótimo estado"></div>
-            <div class="hm-vehicle-field"><label for="hmVCategory">Categoria *</label><select id="hmVCategory" required><option value="">Selecione</option><option>Caminhão</option><option>Carreta</option><option>Escavadeira</option><option>Carregadeira</option><option>Retroescavadeira</option><option>Motoniveladora</option><option>Trator</option><option>Empilhadeira</option><option>Outro equipamento</option></select></div>
+            <div class="hm-vehicle-field"><label for="hmVCategory">Tipo de equipamento *</label><select id="hmVCategory" required><option value="">Selecione</option><optgroup label="Veículos rodoviários"><option>Caminhão</option><option>Cavalo mecânico</option><option value="Carreta / implemento">Carreta / implemento</option></optgroup><optgroup label="Máquinas e outros equipamentos"><option>Escavadeira</option><option>Carregadeira</option><option>Retroescavadeira</option><option>Motoniveladora</option><option>Trator</option><option>Empilhadeira</option><option>Outro equipamento</option></optgroup></select></div>
+            <div class="hm-vehicle-field" id="hmVAxleWrap" hidden><label for="hmVAxles">Configuração de eixos / tração</label><select id="hmVAxles"><option value="">Não informado</option></select></div>
+            <div class="hm-vehicle-field" id="hmVImplementWrap" hidden><label for="hmVImplement">Tipo de carreta / implemento</label><select id="hmVImplement"><option value="">Não informado</option></select></div>
             <div class="hm-vehicle-field"><label for="hmVBrand">Marca *</label><input id="hmVBrand" required maxlength="80" placeholder="Ex.: Volvo, SANY, Scania"></div>
             <div class="hm-vehicle-field"><label for="hmVModel">Modelo *</label><input id="hmVModel" required maxlength="100" placeholder="Modelo"></div>
             <div class="hm-vehicle-field"><label for="hmVYear">Ano *</label><input id="hmVYear" type="number" min="1900" max="2100" required placeholder="2024"></div>
-            <div class="hm-vehicle-field"><label for="hmVPrice">Preço (R$)</label><input id="hmVPrice" type="number" min="0" step="0.01" placeholder="0,00"></div>
-            <div class="hm-vehicle-field"><label for="hmVPriceOnRequest">Preço</label><select id="hmVPriceOnRequest"><option value="true">Sob consulta</option><option value="false">Informar preço</option></select></div>
+            <div class="hm-vehicle-field"><label for="hmVPrice">Preço do equipamento (R$) *</label><input id="hmVPrice" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 250.000,00" required><small style="display:block;color:#687680;margin-top:5px;font-size:10px">Informe o valor em reais. Ele aparecerá nos detalhes do anúncio.</small></div>
+            <div class="hm-vehicle-field"><label for="hmVPriceOnRequest">Como mostrar o preço?</label><select id="hmVPriceOnRequest"><option value="false" selected>Mostrar preço</option><option value="true">Sob consulta</option></select></div>
+            <div class="hm-vehicle-field full"><div id="hmVPricePreview" style="border:1px solid #e9d09a;background:#fff8e8;border-radius:10px;padding:12px;font-size:13px;font-weight:900;color:#684900" aria-live="polite">Preço no anúncio: informe o valor acima.</div></div>
             <div class="hm-vehicle-field"><label for="hmVState">Estado</label><input id="hmVState" maxlength="80" placeholder="MG"></div>
             <div class="hm-vehicle-field"><label for="hmVCity">Cidade</label><input id="hmVCity" maxlength="100" placeholder="Belo Horizonte"></div>
-            <div class="hm-vehicle-field full"><label for="hmVDescription">Descrição</label><textarea id="hmVDescription" maxlength="5000" placeholder="Condição, horímetro/quilometragem, opcionais e detalhes"></textarea></div>
+            <div class="hm-vehicle-field full"><label for="hmVDescription">Bio do equipamento</label><textarea id="hmVDescription" maxlength="5000" placeholder="Descreva o estado de conservação, quilometragem ou horímetro, manutenção, opcionais, pneus e demais detalhes"></textarea><small style="display:block;font-size:11px;color:#64727c;margin-top:5px">O preço informado acima aparecerá automaticamente no início da bio pública. Não precisa digitá-lo novamente aqui.</small></div>
             <div class="hm-vehicle-field full"><label for="hmVPhotos">Fotos do equipamento (até 10, JPG/PNG/WebP, até 10 MB cada)</label><input id="hmVPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><input id="hmVCameraPhotos" type="file" accept="image/*" capture="environment" hidden><div class="hm-vehicle-actions" style="margin-top:8px"><button id="hmVTakePhoto" type="button" class="primary">📷 Tirar foto com a câmera</button><button id="hmVChoosePhotos" type="button">🖼️ Escolher da galeria</button></div><small id="hmVPhotoHelp" style="display:block;color:#687680;margin-top:5px">No celular, toque em “Tirar foto” para abrir a câmera traseira. Você pode repetir para adicionar mais fotos.</small><small id="hmVExistingPhotos" style="display:block;color:#687680;margin-top:5px"></small><div id="hmVPhotoPreviews" class="hm-photo-previews" aria-label="Fotos selecionadas"></div></div>
             <div class="hm-vehicle-field full"><label for="hmVStatus">Visibilidade</label><select id="hmVStatus"><option value="draft">Salvar como rascunho</option><option value="published">Publicar no catálogo</option><option value="sold">Vendido</option><option value="inactive">Pausar anúncio</option></select></div>
             <div class="hm-vehicle-field full"><div class="hm-vehicle-actions"><button class="primary" id="hmVSave" type="submit">Cadastrar equipamento</button><button id="hmVCancelEdit" type="button" hidden>Cancelar edição</button><button id="hmVReset" type="button">Limpar formulário</button></div><div class="hm-vehicle-status" id="hmVMessage" role="status" aria-live="polite"></div></div>
@@ -68,10 +71,61 @@
   let client = null, session = null, role = "buyer", user = null;
   let items = [], sellers = [], editing = null, existingPhotos = [], pickedFiles = [], previewUrls = [];
   const $ = id => document.getElementById(id);
+  const taxonomy = window.hmListingCategories;
+  function updateCategoryFields() {
+    const category=$("hmVCategory").value;
+    const isTruck=category==="Caminhão"||category==="Cavalo mecânico";
+    const isImplement=category==="Carreta / implemento";
+    $("hmVAxleWrap").hidden=!isTruck;
+    $("hmVImplementWrap").hidden=!isImplement;
+    if(!isTruck)$("hmVAxles").value="";
+    if(!isImplement)$("hmVImplement").value="";
+  }
+  function setCategoryFromStored(stored) {
+    const category=taxonomy.base(stored);
+    $("hmVCategory").value=category;
+    updateCategoryFields();
+    const detail=taxonomy.variant(stored);
+    if(category==="Caminhão"||category==="Cavalo mecânico")$("hmVAxles").value=taxonomy.truckConfigs.includes(detail)?detail:"";
+    if(category==="Carreta / implemento")$("hmVImplement").value=taxonomy.implementTypes.includes(detail)?detail:"";
+  }
+  function getStoredCategory() {
+    const category=$("hmVCategory").value;
+    const detail=category==="Carreta / implemento"?$("hmVImplement").value:$("hmVAxles").value;
+    return taxonomy.compose(category,detail);
+  }
   const sellerNav = $("sellerNav");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  taxonomy.truckConfigs.forEach(value=>$("hmVAxles").add(new Option(value,value)));
+  taxonomy.implementTypes.forEach(value=>$("hmVImplement").add(new Option(value,value)));
+  $("hmVCategory").addEventListener("change",updateCategoryFields);
   const setMessage = (text, bad=false) => { $("hmVMessage").textContent=text; $("hmVMessage").style.color=bad?"#b42332":"#246b45"; };
-  const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:2});
+  const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2,maximumFractionDigits:2});
+  // Aceita o padrão brasileiro 250.000,00 e números simples sem ambiguidades.
+  function parsePriceBR(value) {
+    const raw=String(value??"").trim().replace(/^R\$\s*/i,"").replace(/\s/g,"");
+    if(!raw)return null;
+    let normalized=raw;
+    if(raw.includes(",")){
+      if(!/^(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d{1,2})?$/.test(raw))return NaN;
+      normalized=raw.replace(/\./g,"").replace(",",".");
+    }else if(raw.includes(".")){
+      if(/^\d{1,3}(?:\.\d{3})+$/.test(raw))normalized=raw.replace(/\./g,"");
+      else if(!/^\d+\.\d{1,2}$/.test(raw))return NaN;
+    }else if(!/^\d+$/.test(raw))return NaN;
+    const price=Number(normalized);
+    return Number.isFinite(price)&&price>=0&&price<=1e10?price:NaN;
+  }
+  function updatePriceUI() {
+    const showPrice=$("hmVPriceOnRequest").value!=="true";
+    $("hmVPrice").disabled=!showPrice;
+    $("hmVPrice").required=showPrice;
+    const amount=showPrice?parsePriceBR($("hmVPrice").value):null;
+    $("hmVPricePreview").textContent=!showPrice?"Preço no anúncio: Sob consulta":
+      amount===null?"Preço no anúncio: informe o valor acima.":
+      Number.isNaN(amount)?"Confira o preço. Exemplo: 250.000,00":
+      "Preço no anúncio: "+money({price:amount,price_on_request:false});
+  }
   function revokePreviews() {
     previewUrls.forEach(url => URL.revokeObjectURL(url));
     previewUrls = [];
@@ -99,8 +153,10 @@
   function clearForm() {
     editing=null; existingPhotos=[]; pickedFiles=[];
     $("hmVehicleForm").reset();
+    updateCategoryFields();
     $("hmVStatus").value="draft";
-    $("hmVPrice").disabled=true;
+    $("hmVPriceOnRequest").value="false";
+    updatePriceUI();
     $("hmVehicleFormTitle").textContent="Cadastrar equipamento";
     $("hmVSave").textContent="Cadastrar equipamento";
     $("hmVCancelEdit").hidden=true;
@@ -167,7 +223,7 @@
       if(!response.ok)throw new Error(data.error||"Não foi possível carregar os anúncios.");
       renderPublic(data.vehicles||[]);
     }catch(error){
-      console.error("[HeavyMatch catálogo]",error);
+      console.error("[CatiraMatch catálogo]",error);
       vehicles=[];filtered=[];index=0;render();
     }
   }
@@ -242,8 +298,10 @@
   overlay.addEventListener("click",event=>{if(event.target===overlay)close();});
   $("hmVCancelEdit").addEventListener("click",clearForm);
   $("hmVReset").addEventListener("click",clearForm);
-  $("hmVPriceOnRequest").addEventListener("change",()=>{$("hmVPrice").disabled=$("hmVPriceOnRequest").value==="true";});
-  $("hmVPrice").disabled=true;
+  $("hmVPriceOnRequest").addEventListener("change",updatePriceUI);
+  $("hmVPrice").addEventListener("input",updatePriceUI);
+  $("hmVPrice").addEventListener("blur",()=>{const price=parsePriceBR($("hmVPrice").value);if(price!==null&&Number.isFinite(price))$("hmVPrice").value=money({price,price_on_request:false}).replace(/^R\$\s*/,"");updatePriceUI();});
+  updatePriceUI();
   $("hmVehicleItems").addEventListener("click",async event=>{
     const edit=event.target.closest("[data-edit]");
     const del=event.target.closest("[data-delete]");
@@ -255,13 +313,13 @@
       $("hmVSave").textContent="Salvar alterações";
       $("hmVCancelEdit").hidden=false;
       $("hmVTitle").value=v.title||"";
-      $("hmVCategory").value=v.category||"";
+      setCategoryFromStored(v.category||"");
       $("hmVBrand").value=v.brand||"";
       $("hmVModel").value=v.model||"";
       $("hmVYear").value=v.manufacture_year||"";
       $("hmVPriceOnRequest").value=String(!!v.price_on_request||v.price==null);
-      $("hmVPrice").disabled=$("hmVPriceOnRequest").value==="true";
-      $("hmVPrice").value=v.price??"";
+      $("hmVPrice").value=v.price==null?"":money({price:v.price,price_on_request:false}).replace(/^R\$\s*/,"");
+      updatePriceUI();
       $("hmVState").value=v.state||"";
       $("hmVCity").value=v.city||"";
       $("hmVDescription").value=v.description||"";
@@ -316,6 +374,9 @@
       const total=existingPhotos.length+pickedFiles.length;
       if(total>10)throw new Error("Escolha no máximo 10 fotos.");
       if($("hmVStatus").value==="published"&&total===0)throw new Error("Adicione pelo menos uma foto para publicar.");
+      const isOnRequest=$("hmVPriceOnRequest").value==="true";
+      const priceValue=isOnRequest?null:parsePriceBR($("hmVPrice").value);
+      if(!isOnRequest&&(priceValue===null||Number.isNaN(priceValue)))throw new Error("Informe um preço válido. Exemplo: 250.000,00, ou selecione Sob consulta.");
       const paths=existingPhotos.map(photo=>photo.path);
       for(let i=0;i<pickedFiles.length;i++){
         setMessage("Enviando foto "+(i+1)+" de "+pickedFiles.length+"...");
@@ -323,11 +384,11 @@
         uploaded.push(path);paths.push(path);
       }
       const body={
-        title:$("hmVTitle").value.trim(),category:$("hmVCategory").value,
+        title:$("hmVTitle").value.trim(),category:getStoredCategory(),
         brand:$("hmVBrand").value.trim(),model:$("hmVModel").value.trim(),
         manufacture_year:Number($("hmVYear").value),
-        price_on_request:$("hmVPriceOnRequest").value==="true",
-        price:$("hmVPrice").value===""?null:Number($("hmVPrice").value),
+        price_on_request:isOnRequest,
+        price:priceValue,
         description:$("hmVDescription").value.trim(),state:$("hmVState").value.trim(),
         city:$("hmVCity").value.trim(),status:$("hmVStatus").value,photos:paths
       };
@@ -337,7 +398,7 @@
       clearForm();setMessage(result.message||"Anúncio salvo.");
       await loadManage();await loadPublic();
     }catch(error) {
-      if(uploaded.length){try{await request("cleanup",{photos:uploaded});}catch(cleanupError){console.warn("[HeavyMatch fotos] limpeza pendente");}}
+      if(uploaded.length){try{await request("cleanup",{photos:uploaded});}catch(cleanupError){console.warn("[CatiraMatch fotos] limpeza pendente");}}
       setMessage(error.message||"Não foi possível salvar o anúncio.",true);
     }finally {
       button.disabled=false;

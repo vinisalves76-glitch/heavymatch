@@ -1,0 +1,24 @@
+name: Listing price preview validation
+on:
+  push:
+    branches:
+      - feat/listing-price-visible-20261114
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  price-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check listing form syntax
+        run: |
+          node --check equipment-marketplace.js
+          node --check api/vehicles.js
+      - name: Run pricing and marketplace regression tests
+        run: node --test tests/*.test.mjs

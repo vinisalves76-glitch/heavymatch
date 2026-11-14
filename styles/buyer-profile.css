@@ -1,4 +1,4 @@
-/* HeavyMatch — área de perfil e intenção de compra (somente Preview) */
+/* CatiraMatch — área de perfil e intenção de compra (somente Preview) */
 .hm-profile-overlay{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;background:rgba(5,12,19,.77);padding:14px;overscroll-behavior:contain}
 .hm-profile-overlay.is-open{display:flex}
 .hm-profile-panel{width:min(100%,850px);height:min(92dvh,880px);display:flex;flex-direction:column;overflow:hidden;border-radius:24px;background:#f5f5f6;color:#182127;box-shadow:0 24px 75px rgba(0,0,0,.44);font:inherit}
@@ -43,7 +43,7 @@
 .hm-profile-empty{padding:35px 15px;text-align:center}
 .hm-profile-empty h3{font-size:20px;color:#22313a}
 .hm-profile-empty p{color:#65717a;line-height:1.6;font-size:13px}
-.hm-profile-empty button{border:0;border-radius:12px;padding:13px 18px;background:#f5b323;color:#17212a;font-size:13px;font-weight:900}
+.hm-profile-empty button{border:0;border-radius:12px;padding:13px 18px;background:#E32227;color:#17212a;font-size:13px;font-weight:900}
 .hm-profile-privacy{margin:14px 0 0;font-size:11px;color:#718087;line-height:1.5}
 .hm-profile-loading{color:#66737b;text-align:center;padding:40px 16px}
 @media(max-width:700px){

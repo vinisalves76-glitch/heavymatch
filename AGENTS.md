@@ -65,3 +65,31 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - Antes de promover novas alterações, valide os fluxos autenticados reais e confirme que o endurecimento do banco continua ativo.
 - Preserve fotos e anúncios existentes; uploads devem manter as imagens atuais a menos que o responsável solicite exclusão.
 - Rodar `node --test tests/*.test.mjs` e inspeções de segurança de foto/contato no GitHub Actions, validar deployment Preview.
+
+
+## Classificação de equipamentos rodoviários — Preview 14/11/2026
+- **Caminhão** e **Cavalo mecânico** são categorias distintas; o formulário oferece configurações 4x2, 6x2, 6x4, 8x2, 8x4, 10x4 e Outra.
+- **Carreta / implemento** não é caminhão ou cavalo mecânico. Oferecer tipos de implemento: Prancha, Basculante, Graneleira, Baú, Sider, Tanque, Frigorífica, Porta-contêiner, Florestal e outros.
+- `listing-categories.js` contém as funções de composição, leitura e filtro. Reutilizar este módulo, sem criar taxonomias divergentes.
+- A categoria e sua configuração são armazenadas em `vehicles.category` (ex.: `Cavalo mecânico 6x4`), sem alteração do schema.
+- Preservar anúncios anteriores `Carreta` como pertencentes à categoria `Carreta / implemento`; preservar também os perfis de compradores antigos.
+- Testar `tests/listing-categories.test.mjs` junto aos testes de anúncios e preço.
+- Não publicar nem alterar Supabase até aprovação da Preview.
+
+
+## Identidade CatiraMatch e preço na bio — Preview 14/11/2026
+- O app está sendo renomeado **CatiraMatch** (antigo HeavyMatch), mantendo a mesma infraestrutura do projeto `machinematch` até mudança explícita de domínio/projeto.
+- Referência visual fornecida pelo responsável: marca original de **duas setas opostas** em vermelho e carvão e wordmark CatiraMatch. Os arquivos otimizados originados dos anexos estão em `assets/catiramatch-logo.png` e `assets/catiramatch-icon.png`.
+- Paleta oficial: vermelho `#E32227`, carvão `#181818`, branco `#FFFFFF` e cinza-claro `#F3F3F3`. Aplicação centralizada em `styles/catiramatch-theme.css` e nos estilos de componentes legados.
+- Slogan: **Seu próximo negócio começa aqui.** Preservar **Pra você** como orientação de navegação no mobile; não duplicar menus.
+- O preço é armazenado **apenas** no campo numérico `vehicles.price` com flag `price_on_request`. A seção pública **Bio do equipamento** deve exibir o preço formatado (ou Sob consulta) junto à descrição técnica, sem copiar preço para `vehicles.description`.
+- CatiraMatch não muda roles, sessão, tabelas, URL de produção, policies RLS nem a lógica de swipe sem autorização específica.
+- Atualizar nome, paleta e logo sempre em todas as telas (login, perfil, tour, anúncio e área ADM) e validar em Preview antes da publicação.
+
+
+## Correção do cabeçalho CatiraMatch — 14/11/2026
+- Nunca colocar a logo dentro de cartão retangular branco, com padding, borda arredondada ou sombra.
+- No cabeçalho carvão usar `assets/catiramatch-logo-header.png`: PNG **transparente**, lettering branco, seta superior branca e inferior vermelha, produzido a partir da marca oficial fornecida.
+- `assets/catiramatch-logo.png` permanece disponível para superfícies claras (por exemplo, login). Não aplicar filtros que tornem o lettering invisível.
+- O estilo `.brand .brand-logo` em `styles/catiramatch-theme.css` deve manter `background:transparent`, `padding:0`, `border:0` e `box-shadow:none` tanto no desktop quanto no mobile.
+- Validar o recorte/legibilidade do PNG e executar os testes antes da publicação; não alterar produção sem aprovação.

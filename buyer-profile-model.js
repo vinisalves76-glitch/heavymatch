@@ -16,7 +16,7 @@
       F("purchase_for","Destino da compra","select",{options:["Uso próprio","Ampliar frota","Substituir equipamento","Revenda","Projeto específico","Ainda pesquisando"]})
     ]},
     {id:"search",title:"O que procura",icon:"🚛",intro:"Defina a máquina ideal. Quanto mais detalhes, melhores poderão ser suas buscas.", fields:[
-      F("categories","Categorias de interesse","chips",{options:["Caminhão","Cavalo mecânico","Carreta","Escavadeira","Carregadeira","Retroescavadeira","Trator","Motoniveladora","Outra máquina"],wide:true}),
+      F("categories","Categorias de interesse","chips",{options:["Caminhão","Cavalo mecânico","Carreta / implemento","Escavadeira","Carregadeira","Retroescavadeira","Trator","Motoniveladora","Outra máquina"],wide:true}),
       F("brands","Marcas de preferência","text",{max:180,placeholder:"Scania, Volvo, Mercedes-Benz, SANY..."}),
       F("models","Modelos procurados","text",{max:180,placeholder:"R 450, FH 540, SY750H..."}),
       F("year_from","Ano mínimo","number",{min:1950,max:2100}),
@@ -51,7 +51,7 @@
     ]},
     {id:"trade",title:"Veículo para troca",icon:"🔄",intro:"Se tem caminhão ou máquina para oferecer na negociação, descreva aqui.",fields:[
       F("has_trade","Tem equipamento para dar de troca?","yesno"),
-      F("trade_category","Tipo de equipamento","select",{options:["Caminhão","Cavalo mecânico","Carreta","Escavadeira","Carregadeira","Retroescavadeira","Outro"]}),
+      F("trade_category","Tipo de equipamento","select",{options:["Caminhão","Cavalo mecânico","Carreta / implemento","Escavadeira","Carregadeira","Retroescavadeira","Outro"]}),
       F("trade_brand","Marca","text",{max:80,placeholder:"Scania, Volvo, SANY..."}),
       F("trade_model","Modelo","text",{max:120,placeholder:"Ex.: R 440"}),
       F("trade_year","Ano","number",{min:1950,max:2100}),
@@ -90,6 +90,7 @@
       if(field.type==="check") {clean[field.key]=value===true;return;}
       if(field.type==="chips"){
         var list=Array.isArray(value)?value:[];
+        if(field.key==="categories")list=list.map(function(item){return item==="Carreta"?"Carreta / implemento":item;});
         clean[field.key]=list.filter(function(item){return field.options.includes(item);}).slice(0,field.options.length).filter(function(item,index,array){return array.indexOf(item)===index;});
         return;
       }
@@ -100,6 +101,7 @@
         return;
       }
       var text=typeof value==="string"?value.trim().slice(0,field.max||120):"";
+      if(field.key==="trade_category"&&text==="Carreta")text="Carreta / implemento";
       if(field.type==="select"||field.type==="yesno"){
         var options=field.type==="yesno"?["Sim","Não","A definir"]:field.options;
         clean[field.key]=options.includes(text)?text:"";

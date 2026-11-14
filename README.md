@@ -154,3 +154,52 @@ Branch de testes: `feat/seller-admin-listings-20261114`. **Não publicar na prod
 - O servidor continua autorizando a criação e edição de anúncios apenas para seller/admin e validando a titularidade em operações de vendedor.
 - Nenhuma conta, anúncio ou foto foi apagada; verificadas 8 entradas em `vehicles`, 28 em `vehicle_photos` e 4 em `profiles`.
 - Atenção: testes E2E autenticados reais e upload pela câmera devem ser validados no celular após a publicação.
+
+
+## Preview — preço de venda visível no cadastro e nos anúncios
+
+Branch: `feat/listing-price-visible-20261114`. **Não publicar em produção sem aprovação.**
+
+- O formulário comercial agora começa em **Mostrar preço**, com campo de valor em reais habilitado.
+- Aceita valores `250.000,00`, `250000`, `R$ 250.000,00` e centavos. Faz validação e envia um número para o campo `vehicles.price`.
+- A opção **Sob consulta** continua disponível, desabilitando a exigência de valor numérico e salvando `price_on_request=true`.
+- Um resumo no formulário mostra exatamente como o preço será exibido.
+- A vitrine exibe o preço sobre a foto do equipamento, inclusive no layout mobile.
+- Ao abrir **Detalhes**, o preço aparece em destaque na descrição visual do anúncio, sem duplicar texto dentro de `vehicles.description`.
+- O filtro de faixa de preço interpreta o padrão brasileiro `R$ 250.000,00`.
+- Na edição, o valor informado anteriormente é recuperado, mantendo os anúncios existentes e a opção Sob consulta.
+- Nenhuma migração, alteração de RLS, exclusão ou modificação dos dados em produção.
+- Rodar `node --test tests/*.test.mjs`, incluindo `tests/listing-price.test.mjs`.
+
+
+### Classificação correta — caminhões, cavalos mecânicos e carretas
+
+- **Caminhão:** categoria própria. Quando aplicável, permite selecionar configuração de eixos como 4x2, 6x2, 6x4, 8x2, 8x4, 10x4 ou Outra.
+- **Cavalo mecânico:** categoria independente de Caminhão; seleção opcional de configuração de eixos/tração (4x2, 6x2, 6x4, 8x2, 8x4, 10x4, Outra).
+- **Carreta / implemento:** categoria de implemento rebocado; seleção opcional de tipo (Basculante, Graneleira, Prancha, Baú, Sider, Tanque, Frigorífica, Porta-contêiner, Cegonha, Florestal, Canavieira, Dolly, Outro).
+- No catálogo e na pesquisa, as opções têm filtros separados para Caminhão, Cavalo mecânico e Carreta / implemento.
+- Persistência sem alteração de schema: os campos são codificados em `vehicles.category` (ex.: `Cavalo mecânico 6x4`, `Carreta / implemento — Prancha`). `listing-categories.js` contém o conversor e o filtro normalizador. A categoria composta é exibida na ficha e no cartão do anúncio.
+- Anúncios antigos gravados com `category='Carreta'` continuam sendo encontrados no filtro de carretas; ao editar, são interpretados como `Carreta / implemento`. Preferências antigas de compradores com `Carreta` também são convertidas ao abrir e salvar o perfil.
+- Não há alteração de tabelas nem de registros de produção nesta branch; somente Preview até aprovação.
+- Executar `node --test tests/listing-categories.test.mjs` e todos os testes do workflow.
+
+
+## CatiraMatch — nova identidade visual e preço na bio (Preview)
+Marca adotada: **CatiraMatch**, antiga marca HeavyMatch. Identidade baseada nas imagens originais enviadas pelo proprietário, incluindo wordmark e ícone de setas opostas.
+
+- **Paleta:** vermelho `#E32227`, carvão `#181818`, branco `#FFFFFF`, cinza-claro `#F3F3F3`.
+- **Slogan:** Seu próximo negócio começa aqui. Complemento: Conectar. Negociar. Avançar.
+- **Logo original:** `assets/catiramatch-logo.png`; favicon recortado das setas `assets/catiramatch-icon.png`. Ambas extraídas e otimizadas da arte enviada.
+- **Estilos:** `styles/catiramatch-theme.css` sobrepõe a antiga paleta amarela e mantém o layout Tinder-like, o título `Pra você` no celular, os mesmos filtros e navegação, e os botões X esquerda/pular e coração direita/curtir.
+- **Bio do equipamento:** a tela Detalhes apresenta `Bio do equipamento` com uma faixa de preço derivada de `vehicles.price` (ou `Sob consulta`) seguida da descrição `vehicles.description`. O campo de texto da área do vendedor foi renomeado para Bio do equipamento. Alterar o preço atualiza a bio automaticamente sem duplicar o valor no banco.
+- **Nome visível:** título da página, informações de compartilhamento, formulário de login, painel de vendedor, perfil de comprador, tour e WhatsApp atualizados para CatiraMatch.
+- **Infraestrutura:** repositório GitHub e domínio `machinematch.vercel.app` continuam com nomes técnicos antigos para evitar interromper o serviço. **Não alterar domínio em produção sem aprovação.**
+- **Escopo:** branch `feat/listing-price-visible-20261114` em Preview. Sem alterações de banco, contas, anúncios ou produção. A publicação requer validação do usuário.
+- **Regressões:** `node --test tests/*.test.mjs`, inspeção manual do logo e dos preços no mobile e desktop.
+
+
+### Ajuste visual da logo no topo
+- Corrigido o problema de renderização: o retângulo branco com cantos arredondados do cabeçalho não faz parte da identidade e foi removido.
+- A logo do cabeçalho agora é `assets/catiramatch-logo-header.png` (PNG com transparência, tipografia branca e setas branca/vermelha) e fica diretamente sobre a barra carvão. A versão original preta é preservada para telas claras.
+- Estilos desktop/mobile de `.brand .brand-logo` retiram `background:#fff`, padding, sombras e bordas. O arquivo PNG foi recortado para eliminar margens transparentes excessivas.
+- Sem mudanças no banco ou nas funcionalidades; testes em `tests/catiramatch-brand.test.mjs`.

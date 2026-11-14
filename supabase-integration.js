@@ -14,7 +14,7 @@
     .hm-auth-card label,.hm-admin-card label{display:block;font-size:12px;font-weight:800;margin:13px 0 6px}
     .hm-auth-card input,.hm-admin-card input,.hm-admin-card select{width:100%;height:44px;border:1px solid #dce2e6;border-radius:10px;padding:0 12px;color:#17242e;background:#fff}
     .hm-auth-actions,.hm-admin-actions{display:flex;gap:8px;margin-top:17px;flex-wrap:wrap}.hm-auth-actions button,.hm-admin-actions button{flex:1;min-height:43px;border-radius:10px;font-weight:800;border:1px solid #dce2e6}
-    .hm-auth-actions .primary,.hm-admin-actions .primary{background:#f5b323;border-color:#f5b323;color:#17212a}
+    .hm-auth-actions .primary,.hm-admin-actions .primary{background:#E32227;border-color:#E32227;color:#fff}
     .hm-auth-recovery{color:#705000;font-weight:850;width:100%;padding:9px 5px;border:0;background:transparent;cursor:pointer;font-size:12px;text-align:center}.hm-auth-recovery[hidden]{display:none!important}
     .hm-auth-message,.hm-admin-message{font-size:12px;line-height:1.5;margin-top:12px;overflow-wrap:anywhere}.hm-auth-close,.hm-admin-close{float:right;border:0;background:#eef1f3;border-radius:50%;width:32px;height:32px;font-size:20px}
     .hm-admin-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0}
@@ -24,7 +24,7 @@
     .hm-admin-table-wrap{overflow:auto;margin-top:10px}.hm-admin-table{border-collapse:collapse;width:100%;font-size:12px}.hm-admin-table th,.hm-admin-table td{text-align:left;border-bottom:1px solid #e6e9eb;padding:10px 7px;white-space:nowrap}.hm-admin-role{display:inline-block;padding:4px 7px;border-radius:20px;background:#edf0f2;font-size:10px;font-weight:800}.hm-admin-role.admin{background:#fff0c9;color:#805600}.hm-admin-role.seller{background:#e0f6e9;color:#176b3d}
     .hm-admin-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}.hm-admin-tab{border:1px solid #dce2e6;background:#fff;color:#25343e;border-radius:10px;padding:9px 12px;font-weight:800;font-size:12px}.hm-admin-tab.active{background:#17242e;color:#fff}
     .hm-admin-note{background:#fff7e5;border:1px solid #f4dfad;padding:10px;border-radius:10px;font-size:11px;line-height:1.5;color:#654a10}
-    .hm-admin-nav{display:none!important}.hm-admin-nav.hm-visible{display:grid!important;color:#f5b323!important}
+    .hm-admin-nav{display:none!important}.hm-admin-nav.hm-visible{display:grid!important;color:#E32227!important}
     @media(max-width:650px){.hm-admin-grid{grid-template-columns:1fr}.hm-admin-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.hm-admin-kpi{padding:10px}.hm-admin-kpi strong{font-size:19px}.hm-admin-card{padding:16px}.hm-admin-section{padding:12px}}
     @media(max-width:799px){.hm-account-btn{font-size:11px;padding:8px 9px}.hm-admin-overlay{padding:7px}.hm-admin-card{max-height:96vh;border-radius:17px}}
   `;
@@ -35,7 +35,8 @@
   overlay.innerHTML = `
     <section class="hm-auth-card" role="dialog" aria-modal="true" aria-labelledby="hmAuthTitle">
       <button type="button" class="hm-auth-close" aria-label="Fechar">×</button>
-      <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">ÁREA SEGURA</div>
+      <div class="hm-auth-brand"><img src="/assets/catiramatch-logo.png" alt="CatiraMatch"><span>Seu próximo negócio começa aqui.</span></div>
+      <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#E32227;margin:5px 0 9px">ÁREA SEGURA</div>
       <h2 id="hmAuthTitle">Entre na sua conta</h2>
       <p id="hmAuthSubtitle">Entre com seu e-mail e senha para acessar sua conta.</p>
       <form id="hmAuthForm">
@@ -59,7 +60,7 @@
   adminOverlay.innerHTML = `
     <section class="hm-admin-card" role="dialog" aria-modal="true" aria-labelledby="hmAdminTitle">
       <button type="button" class="hm-admin-close" aria-label="Fechar">×</button>
-      <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">HEAVYMATCH · ACESSO RESTRITO</div>
+      <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">CATIRAMATCH · ACESSO RESTRITO</div>
       <h2 id="hmAdminTitle">ADM Master</h2>
       <p>Gerencie os acessos da plataforma. Somente administradores autorizados conseguem criar novas contas privilegiadas.</p>
       <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button></div>
@@ -193,7 +194,7 @@
     document.getElementById("hmAuthSubtitle").textContent = signup
       ? "Cadastre-se como cliente para salvar equipamentos e acompanhar seus interesses."
       : recover ? "Informe seu e-mail para receber um link de recuperação."
-      : reset ? "Digite e confirme sua nova senha para voltar a acessar o HeavyMatch."
+      : reset ? "Digite e confirme sua nova senha para voltar a acessar o CatiraMatch."
       : "Entre com seu e-mail e senha para acessar sua conta.";
     ["Name", "Phone", "Address"].forEach(field => {
       const wrap = document.getElementById("hmAuth" + field + "Wrap");
@@ -358,7 +359,7 @@
       }
     } catch (error) {
       configError = error?.message || "Falha ao conectar ao Supabase.";
-      console.error("[HeavyMatch] Supabase:", configError);
+      console.error("[CatiraMatch] Supabase:", configError);
     }
   }
   async function showSignedIn(user) {

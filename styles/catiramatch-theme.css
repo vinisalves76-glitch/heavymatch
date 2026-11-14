@@ -1,0 +1,82 @@
+/* CatiraMatch — identidade visual aprovada: vermelho #E32227, carvão #181818 e branco. */
+:root{
+  --site-primary:#E32227;
+  --site-on-primary:#FFFFFF;
+  --site-secondary:#181818;
+  --site-on-secondary:#FFFFFF;
+  --site-background:#F3F3F3;
+  --site-on-background:#181818;
+  --surface:#FFFFFF;
+  --muted:#6A6A6A;
+  --line:#E6E6E6;
+  --red:#E32227;
+  --green:#169B64;
+}
+html,body{accent-color:#E32227}
+body,#app{background-color:var(--site-background)}
+.topbar{background:#181818;color:#fff;border-bottom:2px solid #E32227}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;min-width:0}
+.brand .brand-logo{display:block;width:clamp(195px,20vw,250px);height:auto;max-height:55px;object-fit:contain;background:transparent;border:0;border-radius:0;padding:0;box-shadow:none;filter:none}
+.brand .mark,.brand em{display:none}
+.brand .brand-text-fallback{display:none;font-weight:950}
+.top-btn{background:#292929;border-color:#454545;color:#fff}
+.top-btn:focus-visible,.nav-item:focus-visible,.round-action:focus-visible,.contact-btn:focus-visible{outline:3px solid #E32227;outline-offset:3px}
+.top-btn b{background:#E32227;color:#fff}
+.chip.active{background:#E32227;border-color:#E32227;color:#fff}
+.eyebrow,.intro h1 span{color:#E32227}
+.contact-btn,.bottom-actions .contact-btn{background:#E32227;color:#fff;box-shadow:0 3px 0 #AF151A}
+.price{color:#181818}
+.availability{background:#EAF7F0;color:#147245}
+.nav-item.active{color:#E32227}
+.round-action.like{color:#E32227}
+.round-action.pass{color:#696969}
+#sellerNav:not([hidden]){color:#E32227;background:#FFF1F1;border:1px solid #E32227}
+.hm-price-photo{background:#181818e8;border:1px solid #E32227;color:#fff}
+.hm-price-detail{background:#FFF5F5;border-color:#E32227;color:#181818}
+.hm-price-detail strong{color:#D21E24}
+.hm-equipment-bio{margin-top:16px;padding:18px;border:1px solid #E1E1E1;border-radius:16px;background:#fff}
+.hm-equipment-bio h3{margin:0 0 10px;font-size:17px;color:#181818;font-weight:950}
+.hm-equipment-bio p{margin:12px 0 0;white-space:pre-line;overflow-wrap:anywhere;line-height:1.65;color:#4B4B4B}
+.hm-equipment-bio .hm-price-detail{margin:0}
+.hm-auth-brand{display:flex;align-items:center;gap:12px;max-width:100%;margin:4px 0 16px;padding:0}
+.hm-auth-brand img{width:min(175px,42vw);height:auto;object-fit:contain;flex:none}
+.hm-auth-brand span{font-size:11px;line-height:1.4;color:#777;font-weight:800}
+.hm-auth-card .hm-auth-recovery,.hm-auth-card .hm-auth-switch{color:#B51F25}
+.hm-auth-card .hm-auth-actions .primary,.hm-admin-actions .primary{background:#E32227!important;border-color:#E32227!important;color:#fff!important}
+.hm-admin-nav.hm-visible{color:#E32227!important}
+.hm-listings-btn{background:#E32227!important;color:#fff!important}
+.hm-vehicle-actions .primary,.hm-profile-save{background:#181818!important;color:#fff!important}
+.hm-profile-heading small{color:#D21E24}
+.hm-profile-avatar{background:linear-gradient(140deg,#181818,#E32227)}
+.hm-profile-progress-bar{background:linear-gradient(90deg,#181818,#E32227)}
+.hm-profile-chip[aria-pressed="true"],.hm-profile-tab[aria-selected="true"],.hm-profile-save{background:#181818;color:#fff}
+.hm-profile-empty button{background:#E32227;color:#fff}
+.hm-profile-tag{color:#343434}
+.hm-vehicle-contact{background:#FFF7F7!important;border-color:#EBC2C2!important}
+.hm-vehicle-contact button,.hm-vehicle-actions .primary,.hm-profile-save{background:#181818;color:#fff}
+#hmVPricePreview{border-color:#E32227!important;background:#FFF5F5!important;color:#9C1B20!important}
+.hm-tour-progress-fill{background:#E32227!important}
+.hm-tour-target{outline-color:#E32227!important;box-shadow:0 0 0 7px #E3222738!important}
+@media(max-width:799px){
+  body,#app{background:#181818;color:#fff}
+  .topbar{height:76px;background:#181818;border-bottom:1px solid #E32227;padding:0 15px}
+  .brand{font-size:0!important;gap:0;flex-direction:column;align-items:flex-start;justify-content:center}
+  .brand .brand-logo{display:block;width:clamp(155px,47vw,200px);height:auto;max-height:46px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;filter:none}
+  .brand:after{content:'Pra você';display:block;font-size:12px;line-height:1.1;letter-spacing:.1px;font-weight:800;color:#F3F3F3;margin-top:4px}
+  .top-actions{gap:5px}
+  .top-btn{background:transparent;border:0;color:#fff}
+  .top-btn#favoritesJump:before{content:'♥';color:#E32227}
+  .photo{background:#262626}
+  .card{background:#181818;border:1px solid #363636}
+  .bottom-nav{background:#181818;border:1px solid #373737}
+  .nav-item{color:#BEBEBE}
+  .nav-item.active,.nav-item.active span{color:#E32227}
+  #sellerNav:not([hidden]){background:#381719;color:#F5A3A6;border-color:#E32227}
+  .round-action.like{background:#E32227;border-color:#E32227;color:#fff}
+  .round-action.pass{background:#303030;border-color:#676767;color:#fff}
+  .hm-price-photo{border-color:#E32227}
+  .sheet{background:#F3F3F3}
+}
+@media(prefers-reduced-motion:reduce){
+  .hm-price-photo,.hm-price-detail{transition:none}
+}
