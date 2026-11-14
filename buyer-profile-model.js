@@ -51,7 +51,7 @@
     ]},
     {id:"trade",title:"Veículo para troca",icon:"🔄",intro:"Se tem caminhão ou máquina para oferecer na negociação, descreva aqui.",fields:[
       F("has_trade","Tem equipamento para dar de troca?","yesno"),
-      F("trade_category","Tipo de equipamento","select",{options:["Caminhão","Cavalo mecânico","Carreta","Escavadeira","Carregadeira","Retroescavadeira","Outro"]}),
+      F("trade_category","Tipo de equipamento","select",{options:["Caminhão","Cavalo mecânico","Carreta / implemento","Escavadeira","Carregadeira","Retroescavadeira","Outro"]}),
       F("trade_brand","Marca","text",{max:80,placeholder:"Scania, Volvo, SANY..."}),
       F("trade_model","Modelo","text",{max:120,placeholder:"Ex.: R 440"}),
       F("trade_year","Ano","number",{min:1950,max:2100}),
@@ -101,6 +101,7 @@
         return;
       }
       var text=typeof value==="string"?value.trim().slice(0,field.max||120):"";
+      if(field.key==="trade_category"&&text==="Carreta")text="Carreta / implemento";
       if(field.type==="select"||field.type==="yesno"){
         var options=field.type==="yesno"?["Sim","Não","A definir"]:field.options;
         clean[field.key]=options.includes(text)?text:"";
