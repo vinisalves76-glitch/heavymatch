@@ -63,108 +63,283 @@
       </div>
     </section>`;
   document.body.appendChild(overlay);
-  let client = null, session = null, role = "buyer", user = null, items = [], editing = null, cameraFiles = [];
+  let client = null, session = null, role = "buyer", user = null;
+  let items = [], sellers = [], editing = null, existingPhotos = [], pickedFiles = [], previewUrls = [];
   const $ = id => document.getElementById(id);
-  const setMessage = (s, bad=false) => { $("hmVMessage").textContent=s; $("hmVMessage").style.color=bad?"#b42332":"#246b45"; };
-  const close = () => { overlay.classList.remove("open"); document.body.style.overflow=""; };
-  const clearForm = () => { editing=null; cameraFiles=[]; $("hmVehicleForm").reset(); $("hmVehicleFormTitle").textContent="Cadastrar equipamento"; $("hmVSave").textContent="Cadastrar equipamento"; $("hmVCancelEdit").hidden=true; $("hmVExistingPhotos").textContent=""; $("hmVPhotoHelp").textContent="No celular, toque em “Tirar foto” para abrir a câmera traseira. Você pode repetir para adicionar mais fotos."; setMessage(""); };
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const setMessage = (text, bad=false) => { $("hmVMessage").textContent=text; $("hmVMessage").style.color=bad?"#b42332":"#246b45"; };
   const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:2});
-  const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function revokePreviews() {
+    previewUrls.forEach(url => URL.revokeObjectURL(url));
+    previewUrls = [];
+  }
+  function renderPhotoPreviews() {
+    revokePreviews();
+    const tiles = [];
+    existingPhotos.forEach((p,index) => {
+      if(!p.url)return;
+      tiles.push('<div class="hm-photo-preview"><img src="'+esc(p.url)+'" alt="Foto existente '+(index+1)+'"><button type="button" data-remove-existing="'+index+'" aria-label="Remover foto existente">×</button>'+(tiles.length===0?'<div class="hm-photo-cover">Foto principal</div>':'')+'</div>');
+    });
+    pickedFiles.forEach((file,index) => {
+      const url=URL.createObjectURL(file);previewUrls.push(url);
+      tiles.push('<div class="hm-photo-preview"><img src="'+esc(url)+'" alt="Nova foto '+(index+1)+'"><button type="button" data-remove-new="'+index+'" aria-label="Remover foto nova">×</button>'+(tiles.length===0?'<div class="hm-photo-cover">Foto principal</div>':'')+'</div>');
+    });
+    $("hmVPhotoPreviews").innerHTML=tiles.join("");
+    const total=existingPhotos.length+pickedFiles.length;
+    $("hmVPhotoHelp").textContent=total+" de 10 fotos · A primeira foto será a capa do anúncio.";
+  }
+  function close() {
+    overlay.classList.remove("open");
+    document.body.style.overflow="";
+    revokePreviews();
+  }
+  function clearForm() {
+    editing=null; existingPhotos=[]; pickedFiles=[];
+    $("hmVehicleForm").reset();
+    $("hmVStatus").value="draft";
+    $("hmVPrice").disabled=true;
+    $("hmVehicleFormTitle").textContent="Cadastrar equipamento";
+    $("hmVSave").textContent="Cadastrar equipamento";
+    $("hmVCancelEdit").hidden=true;
+    $("hmVSeller").disabled=false;
+    $("hmVExistingPhotos").textContent="";
+    $("hmVPhotos").value="";
+    $("hmVCameraPhotos").value="";
+    renderPhotoPreviews();
+    setMessage("");
+  }
   async function getSession() {
-    if (!client) { const response=await fetch("/api/config"); const config=await response.json(); if(!response.ok) throw new Error(config.error||"Configuração indisponível."); client=window.supabase.createClient(config.url,config.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}); client.auth.onAuthStateChange((_e,s)=>{session=s; refreshRole();}); }
-    const {data}=await client.auth.getSession(); session=data.session;
-    user=session?.user||null; role="buyer";
-    if(user){const {data:profile}=await client.from("profiles").select("role").eq("id",user.id).maybeSingle();role=profile?.role||"buyer";}
+    client=window.hmSupabaseClient || client;
+    if(!client) throw new Error("O login ainda está carregando. Tente novamente.");
+    const {data,error}=await client.auth.getSession();
+    if(error)throw error;
+    session=data.session;
+    user=session?.user||null;
+    role="buyer";
+    if(user){
+      const {data:profile,error:profileError}=await client.from("profiles")
+        .select("role").eq("id",user.id).maybeSingle();
+      if(profileError)throw profileError;
+      role=profile?.role||"buyer";
+    }
     const canManage=!!user&&["seller","admin"].includes(role);
     openButton.style.display=canManage?"inline-block":"none";
+    if(!canManage&&overlay.classList.contains("open"))close();
     return canManage;
   }
-  async function refreshRole(){try{await getSession();}catch(_){}}
+  async function refreshRole() { try{await getSession();}catch(error){openButton.style.display="none";} }
   async function request(action,payload={}) {
-    const {data}=await client.auth.getSession(); const token=data?.session?.access_token;
-    if(!token)throw new Error("Sua sessão expirou. Entre novamente.");
-    const response=await fetch("/api/vehicles"+(action==="list"?"?manage=1":""),{method:action==="list"?"GET":"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},...(action==="list"?{}:{body:JSON.stringify({action,...payload})})});
+    await getSession();
+    const token=session?.access_token;
+    if(!token)throw new Error("Sua sessão expirou. Faça login novamente.");
+    const response=await fetch("/api/vehicles"+(action==="list"?"?manage=1":""),{
+      method:action==="list"?"GET":"POST",
+      headers:{"Accept":"application/json","Content-Type":"application/json","Authorization":"Bearer "+token},
+      ...(action==="list"?{}:{body:JSON.stringify({action,...payload})})
+    });
     const result=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(result.error||"Falha ao acessar anúncios.");
     return result;
   }
-  function toCatalog(v){return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,description:v.description||"",image:v.image||"",photos:v.photos||[]};}
+  function toCatalog(v) {
+    return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,
+      power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),
+      location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,
+      description:v.description||"",image:v.image||"",photos:v.photos||[],
+      seller_name:v.seller_name||"",seller_phone:v.seller_phone||""};
+  }
   function renderPublic(list) {
-    vehicles=list.map(toCatalog); filtered=[...vehicles]; index=0;
+    vehicles=list.map(toCatalog);filtered=[...vehicles];index=0;
     const b=$("brand"),m=$("model");
-    if(b){b.innerHTML='<option value="">Todas as marcas</option>';[...new Set(vehicles.map(v=>v.brand))].sort().forEach(x=>b.add(new Option(x,x)));}
-    if(m){m.innerHTML='<option value="">Todos os modelos</option>';[...new Set(vehicles.map(v=>v.model))].sort().forEach(x=>m.add(new Option(x,x)));}
+    if(b){b.innerHTML='<option value="">Todas as marcas</option>';[...new Set(vehicles.map(v=>v.brand))].sort().forEach(value=>b.add(new Option(value,value)));}
+    if(m){m.innerHTML='<option value="">Todos os modelos</option>';[...new Set(vehicles.map(v=>v.model))].sort().forEach(value=>m.add(new Option(value,value)));}
     if(typeof filterVehicles==="function")filterVehicles();else render();
   }
   async function loadPublic() {
     try {
       const response=await fetch("/api/vehicles",{headers:{"Accept":"application/json"}});
-      const data=await response.json(); if(!response.ok)throw new Error(data.error||"Não foi possível carregar os anúncios.");
+      const data=await response.json();
+      if(!response.ok)throw new Error(data.error||"Não foi possível carregar os anúncios.");
       renderPublic(data.vehicles||[]);
-    } catch(error) { console.error("[HeavyMatch catálogo]",error); vehicles=[];filtered=[];index=0;render(); }
+    }catch(error){
+      console.error("[HeavyMatch catálogo]",error);
+      vehicles=[];filtered=[];index=0;render();
+    }
+  }
+  function updateSellerOptions() {
+    const selector=$("hmVSeller");
+    selector.innerHTML='<option value="">Minha conta (ADM)</option>'+
+      sellers.map(item=>'<option value="'+esc(item.id)+'">'+esc(item.name)+(item.phone?" · WhatsApp cadastrado":" · Sem WhatsApp")+'</option>').join("");
+    $("hmVSellerWrap").hidden=role!=="admin";
   }
   async function loadManage() {
     $("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">Carregando anúncios…</div>';
     try {
-      const data=await request("list"); items=data.vehicles||[];
-      if(!items.length){$("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">Nenhum equipamento cadastrado. Use o formulário ao lado para adicionar o primeiro anúncio.</div>';return;}
-      $("hmVehicleItems").innerHTML=items.map(v=>'<article class="hm-vehicle-item"><img src="'+esc(v.image||"https://placehold.co/160x120/e0e5e9/26343e?text=Sem+foto")+'" alt=""><div><strong>'+esc(v.title||v.brand+" "+v.model)+'</strong><small>'+esc(v.brand+" "+v.model+" · "+v.manufacture_year+" · "+money(v))+'<br>'+esc(v.status==="published"?"Publicado":"Rascunho")+'</small><div class="hm-vehicle-actions"><button type="button" data-edit="'+esc(v.id)+'">Editar</button><button type="button" data-delete="'+esc(v.id)+'">Remover</button></div></div></article>').join("");
-    } catch(error) {$("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">'+esc(error.message)+'</div>';}
+      const data=await request("list");
+      items=data.vehicles||[];
+      sellers=data.sellers||[];
+      $("hmVWhatsApp").value=data.my_phone||"";
+      updateSellerOptions();
+      if(!items.length) {
+        $("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">Nenhum anúncio cadastrado. Cadastre um equipamento e adicione fotos para publicá-lo.</div>';
+        return;
+      }
+      $("hmVehicleItems").innerHTML=items.map(v=>'<article class="hm-vehicle-item"><img src="'+esc(v.image||"https://placehold.co/160x120/e0e5e9/26343e?text=Sem+foto")+'" alt=""><div><strong>'+esc(v.title||v.brand+" "+v.model)+'</strong><small>'+esc(v.brand+" "+v.model+" · "+v.manufacture_year+" · "+money(v))+'<br>'+esc(v.status==="published"?"Publicado":v.status==="draft"?"Rascunho":v.status==="sold"?"Vendido":"Pausado")+(role==="admin"?" · "+esc(v.seller_name||"Sem nome"):"")+'</small><div class="hm-vehicle-actions"><button type="button" data-edit="'+esc(v.id)+'">Editar fotos e dados</button><button type="button" data-delete="'+esc(v.id)+'">Remover</button></div></div></article>').join("");
+    }catch(error){
+      $("hmVehicleItems").innerHTML='<div class="hm-vehicle-empty">'+esc(error.message)+'</div>';
+    }
   }
   async function open() {
-    try {if(!await getSession()){alert("Entre com uma conta de vendedor ou administrador para gerenciar equipamentos.");return;}
-      overlay.classList.add("open");document.body.style.overflow="hidden";clearForm();await loadManage();
-    } catch(error){alert(error.message);}
+    try {
+      if(!await getSession()){alert("Entre com uma conta de vendedor ou ADM Master para cadastrar anúncios.");return;}
+      overlay.classList.add("open");
+      document.body.style.overflow="hidden";
+      clearForm();
+      await loadManage();
+    }catch(error){alert(error.message);}
   }
+  window.hmOpenListings=open;
   openButton.addEventListener("click",open);
+  $("hmVSaveWhatsApp").addEventListener("click",async()=>{
+    const button=$("hmVSaveWhatsApp");button.disabled=true;
+    try {
+      const result=await request("contact",{phone:$("hmVWhatsApp").value});
+      setMessage(result.message||"WhatsApp atualizado.");
+      await loadManage();
+    }catch(error){setMessage(error.message,true);}finally{button.disabled=false;}
+  });
   $("hmVTakePhoto").addEventListener("click",()=> $("hmVCameraPhotos").click());
   $("hmVChoosePhotos").addEventListener("click",()=> $("hmVPhotos").click());
-  $("hmVCameraPhotos").addEventListener("change",()=>{const picked=[...$("hmVCameraPhotos").files];if(picked.length){cameraFiles.push(...picked);const total=$("hmVPhotos").files.length+cameraFiles.length;if(total>10){cameraFiles=cameraFiles.slice(0,Math.max(0,10-$("hmVPhotos").files.length));setMessage("Limite de 10 fotos por anúncio.",true);}else setMessage("Foto capturada! "+total+" foto(s) selecionada(s).");$("hmVPhotoHelp").textContent=($("hmVPhotos").files.length+cameraFiles.length)+" foto(s) selecionada(s). Você pode tirar outra foto ou escolher imagens da galeria.";} $("hmVCameraPhotos").value="";});
-  $("hmVPhotos").addEventListener("change",()=>{const total=$("hmVPhotos").files.length+cameraFiles.length;if(total>10){setMessage("Escolha no máximo 10 fotos no total.",true);}else $("hmVPhotoHelp").textContent=total+" foto(s) selecionada(s). Você pode combinar câmera e galeria.";});
+  function addFiles(input) {
+    const candidates=[...input.files];
+    input.value="";
+    const accepted=[];
+    for(const file of candidates) {
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type)) {setMessage("Escolha somente arquivos JPG, PNG ou WebP.",true);continue;}
+      if(file.size>10*1024*1024||file.size===0) {setMessage("Cada imagem deve ter até 10 MB.",true);continue;}
+      if(existingPhotos.length+pickedFiles.length+accepted.length>=10){setMessage("Limite de 10 fotos por anúncio.",true);break;}
+      accepted.push(file);
+    }
+    pickedFiles.push(...accepted);
+    renderPhotoPreviews();
+  }
+  $("hmVCameraPhotos").addEventListener("change",()=>addFiles($("hmVCameraPhotos")));
+  $("hmVPhotos").addEventListener("change",()=>addFiles($("hmVPhotos")));
+  $("hmVPhotoPreviews").addEventListener("click",event=>{
+    const old=event.target.closest("[data-remove-existing]");
+    const added=event.target.closest("[data-remove-new]");
+    if(old)existingPhotos.splice(Number(old.dataset.removeExisting),1);
+    if(added)pickedFiles.splice(Number(added.dataset.removeNew),1);
+    if(old||added){renderPhotoPreviews();setMessage("Foto removida da seleção. Salve o anúncio para aplicar.");}
+  });
   overlay.querySelector(".hm-vehicle-close").addEventListener("click",close);
-  overlay.addEventListener("click",e=>{if(e.target===overlay)close();});
-  $("hmVCancelEdit").addEventListener("click",clearForm);$("hmVReset").addEventListener("click",clearForm);
+  overlay.addEventListener("click",event=>{if(event.target===overlay)close();});
+  $("hmVCancelEdit").addEventListener("click",clearForm);
+  $("hmVReset").addEventListener("click",clearForm);
   $("hmVPriceOnRequest").addEventListener("change",()=>{$("hmVPrice").disabled=$("hmVPriceOnRequest").value==="true";});
   $("hmVPrice").disabled=true;
-  $("hmVehicleItems").addEventListener("click",async e=>{
-    const edit=e.target.closest("[data-edit]");const del=e.target.closest("[data-delete]");
-    if(edit){const v=items.find(x=>x.id===edit.dataset.edit);if(!v)return;editing=v.id;
-      $("hmVehicleFormTitle").textContent="Editar equipamento";$("hmVSave").textContent="Salvar alterações";$("hmVCancelEdit").hidden=false;
-      $("hmVTitle").value=v.title||"";$("hmVCategory").value=v.category||"";$("hmVBrand").value=v.brand||"";$("hmVModel").value=v.model||"";$("hmVYear").value=v.manufacture_year||"";
-      $("hmVPriceOnRequest").value=String(!!v.price_on_request||v.price==null);$("hmVPrice").disabled=$("hmVPriceOnRequest").value==="true";$("hmVPrice").value=v.price??"";
-      $("hmVState").value=v.state||"";$("hmVCity").value=v.city||"";$("hmVDescription").value=v.description||"";$("hmVStatus").value=v.status==="draft"?"draft":"published";
-      cameraFiles=[]; $("hmVExistingPhotos").textContent=(v.photos||[]).length+" foto(s) atual(is). Se enviar novas fotos, elas substituirão as atuais."; $("hmVPhotoHelp").textContent="No celular, tire novas fotos ou escolha imagens da galeria para substituir as atuais."; $("hmVPhotos").value="";setMessage("");$("hmVehicleForm").scrollIntoView({behavior:"smooth",block:"start"});
-    }
-    if(del){const v=items.find(x=>x.id===del.dataset.delete);if(!v)return;if(!confirm("Remover definitivamente o anúncio "+(v.title||v.brand+" "+v.model)+"?"))return;
-      del.disabled=true;try{const result=await request("delete",{id:v.id});setMessage(result.message||"Anúncio removido.");await loadManage();await loadPublic();}catch(error){setMessage(error.message,true);}finally{del.disabled=false;}
-    }
-  });
-  $("hmVehicleForm").addEventListener("submit",async e=>{
-    e.preventDefault();const button=$("hmVSave");button.disabled=true;button.textContent="Salvando…";setMessage("");
-    let uploaded=[];
-    try {
-      if(!await getSession())throw new Error("Entre com uma conta autorizada.");
-      const files=[...$("hmVPhotos").files,...cameraFiles];
-      if(files.length>10)throw new Error("Escolha no máximo 10 fotos.");
-      for(const file of files){if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("Use somente fotos JPG, PNG ou WebP.");
-        if(file.size>10*1024*1024)throw new Error("Cada foto deve ter até 10 MB.");
-        const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-        const path=user.id+"/"+crypto.randomUUID()+"-"+safe;
-        const {error}=await client.storage.from("vehicle-photos").upload(path,file,{upsert:false,contentType:file.type});
-        if(error)throw new Error("Não foi possível enviar uma foto: "+error.message);
-        uploaded.push(path);
+  $("hmVehicleItems").addEventListener("click",async event=>{
+    const edit=event.target.closest("[data-edit]");
+    const del=event.target.closest("[data-delete]");
+    if(edit) {
+      const v=items.find(item=>item.id===edit.dataset.edit);
+      if(!v)return;
+      clearForm();editing=v.id;
+      $("hmVehicleFormTitle").textContent="Editar equipamento";
+      $("hmVSave").textContent="Salvar alterações";
+      $("hmVCancelEdit").hidden=false;
+      $("hmVTitle").value=v.title||"";
+      $("hmVCategory").value=v.category||"";
+      $("hmVBrand").value=v.brand||"";
+      $("hmVModel").value=v.model||"";
+      $("hmVYear").value=v.manufacture_year||"";
+      $("hmVPriceOnRequest").value=String(!!v.price_on_request||v.price==null);
+      $("hmVPrice").disabled=$("hmVPriceOnRequest").value==="true";
+      $("hmVPrice").value=v.price??"";
+      $("hmVState").value=v.state||"";
+      $("hmVCity").value=v.city||"";
+      $("hmVDescription").value=v.description||"";
+      $("hmVStatus").value=["draft","published","sold","inactive"].includes(v.status)?v.status:"draft";
+      existingPhotos=[...(v.photos||[])].filter(photo=>photo.path);
+      if(role==="admin") {
+        $("hmVSeller").value=v.seller_id||"";
+        $("hmVSeller").disabled=true;
       }
-      const body={title:$("hmVTitle").value.trim(),category:$("hmVCategory").value,brand:$("hmVBrand").value.trim(),model:$("hmVModel").value.trim(),manufacture_year:Number($("hmVYear").value),price_on_request:$("hmVPriceOnRequest").value==="true",price:$("hmVPrice").value===""?null:Number($("hmVPrice").value),description:$("hmVDescription").value.trim(),state:$("hmVState").value.trim(),city:$("hmVCity").value.trim(),status:$("hmVStatus").value,photos:uploaded};
-      if(editing)body.id=editing;
-      if(editing&&!files.length)body.photos=(items.find(v=>v.id===editing)?.photos||[]).map(p=>p.path);
-      const result=await request(editing?"update":"create",body);
-      setMessage(result.message||"Salvo com sucesso.");clearForm();await loadManage();await loadPublic();
-    } catch(error) {
-      if(uploaded.length&&client)await client.storage.from("vehicle-photos").remove(uploaded).catch(()=>{});
-      setMessage(error.message||"Não foi possível salvar o equipamento.",true);
-    } finally {button.disabled=false;button.textContent=editing?"Salvar alterações":"Cadastrar equipamento";}
+      $("hmVExistingPhotos").textContent=existingPhotos.length+" foto(s) atual(is). Você pode manter, remover e adicionar outras fotos.";
+      renderPhotoPreviews();
+      $("hmVehicleForm").scrollIntoView({behavior:"smooth",block:"start"});
+    }
+    if(del) {
+      const v=items.find(item=>item.id===del.dataset.delete);
+      if(!v)return;
+      if(!confirm("Remover definitivamente o anúncio "+(v.title||v.brand+" "+v.model)+"?"))return;
+      del.disabled=true;
+      try {
+        const result=await request("delete",{id:v.id});
+        clearForm();setMessage(result.message||"Anúncio removido.");
+        await loadManage();await loadPublic();
+      }catch(error){setMessage(error.message,true);}
+      finally{del.disabled=false;}
+    }
   });
-  window.addEventListener("hm-auth-changed",()=>{refreshRole();});
+  async function uploadPhoto(file) {
+    const {data}=await client.auth.getSession();
+    const token=data?.session?.access_token;
+    if(!token)throw new Error("Sessão expirada. Entre novamente.");
+    const response=await fetch("/api/vehicles/photo-token",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
+      body:JSON.stringify({content_type:file.type,size:file.size})
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.error||"Não foi possível autorizar esta foto.");
+    const upload=await client.storage.from("vehicle-photos")
+      .uploadToSignedUrl(result.path,result.token,file,{contentType:file.type});
+    if(upload.error)throw new Error("Falha ao enviar a foto: "+upload.error.message);
+    return result.path;
+  }
+  $("hmVehicleForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    const button=$("hmVSave");
+    button.disabled=true;
+    button.textContent="Salvando…";
+    setMessage("");
+    const uploaded=[];
+    try {
+      if(!await getSession())throw new Error("Somente vendedor ou ADM Master pode cadastrar anúncios.");
+      const total=existingPhotos.length+pickedFiles.length;
+      if(total>10)throw new Error("Escolha no máximo 10 fotos.");
+      if($("hmVStatus").value==="published"&&total===0)throw new Error("Adicione pelo menos uma foto para publicar.");
+      const paths=existingPhotos.map(photo=>photo.path);
+      for(let i=0;i<pickedFiles.length;i++){
+        setMessage("Enviando foto "+(i+1)+" de "+pickedFiles.length+"...");
+        const path=await uploadPhoto(pickedFiles[i]);
+        uploaded.push(path);paths.push(path);
+      }
+      const body={
+        title:$("hmVTitle").value.trim(),category:$("hmVCategory").value,
+        brand:$("hmVBrand").value.trim(),model:$("hmVModel").value.trim(),
+        manufacture_year:Number($("hmVYear").value),
+        price_on_request:$("hmVPriceOnRequest").value==="true",
+        price:$("hmVPrice").value===""?null:Number($("hmVPrice").value),
+        description:$("hmVDescription").value.trim(),state:$("hmVState").value.trim(),
+        city:$("hmVCity").value.trim(),status:$("hmVStatus").value,photos:paths
+      };
+      if(editing)body.id=editing;
+      if(role==="admin"&&!editing&&$("hmVSeller").value)body.seller_id=$("hmVSeller").value;
+      const result=await request(editing?"update":"create",body);
+      clearForm();setMessage(result.message||"Anúncio salvo.");
+      await loadManage();await loadPublic();
+    }catch(error) {
+      if(uploaded.length){try{await request("cleanup",{photos:uploaded});}catch(cleanupError){console.warn("[HeavyMatch fotos] limpeza pendente");}}
+      setMessage(error.message||"Não foi possível salvar o anúncio.",true);
+    }finally {
+      button.disabled=false;
+      button.textContent=editing?"Salvar alterações":"Cadastrar equipamento";
+    }
+  });
+  window.addEventListener("hm-auth-changed",refreshRole);
+  window.addEventListener("hm-supabase-ready",refreshRole);
   loadPublic();
-  getSession().catch(()=>{});
+  if(window.hmSupabaseClient)refreshRole();
 })();
