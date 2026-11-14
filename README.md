@@ -137,3 +137,14 @@ Branch de testes: `feat/seller-admin-listings-20261114`. **Não publicar na prod
 6. Comprador não deve editar, publicar ou excluir; vendedor não vê nem altera anúncios alheios; ADM pode administrar todos.
 7. Confira swipe X esquerda/pular, coração direita/curtir, filtros, favoritos, perfil do comprador e recuperação de senha.
 8. Execute `node --test tests/*.test.mjs` e `node --check` dos scripts.
+
+
+### Acesso direto do vendedor (correção de navegação)
+
+- **Causa da falha anterior:** o botão "Cadastrar / gerenciar anúncios" foi adicionado ao container `.intro`, oculto globalmente pelo tema Tinder. Por isso o vendedor não via a opção.
+- **Mobile:** a opção **＋ Anunciar** agora aparece no menu inferior somente quando a sessão tem `profiles.role = seller` ou `admin`. Ao tocar, abre o formulário para cadastrar equipamento e a lista de anúncios do vendedor.
+- **Desktop:** o botão "＋ Meus anúncios" fica na barra superior visível, em vez de dentro da seção `.intro`.
+- **Comprador e visitante:** nenhum desses atalhos fica visível; a API mantém a autorização independente da UI.
+- Depois de entrar ou sair, o aplicativo recalcula a permissão e mostra/oculta os atalhos; só contas comerciais cadastradas pelo ADM recebem acesso.
+- **Não criar vendedores automaticamente:** o ADM Master continua responsável por criar e autorizar contas de vendedores.
+- Teste novo: `tests/seller-navigation.test.mjs`, incluindo simulação de perfis buyer, seller, admin e visitante.
