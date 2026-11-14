@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feat/seller-admin-listings-20261114
+      - feat/listing-price-visible-20261114
   pull_request:
     branches:
       - main
