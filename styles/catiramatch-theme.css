@@ -59,13 +59,21 @@ body,#app{background-color:var(--site-background)}
 .hm-tour-target{outline-color:#E32227!important;box-shadow:0 0 0 7px #E3222738!important}
 @media(max-width:799px){
   body,#app{background:#181818;color:#fff}
-  .topbar{height:76px;background:#181818;border-bottom:1px solid #E32227;padding:0 15px}
-  .brand{font-size:0!important;gap:0;flex-direction:column;align-items:flex-start;justify-content:center}
-  .brand .brand-logo{display:block;width:clamp(155px,47vw,200px);height:auto;max-height:46px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;filter:none}
-  .brand:after{content:'Pra você';display:block;font-size:12px;line-height:1.1;letter-spacing:.1px;font-weight:800;color:#F3F3F3;margin-top:4px}
-  .top-actions{gap:5px}
-  .top-btn{background:transparent;border:0;color:#fff}
-  .top-btn#favoritesJump:before{content:'♥';color:#E32227}
+  /* Cabeçalho mobile em duas linhas: marca sempre isolada dos controles. */
+  .topbar{height:auto;min-height:105px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(42px,auto) 39px;gap:5px;align-items:center;background:#181818;border-bottom:1px solid #E32227;padding:8px 12px 10px}
+  .topbar .brand{grid-column:1;grid-row:1;display:flex;flex-direction:row;align-items:center;justify-content:space-between;width:100%;min-width:0;gap:8px;font-size:0!important;white-space:nowrap}
+  .topbar .brand .brand-logo{display:block;flex:0 1 auto;width:clamp(155px,49vw,210px);max-width:calc(100% - 92px);height:auto;max-height:42px;object-fit:contain;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;filter:none}
+  .topbar .brand:after{content:'Pra você';display:block;flex:0 0 auto;font-size:13px;line-height:1.1;letter-spacing:.1px;font-weight:800;color:#F3F3F3;margin:0}
+  .topbar .top-actions{grid-column:1;grid-row:2;width:100%;min-width:0;min-height:38px;display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:nowrap}
+  .topbar .top-actions>button{flex:0 1 auto;min-width:0;white-space:nowrap}
+  .topbar #hmAccountButton{min-height:36px;max-width:110px;overflow:hidden;text-overflow:ellipsis;padding:7px 9px;border:1px solid #484848;border-radius:10px;background:#292929;color:#fff;font-size:12px;font-weight:850}
+  .topbar #hmTopLogout:not([hidden]){min-height:36px;padding:7px 9px;border:1px solid #484848;border-radius:10px;background:#292929;color:#fff;font-size:12px;font-weight:800}
+  .topbar .top-btn{flex:0 0 36px;width:36px;min-width:36px;height:36px;min-height:36px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:10px;color:#fff;font-size:21px}
+  .topbar .top-btn#favoritesJump:before{content:'♥';color:#E32227;font-size:24px}
+  .topbar #hmTourHelp{flex:0 0 36px;width:36px;min-width:36px;height:36px;min-height:36px;display:grid;place-items:center;padding:0;border:1px solid #484848;border-radius:10px;background:#292929;color:#fff;font-size:0;line-height:1;white-space:nowrap}
+  .topbar #hmTourHelp:before{content:'?';font-size:21px;font-weight:900;line-height:1;color:#fff}
+  .topbar #hmTourHelp:focus-visible{outline:3px solid #E32227;outline-offset:2px}
+  @media(max-width:360px){.topbar{padding-inline:9px}.topbar .top-actions{gap:4px}.topbar #hmAccountButton{max-width:92px;padding-inline:7px}.topbar #hmTopLogout:not([hidden]){padding-inline:7px}.topbar .top-btn,.topbar #hmTourHelp{flex-basis:34px;width:34px;min-width:34px}}
   .photo{background:#262626}
   .card{background:#181818;border:1px solid #363636}
   .bottom-nav{background:#181818;border:1px solid #373737}
