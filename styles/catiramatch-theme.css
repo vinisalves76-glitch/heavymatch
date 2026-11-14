@@ -38,6 +38,14 @@ body,#app{background-color:var(--site-background)}
 .hm-equipment-bio h3{margin:0 0 10px;font-size:17px;color:#181818;font-weight:950}
 .hm-equipment-bio p{margin:12px 0 0;white-space:pre-line;overflow-wrap:anywhere;line-height:1.65;color:#4B4B4B}
 .hm-equipment-bio .hm-price-detail{margin:0}
+.hm-auth-brand{display:flex;align-items:center;gap:12px;max-width:100%;margin:4px 0 16px;padding:0}
+.hm-auth-brand img{width:min(175px,42vw);height:auto;object-fit:contain;flex:none}
+.hm-auth-brand span{font-size:11px;line-height:1.4;color:#777;font-weight:800}
+.hm-auth-card .hm-auth-recovery,.hm-auth-card .hm-auth-switch{color:#B51F25}
+.hm-auth-card .hm-auth-actions .primary,.hm-admin-actions .primary{background:#E32227!important;border-color:#E32227!important;color:#fff!important}
+.hm-admin-nav.hm-visible{color:#E32227!important}
+.hm-listings-btn{background:#E32227!important;color:#fff!important}
+.hm-vehicle-actions .primary,.hm-profile-save{background:#181818!important;color:#fff!important}
 .hm-profile-heading small{color:#D21E24}
 .hm-profile-avatar{background:linear-gradient(140deg,#181818,#E32227)}
 .hm-profile-progress-bar{background:linear-gradient(90deg,#181818,#E32227)}
