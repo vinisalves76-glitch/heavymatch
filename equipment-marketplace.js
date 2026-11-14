@@ -1,7 +1,7 @@
 (() => {
   const style = document.createElement("style");
   style.textContent = `
-    .hm-listings-btn{border:0;background:#f5b323;color:#17212a;border-radius:12px;padding:10px 13px;font-weight:900;font-size:12px;display:none;box-shadow:0 5px 14px #ac75002c}
+    .hm-listings-btn{border:0;background:#E32227;color:#fff;border-radius:12px;padding:10px 13px;font-weight:900;font-size:12px;display:none;box-shadow:0 5px 14px #ac75002c}
     @media(max-width:799px){.hm-listings-btn{display:none!important}}
     .hm-vehicle-overlay{position:fixed;inset:0;z-index:110;background:#08111de8;display:none;align-items:center;justify-content:center;padding:10px}
     .hm-vehicle-overlay.open{display:flex}
@@ -21,7 +21,7 @@
     .hm-vehicle-contact label{display:block;font-size:11px;font-weight:850}
     .hm-vehicle-contact input{height:39px;border-radius:9px;border:1px solid #d9e0e5;padding:8px 10px;min-width:200px;max-width:100%}
     .hm-vehicle-contact button{height:39px;padding:0 13px;border:0;border-radius:9px;background:#1b2a34;color:white;font-weight:850}
-    .hm-vehicle-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.hm-vehicle-actions button{border:1px solid #d9e0e4;border-radius:10px;padding:10px 12px;font-weight:850;background:#f5f7f8;color:#17242e}.hm-vehicle-actions .primary{background:#f5b323;border-color:#f5b323}
+    .hm-vehicle-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.hm-vehicle-actions button{border:1px solid #d9e0e4;border-radius:10px;padding:10px 12px;font-weight:850;background:#f5f7f8;color:#17242e}.hm-vehicle-actions .primary{background:#E32227;border-color:#E32227}
     .hm-vehicle-status{font-size:12px;line-height:1.5;margin-top:10px;overflow-wrap:anywhere}.hm-vehicle-items{display:grid;gap:9px}.hm-vehicle-item{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;border:1px solid #e4e8eb;border-radius:12px;padding:9px}.hm-vehicle-item img{width:78px;height:72px;object-fit:cover;border-radius:8px;background:#eef1f3}.hm-vehicle-item strong{font-size:12px;display:block}.hm-vehicle-item small{display:block;color:#6b7780;font-size:10px;margin:4px 0}.hm-vehicle-item .hm-vehicle-actions{margin-top:6px}.hm-vehicle-item .hm-vehicle-actions button{padding:6px 9px;font-size:10px}.hm-vehicle-empty{font-size:12px;color:#687680;line-height:1.6;padding:12px 0}
     @media(max-width:720px){.hm-vehicle-layout{grid-template-columns:1fr}.hm-vehicle-card{padding:13px;border-radius:16px}.hm-vehicle-form{grid-template-columns:1fr 1fr}.hm-vehicle-head h2{font-size:20px}.hm-listings-btn{font-size:10px;padding:8px}}
   `;
@@ -35,7 +35,7 @@
   overlay.className = "hm-vehicle-overlay";
   overlay.innerHTML = `
     <section class="hm-vehicle-card" role="dialog" aria-modal="true" aria-labelledby="hmVehiclesTitle">
-      <div class="hm-vehicle-head"><div><div style="font-size:10px;letter-spacing:1.4px;font-weight:900;color:#946000;margin-bottom:5px">HEAVYMATCH · GESTÃO DE ANÚNCIOS</div><h2 id="hmVehiclesTitle">Equipamentos</h2></div><button type="button" class="hm-vehicle-close" aria-label="Fechar">×</button></div>
+      <div class="hm-vehicle-head"><div><div style="font-size:10px;letter-spacing:1.4px;font-weight:900;color:#946000;margin-bottom:5px">CATIRAMATCH · GESTÃO DE ANÚNCIOS</div><h2 id="hmVehiclesTitle">Equipamentos</h2></div><button type="button" class="hm-vehicle-close" aria-label="Fechar">×</button></div>
       <p style="font-size:12px;line-height:1.5;color:#687680;margin:8px 0">Cadastre equipamentos com fotos. O administrador gerencia todos os anúncios; cada vendedor gerencia apenas os próprios.</p>
       <div class="hm-vehicle-contact">
         <div><label for="hmVWhatsApp">Seu WhatsApp para receber compradores</label><input id="hmVWhatsApp" type="tel" inputmode="tel" placeholder="(31) 99999-9999" autocomplete="tel"></div>
@@ -58,7 +58,7 @@
             <div class="hm-vehicle-field full"><div id="hmVPricePreview" style="border:1px solid #e9d09a;background:#fff8e8;border-radius:10px;padding:12px;font-size:13px;font-weight:900;color:#684900" aria-live="polite">Preço no anúncio: informe o valor acima.</div></div>
             <div class="hm-vehicle-field"><label for="hmVState">Estado</label><input id="hmVState" maxlength="80" placeholder="MG"></div>
             <div class="hm-vehicle-field"><label for="hmVCity">Cidade</label><input id="hmVCity" maxlength="100" placeholder="Belo Horizonte"></div>
-            <div class="hm-vehicle-field full"><label for="hmVDescription">Descrição</label><textarea id="hmVDescription" maxlength="5000" placeholder="Condição, horímetro/quilometragem, opcionais e detalhes"></textarea></div>
+            <div class="hm-vehicle-field full"><label for="hmVDescription">Bio do equipamento</label><textarea id="hmVDescription" maxlength="5000" placeholder="Descreva o estado de conservação, quilometragem ou horímetro, manutenção, opcionais, pneus e demais detalhes"></textarea><small style="display:block;font-size:11px;color:#64727c;margin-top:5px">O preço informado acima aparecerá automaticamente no início da bio pública. Não precisa digitá-lo novamente aqui.</small></div>
             <div class="hm-vehicle-field full"><label for="hmVPhotos">Fotos do equipamento (até 10, JPG/PNG/WebP, até 10 MB cada)</label><input id="hmVPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><input id="hmVCameraPhotos" type="file" accept="image/*" capture="environment" hidden><div class="hm-vehicle-actions" style="margin-top:8px"><button id="hmVTakePhoto" type="button" class="primary">📷 Tirar foto com a câmera</button><button id="hmVChoosePhotos" type="button">🖼️ Escolher da galeria</button></div><small id="hmVPhotoHelp" style="display:block;color:#687680;margin-top:5px">No celular, toque em “Tirar foto” para abrir a câmera traseira. Você pode repetir para adicionar mais fotos.</small><small id="hmVExistingPhotos" style="display:block;color:#687680;margin-top:5px"></small><div id="hmVPhotoPreviews" class="hm-photo-previews" aria-label="Fotos selecionadas"></div></div>
             <div class="hm-vehicle-field full"><label for="hmVStatus">Visibilidade</label><select id="hmVStatus"><option value="draft">Salvar como rascunho</option><option value="published">Publicar no catálogo</option><option value="sold">Vendido</option><option value="inactive">Pausar anúncio</option></select></div>
             <div class="hm-vehicle-field full"><div class="hm-vehicle-actions"><button class="primary" id="hmVSave" type="submit">Cadastrar equipamento</button><button id="hmVCancelEdit" type="button" hidden>Cancelar edição</button><button id="hmVReset" type="button">Limpar formulário</button></div><div class="hm-vehicle-status" id="hmVMessage" role="status" aria-live="polite"></div></div>
@@ -223,7 +223,7 @@
       if(!response.ok)throw new Error(data.error||"Não foi possível carregar os anúncios.");
       renderPublic(data.vehicles||[]);
     }catch(error){
-      console.error("[HeavyMatch catálogo]",error);
+      console.error("[CatiraMatch catálogo]",error);
       vehicles=[];filtered=[];index=0;render();
     }
   }
@@ -398,7 +398,7 @@
       clearForm();setMessage(result.message||"Anúncio salvo.");
       await loadManage();await loadPublic();
     }catch(error) {
-      if(uploaded.length){try{await request("cleanup",{photos:uploaded});}catch(cleanupError){console.warn("[HeavyMatch fotos] limpeza pendente");}}
+      if(uploaded.length){try{await request("cleanup",{photos:uploaded});}catch(cleanupError){console.warn("[CatiraMatch fotos] limpeza pendente");}}
       setMessage(error.message||"Não foi possível salvar o anúncio.",true);
     }finally {
       button.disabled=false;
