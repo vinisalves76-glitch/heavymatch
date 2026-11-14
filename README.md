@@ -182,3 +182,17 @@ Branch: `feat/listing-price-visible-20261114`. **Não publicar em produção sem
 - Anúncios antigos gravados com `category='Carreta'` continuam sendo encontrados no filtro de carretas; ao editar, são interpretados como `Carreta / implemento`. Preferências antigas de compradores com `Carreta` também são convertidas ao abrir e salvar o perfil.
 - Não há alteração de tabelas nem de registros de produção nesta branch; somente Preview até aprovação.
 - Executar `node --test tests/listing-categories.test.mjs` e todos os testes do workflow.
+
+
+## CatiraMatch — nova identidade visual e preço na bio (Preview)
+Marca adotada: **CatiraMatch**, antiga marca HeavyMatch. Identidade baseada nas imagens originais enviadas pelo proprietário, incluindo wordmark e ícone de setas opostas.
+
+- **Paleta:** vermelho `#E32227`, carvão `#181818`, branco `#FFFFFF`, cinza-claro `#F3F3F3`.
+- **Slogan:** Seu próximo negócio começa aqui. Complemento: Conectar. Negociar. Avançar.
+- **Logo original:** `assets/catiramatch-logo.png`; favicon recortado das setas `assets/catiramatch-icon.png`. Ambas extraídas e otimizadas da arte enviada.
+- **Estilos:** `styles/catiramatch-theme.css` sobrepõe a antiga paleta amarela e mantém o layout Tinder-like, o título `Pra você` no celular, os mesmos filtros e navegação, e os botões X esquerda/pular e coração direita/curtir.
+- **Bio do equipamento:** a tela Detalhes apresenta `Bio do equipamento` com uma faixa de preço derivada de `vehicles.price` (ou `Sob consulta`) seguida da descrição `vehicles.description`. O campo de texto da área do vendedor foi renomeado para Bio do equipamento. Alterar o preço atualiza a bio automaticamente sem duplicar o valor no banco.
+- **Nome visível:** título da página, informações de compartilhamento, formulário de login, painel de vendedor, perfil de comprador, tour e WhatsApp atualizados para CatiraMatch.
+- **Infraestrutura:** repositório GitHub e domínio `machinematch.vercel.app` continuam com nomes técnicos antigos para evitar interromper o serviço. **Não alterar domínio em produção sem aprovação.**
+- **Escopo:** branch `feat/listing-price-visible-20261114` em Preview. Sem alterações de banco, contas, anúncios ou produção. A publicação requer validação do usuário.
+- **Regressões:** `node --test tests/*.test.mjs`, inspeção manual do logo e dos preços no mobile e desktop.
