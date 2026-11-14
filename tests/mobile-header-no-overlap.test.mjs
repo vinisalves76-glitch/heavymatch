@@ -3,44 +3,47 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
 const read=path=>readFile(new URL(path,import.meta.url),"utf8");
-const [page,theme,auth,tour]=await Promise.all([
+const [page,brandCss,mobileCss,auth,tour,menu]=await Promise.all([
   read("../index.html"),
   read("../styles/catiramatch-theme.css"),
+  read("../styles/mobile-discovery.css"),
   read("../supabase-integration.js"),
-  read("../guided-tour.js")
+  read("../guided-tour.js"),
+  read("../mobile-discovery.js")
 ]);
 
-test("logo do CatiraMatch usa PNG transparente e não muda no mobile",()=>{
+test("logo do CatiraMatch continua PNG transparente no cabeçalho",()=>{
   assert.match(page,/<header class="topbar"><div class="brand"><img class="brand-logo" src="\/assets\/catiramatch-logo-header.png"/);
-  assert.match(theme,/\.brand \.brand-logo\{[^}]*background:transparent;[^}]*border:0;[^}]*border-radius:0;[^}]*padding:0;[^}]*box-shadow:none/);
-  assert.match(theme,/\.topbar \.brand \.brand-logo\{[^}]*background:transparent;[^}]*box-shadow:none/);
+  assert.match(brandCss,/\.brand \.brand-logo\{[^}]*background:transparent;[^}]*border:0;[^}]*border-radius:0;[^}]*padding:0;[^}]*box-shadow:none/);
+  assert.match(mobileCss,/\.topbar \.brand \.brand-logo\{[^}]*background:transparent;border-radius:0;box-shadow:none/);
 });
 
-test("no celular a marca ocupa linha independente dos botões",()=>{
-  assert.match(theme,/@media\(max-width:799px\)\{[\s\S]*?\.topbar\{height:auto;min-height:105px;display:grid;grid-template-columns:minmax\(0,1fr\);grid-template-rows:minmax\(42px,auto\) 39px/);
-  assert.match(theme,/\.topbar \.brand\{grid-column:1;grid-row:1;/);
-  assert.match(theme,/\.topbar \.top-actions\{grid-column:1;grid-row:2;/);
-  assert.match(theme,/\.topbar \.brand:after\{content:'Pra você'/);
-  assert.match(theme,/\.topbar \.top-actions\{[^}]*flex-wrap:nowrap/);
-  assert.doesNotMatch(theme,/\.topbar\{height:76px/);
+test("layout efetivo agora usa UMA linha compacta no mobile e não sobrepõe a logo",()=>{
+  assert.match(page,/<link rel="stylesheet" href="\/styles\/catiramatch-theme.css">\s*<link rel="stylesheet" href="\/styles\/mobile-discovery.css">/);
+  assert.match(mobileCss,/\.topbar\{position:relative;[^}]*height:56px;min-height:56px;display:flex;/);
+  assert.match(mobileCss,/\.topbar \.brand\{[^}]*flex-direction:row;/);
+  assert.match(mobileCss,/\.topbar \.top-actions\{display:none!important\}/);
+  assert.match(mobileCss,/\.topbar \.brand:after\{content:'Pra você'/);
 });
 
-test("ações superiores ficam compactas mas continuam acessíveis",()=>{
-  assert.match(theme,/\.topbar #hmAccountButton\{[^}]*max-width:110px/);
-  assert.match(theme,/\.topbar #hmTopLogout:not\(\[hidden\]\)\{[^}]*min-height:36px/);
-  assert.match(theme,/\.topbar \.top-btn\{[^}]*width:36px/);
-  assert.match(theme,/\.topbar #hmTourHelp\{[^}]*width:36px/);
-  assert.match(theme,/\.topbar #hmTourHelp:before\{content:'\?'/);
-  assert.match(theme,/@media\(max-width:360px\)\{/);
+test("Entrar, Ajuda, Sair e gestão de anúncios continuam acessíveis pelo menu Conta",()=>{
+  assert.match(menu,/id="hmMenuAccount"/);
+  assert.match(menu,/id="hmMenuHelp"/);
+  assert.match(menu,/id="hmMenuLogout"/);
+  assert.match(menu,/id="hmMenuListings"/);
+  assert.match(menu,/id="hmMenuAdmin"/);
+  assert.match(menu,/forward\("hmMenuAccount","hmAccountButton"\)/);
+  assert.match(menu,/forward\("hmMenuHelp","hmTourHelp"\)/);
+  assert.match(menu,/forward\("hmMenuLogout","hmTopLogout"\)/);
+  assert.match(menu,/forward\("hmMenuListings","sellerNav"\)/);
+  assert.match(menu,/forward\("hmMenuAdmin","hmAdminNav"\)/);
   assert.match(auth,/id = "hmAccountButton"/);
-  assert.match(auth,/id = "hmTopLogout"/);
   assert.match(tour,/help\.id = "hmTourHelp"/);
-  assert.match(tour,/help\.setAttribute\("aria-label", "Aprender a usar o CatiraMatch"\)/);
-  assert.match(page,/id="filtersNav"/);
-  assert.match(page,/id="favoritesJump"/);
+  assert.match(page,/id="profileNav"/);
+  assert.match(page,/hmMobileOpenMenu\?\.\(\)/);
 });
 
-test("o cabeçalho não altera gestos do CatiraMatch",()=>{
+test("cabeçalho e menu não mudam a direção de curtir/passar",()=>{
   assert.match(page,/const swipeActions=\{left:pass,right:like\}/);
   assert.match(page,/if\(dx>0\)\{like\(\);\}else\{pass\(\);\}/);
 });
