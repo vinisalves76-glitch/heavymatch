@@ -236,3 +236,9 @@ Referência: fluxo de cartões por swipe do Tinder, com fotos ocupando a tela e 
 **Arquivos:** `styles/mobile-discovery.css`, `mobile-discovery.js`; `index.html` expõe foto desfocada/primeiro plano e ações rápidas; `guided-tour.js` orienta a nova navegação. O desktop não muda. Favoritos abrem em painel, sem rolar a vitrine para fora da foto. `tests/immersive-discovery.test.mjs` e demais regressões verificam hierarquia, atalhos e regras de acesso.
 
 **Processo:** mesma branch `fix/catiramatch-swipe-direction-20261114` e URL estável de Preview do PR #15. NÃO publicar em produção nem alterar Supabase antes de aprovação explícita. Teste visual real em iPhone/Android ainda necessário.
+
+
+### Ajuste de duplicidade visual dos menus (Preview)
+Após avaliação de captura no celular, `styles/mobile-discovery.css` remove o fundo escuro arredondado, a borda, sombra e desfoque do agrupador de ações na fotografia. X, detalhes, WhatsApp e coração continuam como **botões circulares flutuantes independentes** na foto, sem aparentar uma segunda barra de menu. A navegação inferior mantém somente **Descobrir, Buscar, Salvos, Conta**. Os controles do Safari/visualizador não pertencem ao site.
+
+Nenhuma mudança de API, login, Supabase, banco, anúncios ou produção. Testes de layout em `tests/immersive-discovery.test.mjs`.
