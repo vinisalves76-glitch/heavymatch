@@ -93,3 +93,11 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - `assets/catiramatch-logo.png` permanece disponível para superfícies claras (por exemplo, login). Não aplicar filtros que tornem o lettering invisível.
 - O estilo `.brand .brand-logo` em `styles/catiramatch-theme.css` deve manter `background:transparent`, `padding:0`, `border:0` e `box-shadow:none` tanto no desktop quanto no mobile.
 - Validar o recorte/legibilidade do PNG e executar os testes antes da publicação; não alterar produção sem aprovação.
+
+
+## Swipe CatiraMatch — correção de pointer (Preview 14/11/2026)
+- A regra é mandatória: **arrastar dedo para a direita curte/salva**; **arrastar para a esquerda passa sem salvar**. Botão X à esquerda = passar; coração à direita = curtir.
+- Use os testes de eventos reais simulados em `tests/swipe-direction-real-events.test.mjs` e mantenha mapeamento, movimento visual, selos e botões sempre coerentes.
+- O gesto deve funcionar mesmo que o dedo saia da área da foto antes do `pointerup`; por isso o listener de término fica no documento. Não use `setPointerCapture` na foto se isso afetar a galeria.
+- Gestos verticais, cliques curtos e pointer cancelados não devem gerar curtidas ou passar anúncios.
+- Não publicar em produção sem autorização explícita e verificação da Preview.
