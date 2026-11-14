@@ -215,3 +215,11 @@ Marca adotada: **CatiraMatch**, antiga marca HeavyMatch. Identidade baseada nas 
 - Evita capturar o pointer para não interferir na galeria de fotos e na rolagem vertical do celular.
 - Testes de eventos simulados em `tests/swipe-direction-real-events.test.mjs` validam gesto para ambos os lados, arrasto fora da foto, toque curto, scroll vertical, cancelamento e botões.
 - Mudança em branch de teste com Preview; não altera banco, fotos, anúncios nem produção até aprovação.
+
+
+### Cabeçalho do celular sem sobreposição de logo
+- Corrigido após captura de tela de celular: os botões Entrar, filtros, favoritos e Ajuda encobriam a logo CatiraMatch.
+- Em telas até 799px, `.topbar` usa duas linhas independentes: logo PNG transparente e indicação `Pra você` na primeira, botões compactos acessíveis na segunda.
+- Botões com 36px de altura; ajuda mostra ícone `?` com descrição acessível preservada; controles mantêm seus listeners e menus originais. Para telas até 360px, espaçamentos são reduzidos.
+- Login, sessão, ADM, anúncios, tour, fotos, swipe e desktop não foram modificados nesta correção.
+- Testes: `tests/mobile-header-no-overlap.test.mjs` e suite completa. Trabalho somente em Preview até aprovação.
