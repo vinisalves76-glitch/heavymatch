@@ -32,7 +32,7 @@
     const admin=$("hmAdminNav");
     const signedIn=!!logout && !logout.hidden;
     $("hmMenuAccount").querySelector("strong").textContent=signedIn?"Minha conta":"Entrar ou criar conta";
-    $("hmMenuProfile").hidden=!signedIn;
+    $("hmMenuProfile").hidden=!signedIn || (seller && !seller.hidden);
     $("hmMenuListings").hidden=!(seller && !seller.hidden);
     $("hmMenuAdmin").hidden=!(admin && admin.classList.contains("hm-visible"));
     $("hmMenuLogout").hidden=!signedIn;
@@ -83,7 +83,30 @@
   forward("hmMenuHelp","hmTourHelp");
   forward("hmMenuLogout","hmTopLogout");
   $("hmMenuProfile").addEventListener("click",()=>{close();window.hmOpenBuyerProfile?.();});
-  window.addEventListener("hm-auth-changed",sync);
+  // A barra de navegação informa de forma consistente qual área está aberta.
+  const primaryTabs=["homeNav","exploreNav","savedNav","profileNav"];
+  function selectTab(id) {
+    for(const tabId of primaryTabs){
+      const item=$(tabId);if(!item)continue;
+      const chosen=tabId===id;
+      item.classList.toggle("active",chosen);
+      if(chosen)item.setAttribute("aria-current","page");
+      else item.removeAttribute("aria-current");
+    }
+  }
+  $("homeNav")?.addEventListener("click",()=>selectTab("homeNav"));
+  $("exploreNav")?.addEventListener("click",()=>{
+    const open=$("filters")?.classList.contains("is-open");
+    if(open)$("savedPanel")?.classList.remove("is-open");
+    selectTab(open?"exploreNav":"homeNav");
+  });
+  $("savedNav")?.addEventListener("click",()=>{
+    $("filters")?.classList.remove("is-open");
+    $("quickbar")?.classList.remove("is-open");
+    selectTab($("savedPanel")?.classList.contains("is-open")?"savedNav":"homeNav");
+  });
+  $("hmMobileMenuClose")?.setAttribute("title","Voltar ao anúncio");
+    window.addEventListener("hm-auth-changed",sync);
   window.addEventListener("hm-supabase-ready",sync);
   window.addEventListener("resize",()=>{if(!mobile())close();});
 })();
