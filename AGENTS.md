@@ -119,3 +119,11 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - Preservar foto alternável ao toque; atualizar primeiro plano E fundo desfocado em `changeEquipmentPhoto`. Nenhuma foto deve ser excluída para melhorar a vitrine.
 - Testar `tests/immersive-discovery.test.mjs`, `tests/mobile-header-no-overlap.test.mjs`, swipe, perfil, login, anúncios e tour.
 - Apenas Preview e PR #15; produção só depois de aprovação.
+
+
+## Remoção de menu visual duplicado — 14/11/2026
+- A captura de tela mobile mostrou a barra de ações em cápsula se parecendo com um segundo menu logo acima de Descobrir/Buscar/Salvos/Conta.
+- O wrapper `#secondaryActions` no mobile deve ficar visualmente **transparente, sem borda, sombra ou blur**, com `pointer-events:none`. Os quatro botões (X, detalhes, WhatsApp, coração) permanecem individuais com `pointer-events:auto` sobre a fotografia.
+- A barra inferior de quatro destinos continua sendo **a única navegação permanente**. Os botões de ações são controles do anúncio, não uma segunda barra de navegação.
+- A barra inferior do navegador iOS (voltar/compartilhar/atualizar) é do navegador e não deve ser confundida com UI do aplicativo; não tentar ocultá-la por CSS do site.
+- Regressão: `tests/immersive-discovery.test.mjs` exige ausência de fundo/borda no wrapper e presença das ações. Preservar produção até aprovação.
