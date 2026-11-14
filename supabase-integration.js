@@ -69,6 +69,7 @@
           <section class="hm-admin-section"><h3>Criar acesso</h3><p>Crie vendedores e outros administradores sem acessar o painel do banco de dados.</p>
             <form id="hmCreateUserForm">
               <label for="hmNewName">Nome completo</label><input id="hmNewName" autocomplete="name" placeholder="Nome do usuário" required>
+              <label for="hmNewPhone">WhatsApp do vendedor (com DDD)</label><input id="hmNewPhone" type="tel" inputmode="tel" maxlength="20" placeholder="(31) 99999-9999">
               <label for="hmNewEmail">E-mail de acesso</label><input id="hmNewEmail" type="email" autocomplete="off" placeholder="nome@empresa.com.br" required>
               <label for="hmNewPassword">Senha inicial</label><input id="hmNewPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" required>
               <label for="hmNewRole">Tipo de acesso</label><select id="hmNewRole"><option value="seller">Vendedor</option><option value="admin">Administrador</option></select>
@@ -77,11 +78,11 @@
             <div class="hm-admin-message" id="hmCreateMessage" role="status" aria-live="polite"></div>
           </section>
           <section class="hm-admin-section"><h3>Contas cadastradas</h3><p>Lista de acessos existentes e seus níveis de permissão.</p>
-            <div class="hm-admin-table-wrap"><table class="hm-admin-table"><thead><tr><th>Usuário</th><th>Perfil</th><th>Criado em</th></tr></thead><tbody id="hmUsersTable"><tr><td colspan="3">Carregando…</td></tr></tbody></table></div>
+            <div class="hm-admin-table-wrap"><table class="hm-admin-table"><thead><tr><th>Usuário</th><th>WhatsApp</th><th>Perfil</th><th>Criado em</th></tr></thead><tbody id="hmUsersTable"><tr><td colspan="4">Carregando…</td></tr></tbody></table></div>
           </section>
         </div>
       </div>
-      <div id="hmAdminFuture" hidden><div class="hm-admin-section"><h3>Gestão de equipamentos e operação</h3><p>Esta aba será conectada ao cadastro real de anúncios, fotos, conversas e métricas nas próximas etapas. O catálogo da vitrine ainda contém itens de demonstração; não publicaremos dados como se já estivessem integrados.</p><div class="hm-admin-note">A criação segura de contas está sendo implementada agora. Para habilitar a operação completa, ainda é necessário conectar os formulários de equipamentos, o armazenamento de fotos e o chat às tabelas do Supabase.</div></div></div>
+      <div id="hmAdminFuture" hidden><div class="hm-admin-section"><h3>Gestão de anúncios</h3><p>Cadastre caminhões, carretas e máquinas com fotos, preço, descrição e situação de publicação. O ADM visualiza todos os anúncios e pode escolher o vendedor responsável.</p><div class="hm-admin-actions"><button type="button" class="primary" id="hmAdminOpenListings">Abrir cadastro de equipamentos</button></div><div class="hm-admin-note">O vendedor gerencia somente os próprios anúncios. O comprador não possui acesso ao cadastro.</div></div></div>
       <div class="hm-admin-actions"><button type="button" id="hmAdminLogout">Sair da conta</button><button type="button" class="primary" id="hmAdminCloseBottom">Fechar ADM</button></div>
       <div class="hm-admin-message" id="hmAdminMessage" role="status" aria-live="polite"></div>
     </section>`;
@@ -143,6 +144,7 @@
   overlay.addEventListener("click", e => { if (e.target === overlay) closeAuth(); });
   adminOverlay.querySelector(".hm-admin-close").addEventListener("click", closeAdmin);
   document.getElementById("hmAdminCloseBottom").addEventListener("click", closeAdmin);
+  document.getElementById("hmAdminOpenListings").addEventListener("click", () => { closeAdmin(); if(typeof window.hmOpenListings === "function") window.hmOpenListings(); });
   adminOverlay.addEventListener("click", e => { if (e.target === adminOverlay) closeAdmin(); });
   accountButton.addEventListener("click", () => currentRole === "admin" ? openAdmin() : currentUser ? showAccountInfo() : showAuth());
   adminNav.addEventListener("click", openAdmin);
@@ -257,7 +259,7 @@
         const role = ["admin", "seller", "buyer"].includes(user.role) ? user.role : "buyer";
         const roleLabel = role === "admin" ? "Administrador" : role === "seller" ? "Vendedor" : "Comprador";
         const date = user.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "—";
-        return '<tr><td><strong>' + escapeHtml(user.full_name || user.email || "Usuário") + '</strong><br><span style="color:#71808a">' + escapeHtml(user.email) + '</span></td><td><span class="hm-admin-role ' + role + '">' + roleLabel + '</span></td><td>' + date + '</td></tr>';
+        return '<tr><td><strong>' + escapeHtml(user.full_name || user.email || "Usuário") + '</strong><br><span style="color:#71808a">' + escapeHtml(user.email) + '</span></td><td>' + escapeHtml(user.phone || "—") + '</td><td><span class="hm-admin-role ' + role + '">' + roleLabel + '</span></td><td>' + date + '</td></tr>';
       }).join("");
     } catch (error) {
       table.innerHTML = '<tr><td colspan="3">Não foi possível carregar a lista.</td></tr>';
@@ -273,6 +275,7 @@
     try {
       const result = await apiAdmin("create", {
         full_name: document.getElementById("hmNewName").value.trim(),
+        phone: document.getElementById("hmNewPhone").value.trim(),
         email: document.getElementById("hmNewEmail").value.trim(),
         password: document.getElementById("hmNewPassword").value,
         role: document.getElementById("hmNewRole").value
@@ -325,6 +328,7 @@
       if (!window.supabase?.createClient) throw new Error("A biblioteca de conexão não carregou. Verifique sua conexão e tente novamente.");
       supabaseClient = window.supabase.createClient(config.url, config.anonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
       window.hmSupabaseClient = supabaseClient;
+      window.dispatchEvent(new CustomEvent("hm-supabase-ready"));
       // Registrar antes de recuperar a sessão: o link de senha pode emitir PASSWORD_RECOVERY nessa etapa.
       supabaseClient.auth.onAuthStateChange((event, session) => {
         if (event === "PASSWORD_RECOVERY") { enterResetFlow(); return; }
