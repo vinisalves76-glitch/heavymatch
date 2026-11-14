@@ -16,7 +16,7 @@ html,body{accent-color:#E32227}
 body,#app{background-color:var(--site-background)}
 .topbar{background:#181818;color:#fff;border-bottom:2px solid #E32227}
 .brand{display:flex;align-items:center;gap:10px;color:#fff;min-width:0}
-.brand .brand-logo{display:block;width:min(245px,32vw);max-height:46px;object-fit:contain;background:#fff;border-radius:10px;padding:7px 10px;box-shadow:0 2px 12px #0003}
+.brand .brand-logo{display:block;width:clamp(195px,20vw,250px);height:auto;max-height:55px;object-fit:contain;background:transparent;border:0;border-radius:0;padding:0;box-shadow:none;filter:none}
 .brand .mark,.brand em{display:none}
 .brand .brand-text-fallback{display:none;font-weight:950}
 .top-btn{background:#292929;border-color:#454545;color:#fff}
@@ -61,7 +61,7 @@ body,#app{background-color:var(--site-background)}
   body,#app{background:#181818;color:#fff}
   .topbar{height:76px;background:#181818;border-bottom:1px solid #E32227;padding:0 15px}
   .brand{font-size:0!important;gap:0;flex-direction:column;align-items:flex-start;justify-content:center}
-  .brand .brand-logo{display:block;width:clamp(134px,41vw,185px);height:auto;max-height:34px;padding:4px 7px;border-radius:8px}
+  .brand .brand-logo{display:block;width:clamp(155px,47vw,200px);height:auto;max-height:46px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;filter:none}
   .brand:after{content:'Pra você';display:block;font-size:12px;line-height:1.1;letter-spacing:.1px;font-weight:800;color:#F3F3F3;margin-top:4px}
   .top-actions{gap:5px}
   .top-btn{background:transparent;border:0;color:#fff}
