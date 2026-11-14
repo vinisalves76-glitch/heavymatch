@@ -91,10 +91,10 @@
     { selector: "#filtersNav", title: "Filtros e busca", description: "No computador, abra os filtros para combinar marca, modelo e faixa de preço.", before: () => { const f=$("filters");if(f && !f.classList.contains("is-open"))$("filtersNav")?.click(); } },
     { selector: "#deck", title: "Foto em destaque", description: "A imagem mostra o equipamento inteiro; toque na foto para ver outras imagens. Deslize para a direita para salvar ou para a esquerda para passar.", before: () => { const f=$("filters");if(f?.classList.contains("is-open"))$("exploreNav")?.click(); } },
     { selector: "#likeBtn", title: "Curtir e salvar", description: "Toque no coração para salvar este equipamento. Você também pode deslizar para a direita." },
-    { selector: "#hmMobileDetails", title: "Bio e informações técnicas", description: "Abra os detalhes para consultar fotos, valor anunciado e descrição do equipamento." },
+    { selector: "#hmPhotoBio", title: "Bio e contato", description: "No próprio anúncio, abra a bio para ver preço, informações técnicas e o botão de WhatsApp do vendedor." },
     { selector: "#detailsBtn", title: "Ver detalhes", description: "Abra a bio do equipamento para conferir preço, ano e descrição." },
     { selector: "#savedNav", title: "Seus equipamentos salvos", description: "Veja os anúncios curtidos e retome a negociação quando quiser." },
-    { selector: "#hmMobileContact", title: "Converse com o vendedor", description: "O botão verde permite abrir o WhatsApp do vendedor do equipamento." },
+    { selector: "#modalContact", title: "Converse com o vendedor", description: "Na bio, o botão de WhatsApp leva você diretamente ao vendedor." },
     { selector: "#chatNav", title: "Chat do vendedor", description: "Converse com o vendedor responsável pelo anúncio atual." },
     { selector: "#profileNav", title: "Conta e opções", description: "No celular, abra Conta para entrar, ver seu perfil, cadastrar anúncios se for vendedor, acessar ADM Master e encontrar Ajuda." },
     { selector: "#hmAccountButton", title: "Entrar na sua conta", description: "Entre para acessar seu perfil. Os recursos de vendedor e ADM aparecem somente para as contas autorizadas." }
