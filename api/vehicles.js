@@ -12,7 +12,7 @@ function clean(value, max = 5000) {
 function photoPaths(value) {
   if (!Array.isArray(value) || value.length > 10) return null;
   const paths = value.map(path => clean(path, 300));
-  if (paths.some(path => !path || !/^[a-f0-9-]{36}\/[a-f0-9-]{36}\.(jpg|png|webp)$/i.test(path))) return null;
+  if (paths.some(path => !path || !/^[a-f0-9-]{36}\/[a-zA-Z0-9._-]{1,240}\.(jpg|jpeg|png|webp)$/i.test(path))) return null;
   if (new Set(paths).size !== paths.length) return null;
   return paths;
 }
@@ -81,7 +81,11 @@ export default async function handler(req, res) {
           image: photoItems.find(p => p.url)?.url || ""
         };
       }));
-      let accounts = [];
+      let accounts = [], myPhone = "";
+      if (manage) {
+        const { data: mine } = await db.from("profiles").select("phone").eq("id", user.id).maybeSingle();
+        myPhone = mine?.phone || "";
+      }
       if (manage && role === "admin") {
         const { data, error: accountsError } = await db.from("profiles")
           .select("id, full_name, phone, role").in("role", ["seller", "admin"]).order("full_name");
@@ -91,7 +95,7 @@ export default async function handler(req, res) {
           phone: profile.phone || "", role: profile.role
         }));
       }
-      return reply(res, 200, { vehicles: items, role, user_id: user?.id || null, sellers: accounts });
+      return reply(res, 200, { vehicles: items, role, user_id: user?.id || null, sellers: accounts, my_phone: myPhone });
     }
 
     if (req.method !== "POST") {
@@ -104,6 +108,14 @@ export default async function handler(req, res) {
     }
     const body = req.body || {};
     const action = clean(body.action, 20);
+
+    if (action === "contact") {
+      const digits = clean(body.phone, 30).replace(/[^0-9]/g, "");
+      if (digits.length < 10 || digits.length > 13) return reply(res, 400, { error: "Informe um WhatsApp válido com DDD." });
+      const { error } = await db.from("profiles").update({ phone: digits }).eq("id", user.id);
+      if (error) throw error;
+      return reply(res, 200, { message: "WhatsApp do vendedor atualizado." });
+    }
 
     if (action === "cleanup") {
       const paths = photoPaths(body.photos);
@@ -150,7 +162,7 @@ export default async function handler(req, res) {
     const year = Number(body.manufacture_year);
     const priceOnRequest = body.price_on_request === true;
     const price = priceOnRequest || body.price === "" || body.price == null ? null : Number(body.price);
-    const status = body.status === "draft" ? "draft" : "published";
+    const status = ["published", "draft", "sold", "inactive"].includes(body.status) ? body.status : "draft";
     const paths = photoPaths(body.photos);
     if (!paths) return reply(res, 400, { error: "Envie no máximo 10 fotos válidas, sem repetições." });
     if (!title || !category || !brand || !model) return reply(res, 400, { error: "Preencha título, categoria, marca e modelo." });
