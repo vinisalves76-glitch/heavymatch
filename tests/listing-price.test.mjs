@@ -76,7 +76,7 @@ test("valor é enviado como número ao servidor, sem copiar para descrição arm
 test("valor aparece tanto no cartão com foto como na descrição do anúncio", () => {
   assert.match(html, /class="hm-price-photo" aria-label="Preço do equipamento">\$\{esc\(v\.price\)\}/);
   assert.match(html, /class="hm-price-detail"><span>Preço anunciado<\/span><strong>\$\{esc\(v\.price\)\}/);
-  assert.match(html, /class="hm-price-detail" \{/);
+  assert.match(html, /\.hm-price-detail\{/);
   assert.match(formSource, /price:v\.price_on_request\|\|v\.price==null\?"Sob consulta":money\(v\)/);
 });
 
