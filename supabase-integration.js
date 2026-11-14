@@ -246,7 +246,7 @@
   }
   async function loadUsers() {
     const table = document.getElementById("hmUsersTable");
-    table.innerHTML = '<tr><td colspan="3">Carregando contas…</td></tr>';
+    table.innerHTML = '<tr><td colspan="4">Carregando contas…</td></tr>';
     adminMessage("");
     try {
       const result = await apiAdmin("list");
@@ -254,7 +254,7 @@
       document.getElementById("hmTotalUsers").textContent = users.length;
       document.getElementById("hmTotalSellers").textContent = users.filter(u => u.role === "seller").length;
       document.getElementById("hmTotalAdmins").textContent = users.filter(u => u.role === "admin").length;
-      if (!users.length) { table.innerHTML = '<tr><td colspan="3">Nenhuma conta encontrada.</td></tr>'; return; }
+      if (!users.length) { table.innerHTML = '<tr><td colspan="4">Nenhuma conta encontrada.</td></tr>'; return; }
       table.innerHTML = users.map(user => {
         const role = ["admin", "seller", "buyer"].includes(user.role) ? user.role : "buyer";
         const roleLabel = role === "admin" ? "Administrador" : role === "seller" ? "Vendedor" : "Comprador";
@@ -262,11 +262,13 @@
         return '<tr><td><strong>' + escapeHtml(user.full_name || user.email || "Usuário") + '</strong><br><span style="color:#71808a">' + escapeHtml(user.email) + '</span></td><td>' + escapeHtml(user.phone || "—") + '</td><td><span class="hm-admin-role ' + role + '">' + roleLabel + '</span></td><td>' + date + '</td></tr>';
       }).join("");
     } catch (error) {
-      table.innerHTML = '<tr><td colspan="3">Não foi possível carregar a lista.</td></tr>';
+      table.innerHTML = '<tr><td colspan="4">Não foi possível carregar a lista.</td></tr>';
       adminMessage(error.message, true);
     }
   }
   function escapeHtml(value) { return String(value || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  document.getElementById("hmNewRole").addEventListener("change", () => { document.getElementById("hmNewPhone").required = document.getElementById("hmNewRole").value === "seller"; });
+  document.getElementById("hmNewPhone").required = true;
   document.getElementById("hmReloadUsers").addEventListener("click", loadUsers);
   document.getElementById("hmCreateUserForm").addEventListener("submit", async event => {
     event.preventDefault();
