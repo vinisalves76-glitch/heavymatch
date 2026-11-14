@@ -1,0 +1,27 @@
+name: Seller and admin listings preview checks
+on:
+  push:
+    branches:
+      - feat/seller-admin-listings-20261114
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  listings-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify JavaScript syntax
+        run: |
+          node --check api/vehicles.js
+          node --check api/vehicles/photo-token.js
+          node --check api/admin/users.js
+          node --check equipment-marketplace.js
+          node --check supabase-integration.js
+      - name: Run account, listing and swipe regression tests
+        run: node --test tests/*.test.mjs

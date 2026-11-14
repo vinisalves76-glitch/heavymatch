@@ -70,6 +70,7 @@ export default async function handler(req, res) {
           email: user.email || "",
           created_at: user.created_at,
           full_name: byId.get(user.id)?.full_name || "",
+          phone: byId.get(user.id)?.phone || "",
           role: byId.get(user.id)?.role || "buyer"
         }))
       });
@@ -79,6 +80,7 @@ export default async function handler(req, res) {
       const email = String(body.email || "").trim().toLowerCase();
       const password = String(body.password || "");
       const fullName = String(body.full_name || "").trim();
+      const phone = String(body.phone || "").replace(/[^0-9]/g, "");
       const role = String(body.role || "");
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -86,6 +88,8 @@ export default async function handler(req, res) {
       }
       if (password.length < 8) return reply(res, 400, { error: "A senha precisa ter pelo menos 8 caracteres." });
       if (!["seller", "admin"].includes(role)) return reply(res, 400, { error: "Perfil inválido." });
+      if (phone && (phone.length < 10 || phone.length > 13)) return reply(res, 400, { error: "Informe um telefone com DDD válido." });
+      if (role === "seller" && !phone) return reply(res, 400, { error: "O WhatsApp do vendedor é obrigatório." });
 
       const { data: created, error: createError } = await adminClient.auth.admin.createUser({
         email,
@@ -101,6 +105,7 @@ export default async function handler(req, res) {
       const { error: profileUpsertError } = await adminClient.from("profiles").upsert({
         id: created.user.id,
         full_name: fullName || null,
+        phone: phone || null,
         role
       }, { onConflict: "id" });
 
@@ -111,7 +116,7 @@ export default async function handler(req, res) {
 
       return reply(res, 201, {
         message: role === "admin" ? "Administrador criado com sucesso." : "Vendedor criado com sucesso.",
-        user: { id: created.user.id, email, full_name: fullName, role }
+        user: { id: created.user.id, email, full_name: fullName, phone, role }
       });
     }
 

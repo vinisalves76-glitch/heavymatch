@@ -106,3 +106,51 @@ O domínio de Preview precisa estar permitido em **Authentication → URL Config
 6. Confira X esquerdo/pular, coração direito/curtir, filtros, favoritos e anúncios.
 
 A aplicação do SQL de endurecimento das permissões `profiles.role` é uma questão separada, ainda pendente de aprovação e validação no banco compartilhado.
+
+
+## Preview — gestão de anúncios para vendedor e ADM Master
+
+Branch de testes: `feat/seller-admin-listings-20261114`. **Não publicar na produção sem validação e autorização.**
+
+### Fluxos implementados
+- **Comprador:** pode visualizar o catálogo e acessar os cartões, mas não tem botão de cadastro. As APIs de anúncios e token de upload respondem 403 para perfis buyer.
+- **Vendedor:** botão amarelo "Cadastrar / gerenciar anúncios" abaixo da apresentação do catálogo. Pode criar, editar, publicar, pausar, marcar vendido e remover apenas anúncios vinculados ao seu UUID. Pode cadastrar seu WhatsApp de contato.
+- **ADM Master:** pode usar o botão abaixo da apresentação ou a aba "Gestão de anúncios" no painel ADM. Visualiza todos os anúncios, cria em nome de uma conta comercial selecionada e pode editar/remover anúncios existentes. O formulário de criação de vendedor exige WhatsApp com DDD.
+- **Fotos:** galeria ou câmera do celular, até 10 fotos por anúncio, JPG/PNG/WebP, até 10 MB por foto. Pré-visualização da capa, remoção de fotos e inclusão de novas imagens na edição. Publicação exige ao menos uma foto; rascunho pode ficar sem fotos.
+- **Persistência:** os anúncios são gravados em `vehicles`, suas imagens associadas em `vehicle_photos` e os arquivos no bucket privado `vehicle-photos`.
+- **Upload:** o navegador solicita um token à API `POST /api/vehicles/photo-token`, que valida JWT e `profiles.role` usando service role. Um caminho UUID exclusivo é gerado no servidor e o navegador faz `uploadToSignedUrl`.
+- **Contato comercial:** o catálogo recebe `seller_phone` do perfil vinculado ao anúncio; o botão WhatsApp não redireciona para um número genérico caso o vendedor não tenha contato.
+
+### Restrições e segurança
+- A API de anúncios verifica perfil e propriedade no servidor; vendedor nunca pode editar/excluir anúncios de outras contas.
+- Não existe nova tabela nesta versão. Os oito anúncios e as fotos já existentes devem ser preservados.
+- **Segurança do banco corrigida em 14/11/2026:** a política `profile_insert_own` foi removida, e os privilégios de `profiles` passaram a restringir `UPDATE` às colunas `full_name` e `phone` (não `role`). As políticas de fotos agora exigem um usuário `seller` ou `admin` com diretório próprio no Storage. A alteração está registrada em `docs/seller-admin-storage-security.sql`; não reaplicar sem auditoria.
+- Não atribuir automaticamente perfis privilegiados com base em `user_metadata`. Não compartilhar a chave service role no cliente.
+- Não modificar a `main` até a Preview aprovada.
+
+### Roteiro de QA
+1. Com usuário comprador, confirme que não existe botão de cadastro e que tentativas à API de anúncios/fotos são negadas.
+2. Com vendedor, preencha WhatsApp, cadastre rascunho, adicione fotos de câmera e galeria, publique e verifique o anúncio no catálogo.
+3. Edite sem selecionar fotos novas (as fotos atuais devem permanecer), depois adicione/remova fotos individualmente e confira o resultado.
+4. Teste os limites: 10 fotos, formato incompatível, arquivo maior que 10 MB, publicação sem fotos.
+5. Com ADM, acesse gestão de anúncios, selecione um vendedor responsável, publique e confira se o WhatsApp aponta ao dono.
+6. Comprador não deve editar, publicar ou excluir; vendedor não vê nem altera anúncios alheios; ADM pode administrar todos.
+7. Confira swipe X esquerda/pular, coração direita/curtir, filtros, favoritos, perfil do comprador e recuperação de senha.
+8. Execute `node --test tests/*.test.mjs` e `node --check` dos scripts.
+
+
+### Acesso direto do vendedor (correção de navegação)
+
+- **Causa da falha anterior:** o botão "Cadastrar / gerenciar anúncios" foi adicionado ao container `.intro`, oculto globalmente pelo tema Tinder. Por isso o vendedor não via a opção.
+- **Mobile:** a opção **＋ Anunciar** agora aparece no menu inferior somente quando a sessão tem `profiles.role = seller` ou `admin`. Ao tocar, abre o formulário para cadastrar equipamento e a lista de anúncios do vendedor.
+- **Desktop:** o botão "＋ Meus anúncios" fica na barra superior visível, em vez de dentro da seção `.intro`.
+- **Comprador e visitante:** nenhum desses atalhos fica visível; a API mantém a autorização independente da UI.
+- Depois de entrar ou sair, o aplicativo recalcula a permissão e mostra/oculta os atalhos; só contas comerciais cadastradas pelo ADM recebem acesso.
+- **Não criar vendedores automaticamente:** o ADM Master continua responsável por criar e autorizar contas de vendedores.
+- Teste novo: `tests/seller-navigation.test.mjs`, incluindo simulação de perfis buyer, seller, admin e visitante.
+
+### Publicação segura — 14/11/2026
+- Foram verificadas as permissões do Supabase após a atualização, confirmando que usuários autenticados **não** podem modificar `profiles.role` nem inserir perfis arbitrariamente.
+- O servidor continua autorizando a criação e edição de anúncios apenas para seller/admin e validando a titularidade em operações de vendedor.
+- Nenhuma conta, anúncio ou foto foi apagada; verificadas 8 entradas em `vehicles`, 28 em `vehicle_photos` e 4 em `profiles`.
+- Atenção: testes E2E autenticados reais e upload pela câmera devem ser validados no celular após a publicação.
