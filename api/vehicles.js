@@ -175,7 +175,7 @@ export default async function handler(req, res) {
     let old = null, currentPhotos = [];
     if (action === "update") {
       if (!id) return reply(res, 400, { error: "Anúncio inválido." });
-      const { data, error } = await db.from("vehicles").select("id, seller_id").eq("id", id).maybeSingle();
+      const { data, error } = await db.from("vehicles").select("id, seller_id, status").eq("id", id).maybeSingle();
       if (error) throw error;
       if (!data) return reply(res, 404, { error: "Anúncio não encontrado." });
       if (role !== "admin" && data.seller_id !== user.id) {
@@ -202,6 +202,18 @@ export default async function handler(req, res) {
         return reply(res, 400, { error: "Selecione uma conta de vendedor válida." });
       }
       ownerId = target.id;
+    }
+    // Para novos anúncios publicados, deve existir um contato comercial real.
+    // Permite editar anúncios antigos já publicados sem causar retrocesso.
+    if (status === "published" && (action === "create" || old?.status !== "published")) {
+      const contactOwnerId = action === "create" ? ownerId : old.seller_id;
+      const { data: contactProfile, error: contactError } = await db.from("profiles")
+        .select("phone").eq("id", contactOwnerId).maybeSingle();
+      if (contactError) throw contactError;
+      const number = String(contactProfile?.phone || "").replace(/[^0-9]/g, "");
+      if (number.length < 10 || number.length > 13) {
+        return reply(res, 400, { error: "Cadastre o WhatsApp do vendedor responsável antes de publicar." });
+      }
     }
     const record = {
       title, category, brand, model, manufacture_year: year,
