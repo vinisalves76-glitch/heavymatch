@@ -45,19 +45,21 @@
   .feed .photo-info p{font-size:12px;line-height:1.3;color:#eee;margin:0}
   .feed .hm-hero-price{display:block;margin-top:8px;color:#fff;font-size:clamp(20px,5.5vw,28px);font-weight:950;line-height:1.1;letter-spacing:-.5px}
   /* Ações principais estilo swipe, sobre a foto; X=esquerda, coração=direita. */
-  #secondaryActions{position:fixed;z-index:26;left:50%;right:auto;bottom:calc(78px + env(safe-area-inset-bottom));
-    transform:translateX(-50%);direction:ltr;display:flex;flex-direction:row;align-items:center;justify-content:space-evenly;
-    width:min(322px,calc(100vw - 34px));min-height:66px;margin:0;padding:7px 10px;
-    border:1px solid #ffffff28;border-radius:50px;background:#151515b8;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
-    box-shadow:0 9px 26px #0007;gap:8px;pointer-events:auto}
+  /* NÃO é uma segunda barra de menu: apenas quatro botões flutuantes diretamente SOBRE a fotografia. */
+  #secondaryActions{position:fixed;z-index:26;left:50%;right:auto;bottom:calc(99px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);direction:ltr;display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+    width:min(296px,calc(100vw - 58px));min-height:0;margin:0;padding:0;
+    border:0;border-radius:0;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;
+    box-shadow:none;gap:9px;pointer-events:none}
   #secondaryActions[style*="display: none"]{display:none!important}
   #secondaryActions .round-action{pointer-events:auto;display:flex;align-items:center;justify-content:center;flex:none;
-    border-radius:50%;margin:0;box-shadow:0 3px 9px #0005;font-weight:900;line-height:1}
-  #secondaryActions #passBtn{order:0;width:52px;height:52px;background:#272727;border:1px solid #6e6e6e;color:#fff;font-size:30px}
-  #secondaryActions #likeBtn{order:3;width:52px;height:52px;background:#E32227;border:1px solid #E32227;color:#fff;font-size:29px}
-  #secondaryActions .hm-mobile-card-action{display:flex;order:1;width:43px;height:43px;color:#fff;
-    background:#2b2b2b;border:1px solid #5a5a5a;font-size:22px}
-  #secondaryActions #hmMobileContact{order:2;background:#153d2a;border-color:#228d56;color:#79f7aa}
+    border-radius:50%;margin:0;box-shadow:0 5px 17px #000a;font-weight:900;line-height:1;
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);touch-action:manipulation}
+  #secondaryActions #passBtn{order:0;width:52px;height:52px;background:#181818cf;border:1px solid #b4b4b4a8;color:#fff;font-size:30px}
+  #secondaryActions #likeBtn{order:3;width:52px;height:52px;background:#E32227;border:1px solid #ff686b;color:#fff;font-size:29px}
+  #secondaryActions .hm-mobile-card-action{display:flex;order:1;width:44px;height:44px;color:#fff;
+    background:#202020d9;border:1px solid #c7c7c760;font-size:22px}
+  #secondaryActions #hmMobileContact{order:2;background:#153d2ae5;border-color:#3b9b65;color:#86ffb7}
   #secondaryActions button:focus-visible{outline:3px solid #fff;outline-offset:3px}
   .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;box-sizing:border-box;
     min-height:70px;width:100%;display:flex;justify-content:space-around;align-items:stretch;gap:2px;
@@ -96,7 +98,7 @@
   .hm-mobile-menu-note{margin:14px 3px 0;color:#aaa;font-size:12px;line-height:1.5}
   @media(max-width:360px){
     .feed .photo-info{left:13px;right:13px;bottom:101px}
-    #secondaryActions{bottom:calc(75px + env(safe-area-inset-bottom));width:min(304px,calc(100vw - 18px));gap:5px;padding:6px}
+    #secondaryActions{bottom:calc(97px + env(safe-area-inset-bottom));width:min(278px,calc(100vw - 42px));gap:6px;padding:0}
     #secondaryActions #passBtn,#secondaryActions #likeBtn{width:47px;height:47px}
     #secondaryActions .hm-mobile-card-action{width:39px;height:39px}
   }
