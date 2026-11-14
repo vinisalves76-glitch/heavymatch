@@ -223,3 +223,16 @@ Marca adotada: **CatiraMatch**, antiga marca HeavyMatch. Identidade baseada nas 
 - Botões com 36px de altura; ajuda mostra ícone `?` com descrição acessível preservada; controles mantêm seus listeners e menus originais. Para telas até 360px, espaçamentos são reduzidos.
 - Login, sessão, ADM, anúncios, tour, fotos, swipe e desktop não foram modificados nesta correção.
 - Testes: `tests/mobile-header-no-overlap.test.mjs` e suite completa. Trabalho somente em Preview até aprovação.
+
+
+### Preview UX — Descoberta imersiva estilo Tinder (14/11/2026)
+
+Referência: fluxo de cartões por swipe do Tinder, com fotos ocupando a tela e controles discretos; identidade **CatiraMatch** própria.
+
+**Mobile até 799px:** cabeçalho em uma linha (56px) com PNG CatiraMatch e "Pra você"; a foto usa a altura dinâmica do viewport, descontando apenas cabeçalho e rodapé. Fotografias de caminhões em paisagem são exibidas por inteiro (`object-fit:contain`) com o mesmo arquivo desfocado ao fundo. Nome, ano, localização e preço ficam sobre a imagem, sem cartões secundários ocupando altura. X passa à esquerda; coração curte à direita. Ações discretas de detalhes e WhatsApp ficam na mesma barra translúcida. Tocar a imagem alterna as fotos quando houver galeria.
+
+**Navegação principal:** apenas **Descobrir / Buscar / Salvos / Conta** visíveis na parte inferior. Botões adicionais não foram excluídos nem desautorizados: o perfil em Conta contém Entrar/Criar conta, Perfil de compra, Cadastrar e gerenciar anúncios (visível somente para seller/admin), ADM Master (apenas admin), Ajuda e Sair. O WhatsApp do vendedor também está diretamente sobre a foto. A área ADM e o cadastro continuam usando os mesmos handlers originais com autorização do servidor.
+
+**Arquivos:** `styles/mobile-discovery.css`, `mobile-discovery.js`; `index.html` expõe foto desfocada/primeiro plano e ações rápidas; `guided-tour.js` orienta a nova navegação. O desktop não muda. Favoritos abrem em painel, sem rolar a vitrine para fora da foto. `tests/immersive-discovery.test.mjs` e demais regressões verificam hierarquia, atalhos e regras de acesso.
+
+**Processo:** mesma branch `fix/catiramatch-swipe-direction-20261114` e URL estável de Preview do PR #15. NÃO publicar em produção nem alterar Supabase antes de aprovação explícita. Teste visual real em iPhone/Android ainda necessário.
