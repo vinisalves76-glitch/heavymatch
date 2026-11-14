@@ -14,7 +14,7 @@ const [html,css,menu,tour,form]=await Promise.all([
 test("a imagem domina a tela no celular com fotos horizontais inteiras",()=>{
   assert.match(html,/id="hmPhotoBackdrop"/);
   assert.match(html,/id="activeEquipmentPhoto"/);
-  assert.match(html,/const blurred=\$\("hmPhotoBackdrop"\)/);
+  assert.ok(html.includes("const blurred=$(\'hmPhotoBackdrop\')"));
   assert.match(css,/\.feed \.photo\{[^}]*height:calc\(100svh - 136px\);height:calc\(100dvh - 136px - env\(safe-area-inset-bottom\)\)/);
   assert.match(css,/\.feed \.photo #activeEquipmentPhoto\{[^}]*object-fit:contain/);
   assert.match(css,/\.feed \.photo \.hm-photo-backdrop\{[^}]*object-fit:cover/);
@@ -32,8 +32,8 @@ test("X, detalhes, WhatsApp e coração acessíveis sobre a foto",()=>{
   assert.match(css,/#secondaryActions #hmMobileContact\{order:2/);
   assert.match(css,/#secondaryActions #likeBtn\{order:3/);
   assert.match(css,/#secondaryActions\{[^}]*backdrop-filter:blur\(15px\)/);
-  assert.match(html,/\$\("hmMobileDetails"\)\.addEventListener\("click",openDetails\)/);
-  assert.match(html,/\$\("hmMobileContact"\)\.addEventListener\("click",contact\)/);
+  assert.ok(html.includes("$(\'hmMobileDetails\').addEventListener(\'click\',openDetails)"));
+  assert.ok(html.includes("$(\'hmMobileContact\').addEventListener(\'click\',contact)"));
   assert.match(html,/const swipeActions=\{left:pass,right:like\}/);
 });
 
