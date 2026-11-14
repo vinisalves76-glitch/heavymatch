@@ -16,7 +16,7 @@
       F("purchase_for","Destino da compra","select",{options:["Uso próprio","Ampliar frota","Substituir equipamento","Revenda","Projeto específico","Ainda pesquisando"]})
     ]},
     {id:"search",title:"O que procura",icon:"🚛",intro:"Defina a máquina ideal. Quanto mais detalhes, melhores poderão ser suas buscas.", fields:[
-      F("categories","Categorias de interesse","chips",{options:["Caminhão","Cavalo mecânico","Carreta","Escavadeira","Carregadeira","Retroescavadeira","Trator","Motoniveladora","Outra máquina"],wide:true}),
+      F("categories","Categorias de interesse","chips",{options:["Caminhão","Cavalo mecânico","Carreta / implemento","Escavadeira","Carregadeira","Retroescavadeira","Trator","Motoniveladora","Outra máquina"],wide:true}),
       F("brands","Marcas de preferência","text",{max:180,placeholder:"Scania, Volvo, Mercedes-Benz, SANY..."}),
       F("models","Modelos procurados","text",{max:180,placeholder:"R 450, FH 540, SY750H..."}),
       F("year_from","Ano mínimo","number",{min:1950,max:2100}),
@@ -90,6 +90,7 @@
       if(field.type==="check") {clean[field.key]=value===true;return;}
       if(field.type==="chips"){
         var list=Array.isArray(value)?value:[];
+        if(field.key==="categories")list=list.map(function(item){return item==="Carreta"?"Carreta / implemento":item;});
         clean[field.key]=list.filter(function(item){return field.options.includes(item);}).slice(0,field.options.length).filter(function(item,index,array){return array.indexOf(item)===index;});
         return;
       }
