@@ -52,3 +52,16 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - Não elevar role via metadata editável do usuário; a API cria somente buyer quando o perfil não existe e preserva papéis anteriores.
 - O domínio de Preview precisa constar na lista de URLs de redirecionamento permitidas no Supabase Auth antes de validar o e-mail de recuperação.
 - Não executar mudanças de RLS nem alterar usuários/credenciais em produção sem autorização explícita do responsável.
+
+## Módulo de anúncios vendedor/ADM (branch feat/seller-admin-listings-20261114)
+- Leia o README (seção gestão de anúncios) antes de editar.
+- `equipment-marketplace.js`: fluxo de anúncios, fotos, contatos, edição e status. NÃO criar outro formulário duplicado.
+- `api/vehicles.js`: autoridade no servidor para GET/POST de anúncios, propriedade e WhatsApp.
+- `api/vehicles/photo-token.js`: gera token de upload exclusivo por sessão e valida role seller/admin usando JWT autenticado.
+- `api/admin/users.js`: cadastro de vendedor com WhatsApp obrigatório.
+- `docs/seller-admin-storage-security.sql`: migração de segurança preparada, **NÃO aplicada** ao banco compartilhado.
+- O comprador NUNCA deve ter acesso de criação, edição, remoção ou upload. Vendedor gerencia somente os próprios; ADM gerencia todos.
+- Nunca confiar em role do navegador nem em user_metadata para autorização; conferir profiles.role no servidor, com políticas RLS corretas.
+- Antes de promover produção, é obrigatório validar os fluxos autenticados reais e aplicar/testar o endurecimento do banco mediante autorização.
+- Preserve fotos e anúncios existentes; uploads devem manter as imagens atuais a menos que o responsável solicite exclusão.
+- Rodar `node --test tests/*.test.mjs` e inspeções de segurança de foto/contato no GitHub Actions, validar deployment Preview.
