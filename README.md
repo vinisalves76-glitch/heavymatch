@@ -203,3 +203,48 @@ Marca adotada: **CatiraMatch**, antiga marca HeavyMatch. Identidade baseada nas 
 - A logo do cabeçalho agora é `assets/catiramatch-logo-header.png` (PNG com transparência, tipografia branca e setas branca/vermelha) e fica diretamente sobre a barra carvão. A versão original preta é preservada para telas claras.
 - Estilos desktop/mobile de `.brand .brand-logo` retiram `background:#fff`, padding, sombras e bordas. O arquivo PNG foi recortado para eliminar margens transparentes excessivas.
 - Sem mudanças no banco ou nas funcionalidades; testes em `tests/catiramatch-brand.test.mjs`.
+
+
+### Correção do gesto de swipe do CatiraMatch (Preview 14/11/2026)
+
+- **Deslizar para a direita = CURTIR/SALVAR**; animação sai para a direita, exibe selo SALVO e adiciona o item aos salvos.
+- **Deslizar para a esquerda = PASSAR**; animação sai para a esquerda, exibe selo PULOU e não adiciona aos salvos.
+- Botão X permanece à esquerda (passar); botão ♥ permanece à direita (curtir). As teclas ← e → mantêm o mesmo significado.
+- O gesto agora é reconhecido pelo `pointerup` registrado no documento, não apenas dentro da foto. Isso permite concluir o arrasto mesmo que o dedo termine fora do cartão.
+- Durante o gesto, o cartão acompanha a direção e mostra o selo correto. Deslocamentos menores que 65px, movimentos predominantemente verticais e `pointercancel` não geram like/pass.
+- Evita capturar o pointer para não interferir na galeria de fotos e na rolagem vertical do celular.
+- Testes de eventos simulados em `tests/swipe-direction-real-events.test.mjs` validam gesto para ambos os lados, arrasto fora da foto, toque curto, scroll vertical, cancelamento e botões.
+- Mudança em branch de teste com Preview; não altera banco, fotos, anúncios nem produção até aprovação.
+
+
+### Cabeçalho do celular sem sobreposição de logo
+- Corrigido após captura de tela de celular: os botões Entrar, filtros, favoritos e Ajuda encobriam a logo CatiraMatch.
+- Em telas até 799px, `.topbar` usa duas linhas independentes: logo PNG transparente e indicação `Pra você` na primeira, botões compactos acessíveis na segunda.
+- Botões com 36px de altura; ajuda mostra ícone `?` com descrição acessível preservada; controles mantêm seus listeners e menus originais. Para telas até 360px, espaçamentos são reduzidos.
+- Login, sessão, ADM, anúncios, tour, fotos, swipe e desktop não foram modificados nesta correção.
+- Testes: `tests/mobile-header-no-overlap.test.mjs` e suite completa. Trabalho somente em Preview até aprovação.
+
+
+### Preview UX — Descoberta imersiva estilo Tinder (14/11/2026)
+
+Referência: fluxo de cartões por swipe do Tinder, com fotos ocupando a tela e controles discretos; identidade **CatiraMatch** própria.
+
+**Mobile até 799px:** cabeçalho em uma linha (56px) com PNG CatiraMatch e "Pra você"; a foto usa a altura dinâmica do viewport, descontando apenas cabeçalho e rodapé. Fotografias de caminhões em paisagem são exibidas por inteiro (`object-fit:contain`) com o mesmo arquivo desfocado ao fundo. Nome, ano, localização e preço ficam sobre a imagem, sem cartões secundários ocupando altura. X passa à esquerda; coração curte à direita. Ações discretas de detalhes e WhatsApp ficam na mesma barra translúcida. Tocar a imagem alterna as fotos quando houver galeria.
+
+**Navegação principal:** apenas **Descobrir / Buscar / Salvos / Conta** visíveis na parte inferior. Botões adicionais não foram excluídos nem desautorizados: o perfil em Conta contém Entrar/Criar conta, Perfil de compra, Cadastrar e gerenciar anúncios (visível somente para seller/admin), ADM Master (apenas admin), Ajuda e Sair. O WhatsApp do vendedor também está diretamente sobre a foto. A área ADM e o cadastro continuam usando os mesmos handlers originais com autorização do servidor.
+
+**Arquivos:** `styles/mobile-discovery.css`, `mobile-discovery.js`; `index.html` expõe foto desfocada/primeiro plano e ações rápidas; `guided-tour.js` orienta a nova navegação. O desktop não muda. Favoritos abrem em painel, sem rolar a vitrine para fora da foto. `tests/immersive-discovery.test.mjs` e demais regressões verificam hierarquia, atalhos e regras de acesso.
+
+**Processo:** mesma branch `fix/catiramatch-swipe-direction-20261114` e URL estável de Preview do PR #15. NÃO publicar em produção nem alterar Supabase antes de aprovação explícita. Teste visual real em iPhone/Android ainda necessário.
+
+
+### Ajuste de duplicidade visual dos menus (Preview)
+Após avaliação de captura no celular, `styles/mobile-discovery.css` remove o fundo escuro arredondado, a borda, sombra e desfoque do agrupador de ações na fotografia. X, detalhes, WhatsApp e coração continuam como **botões circulares flutuantes independentes** na foto, sem aparentar uma segunda barra de menu. A navegação inferior mantém somente **Descobrir, Buscar, Salvos, Conta**. Os controles do Safari/visualizador não pertencem ao site.
+
+Nenhuma mudança de API, login, Supabase, banco, anúncios ou produção. Testes de layout em `tests/immersive-discovery.test.mjs`.
+
+
+### Ajuste definitivo: apenas um menu de navegação no celular
+O agrupamento horizontal X/Info/WhatsApp/Coração foi eliminado da experiência mobile. CSS `styles/mobile-discovery.css` usa `display:contents` no contêiner para que não exista outra faixa de ícones; X e coração aparecem **separados em cantos da foto**, mantendo suas funções de passar e curtir. O acesso a informações técnicas e WhatsApp fica no próprio anúncio através de **Ver bio e contato**, que abre a ficha completa com o botão de conversa do vendedor. Isso preserva a galeria ao toque e a lógica de swipe.
+
+Somente **Descobrir, Buscar, Salvos e Conta** formam o menu inferior; a barra do navegador iOS não é uma barra do aplicativo. A mudança está na mesma branch de Preview do PR #15 e não modifica backend, permissões, banco nem produção. Os testes `immersive-discovery.test.mjs` e regressões cobrem a separação.

@@ -1,0 +1,20 @@
+name: CatiraMatch swipe direction regression
+on:
+  push:
+    branches:
+      - fix/catiramatch-swipe-direction-20261114
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  swipe-direction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate gesture tests and existing marketplace regressions
+        run: node --test tests/*.test.mjs

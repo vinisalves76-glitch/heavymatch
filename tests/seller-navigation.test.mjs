@@ -9,17 +9,19 @@ const [html, moduleSource, authSource] = await Promise.all([
   readFile(new URL("../supabase-integration.js", import.meta.url), "utf8")
 ]);
 
-test("Anunciar fica no menu inferior visível, não na intro oculta", () => {
-  const nav = html.match(/<nav class="bottom-nav"[\s\S]*?<\/nav>/)?.[0] || "";
-  assert.match(nav, /id="sellerNav"/);
-  assert.match(nav, /Anunciar<\/button>/);
-  assert.match(nav, /id="sellerNav"[^>]*hidden>/);
-  assert.match(html, /#sellerNav\[hidden\]\{display:none!important\}/);
-  assert.match(html, /#sellerNav:not\(\[hidden\]\)/);
-  assert.match(moduleSource, /topActions\?\.appendChild\(openButton\)/);
-  assert.doesNotMatch(moduleSource, /\.intro"\)\s*\|\|\s*topActions/);
-  assert.match(moduleSource, /sellerNav\?\.addEventListener\("click",open\)/);
-  assert.match(moduleSource, /window\.hmOpenListings=open/);
+test("vendedor continua autorizado a anunciar pelo menu Conta, sem sexto ícone no rodapé", async() => {
+  const nav=html.match(/<nav class="bottom-nav"[\s\S]*?<\/nav>/)?.[0]||"";
+  const menu=await readFile(new URL("../mobile-discovery.js",import.meta.url),"utf8");
+  const css=await readFile(new URL("../styles/mobile-discovery.css",import.meta.url),"utf8");
+  assert.match(nav,/id="sellerNav"/);
+  assert.match(nav,/Anunciar<\/button>/);
+  assert.match(nav,/id="sellerNav"[^>]*hidden>/);
+  assert.match(css,/\.bottom-nav #chatNav,\.bottom-nav #sellerNav,\.bottom-nav #hmAdminNav\{display:none!important\}/);
+  assert.match(menu,/id="hmMenuListings" hidden/);
+  assert.match(menu,/\$\("hmMenuListings"\)\.hidden=!\(seller && !seller\.hidden\)/);
+  assert.match(menu,/forward\("hmMenuListings","sellerNav"\)/);
+  assert.match(moduleSource,/sellerNav\?\.addEventListener\("click",open\)/);
+  assert.match(moduleSource,/window\.hmOpenListings=open/);
 });
 
 async function roleHarness(profileRole, hasUser=true) {

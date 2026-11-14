@@ -93,3 +93,45 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - `assets/catiramatch-logo.png` permanece disponível para superfícies claras (por exemplo, login). Não aplicar filtros que tornem o lettering invisível.
 - O estilo `.brand .brand-logo` em `styles/catiramatch-theme.css` deve manter `background:transparent`, `padding:0`, `border:0` e `box-shadow:none` tanto no desktop quanto no mobile.
 - Validar o recorte/legibilidade do PNG e executar os testes antes da publicação; não alterar produção sem aprovação.
+
+
+## Swipe CatiraMatch — correção de pointer (Preview 14/11/2026)
+- A regra é mandatória: **arrastar dedo para a direita curte/salva**; **arrastar para a esquerda passa sem salvar**. Botão X à esquerda = passar; coração à direita = curtir.
+- Use os testes de eventos reais simulados em `tests/swipe-direction-real-events.test.mjs` e mantenha mapeamento, movimento visual, selos e botões sempre coerentes.
+- O gesto deve funcionar mesmo que o dedo saia da área da foto antes do `pointerup`; por isso o listener de término fica no documento. Não use `setPointerCapture` na foto se isso afetar a galeria.
+- Gestos verticais, cliques curtos e pointer cancelados não devem gerar curtidas ou passar anúncios.
+- Não publicar em produção sem autorização explícita e verificação da Preview.
+
+
+## Correção da sobreposição no cabeçalho mobile — 14/11/2026
+- A logo CatiraMatch deve permanecer visível e sem quadrado branco no celular.
+- O cabeçalho mobile em `styles/catiramatch-theme.css` usa duas linhas: marca + `Pra você` na primeira; ações Entrar/Conta, filtros, favoritos, Sair e Ajuda na segunda.
+- Não recolocar botões dentro da mesma linha da logo. O controle Ajuda fica compacto com ícone `?` no celular, mas seu click handler e nome acessível permanecem.
+- Preservar a nav inferior, perfis e swipe. Rodar `tests/mobile-header-no-overlap.test.mjs` e todos os testes; publicar apenas após validação.
+
+
+## Descoberta imersiva CatiraMatch — Preview 14/11/2026
+- Prioridade mobile: **a foto do equipamento é o elemento principal**, usando altura disponível de viewport, preservando fotos horizontais por inteiro e mantendo o gesto de swipe direito=curtir, esquerdo=passar.
+- Não recolocar cabeçalho de duas linhas, menus duplicados, CTA pesado nem uma barra adicional abaixo da foto.
+- Barra inferior visível com apenas 4 destinos: Descobrir, Buscar, Salvos, Conta. Contato WhatsApp e detalhes no cartão; Entrar/Conta, vendedor, ADM, Ajuda e Sair no painel `mobile-discovery.js` com suas permissões.
+- Aplicação modular: estilos exclusivos do celular em `styles/mobile-discovery.css` (carregado por último); controlador de Conta em `mobile-discovery.js`. Não alterar layout desktop nem código de backend para um ajuste puramente visual.
+- `#sellerNav` e `#hmAdminNav` mantêm seus listeners e guardas; o menu Conta aciona esses controles após verificar autorização. Não criar opção pública de cadastrar anúncio.
+- Preservar foto alternável ao toque; atualizar primeiro plano E fundo desfocado em `changeEquipmentPhoto`. Nenhuma foto deve ser excluída para melhorar a vitrine.
+- Testar `tests/immersive-discovery.test.mjs`, `tests/mobile-header-no-overlap.test.mjs`, swipe, perfil, login, anúncios e tour.
+- Apenas Preview e PR #15; produção só depois de aprovação.
+
+
+## Remoção de menu visual duplicado — 14/11/2026
+- A captura de tela mobile mostrou a barra de ações em cápsula se parecendo com um segundo menu logo acima de Descobrir/Buscar/Salvos/Conta.
+- O wrapper `#secondaryActions` no mobile deve ficar visualmente **transparente, sem borda, sombra ou blur**, com `pointer-events:none`. Os quatro botões (X, detalhes, WhatsApp, coração) permanecem individuais com `pointer-events:auto` sobre a fotografia.
+- A barra inferior de quatro destinos continua sendo **a única navegação permanente**. Os botões de ações são controles do anúncio, não uma segunda barra de navegação.
+- A barra inferior do navegador iOS (voltar/compartilhar/atualizar) é do navegador e não deve ser confundida com UI do aplicativo; não tentar ocultá-la por CSS do site.
+- Regressão: `tests/immersive-discovery.test.mjs` exige ausência de fundo/borda no wrapper e presença das ações. Preservar produção até aprovação.
+
+
+## Correção definitiva do segundo menu no celular — 14/11/2026
+- Após duas tentativas cosméticas, ficou explícito que **quatro botões alinhados acima da barra inferior continuam parecendo dois menus**. Não recriar essa fileira nem mesmo sem fundo.
+- No mobile, `#secondaryActions` usa `display:contents` e os atalhos de informação e WhatsApp dessa fileira ficam ocultos. **Somente X e coração permanecem, pequenos e posicionados nos cantos superiores da foto**, fora de qualquer barra.
+- `#hmPhotoBio` fica no rodapé do texto do anúncio. Ao clicar, chama `openDetails()`, e dentro da bio o botão existente `#modalContact` abre o WhatsApp do vendedor. Clicar nesse link não avança a galeria de fotos.
+- A **única barra de navegação visível** permanece com Descobrir, Buscar, Salvos e Conta. O desktop conserva os controles anteriores.
+- Preservar swipe direita=curtir e esquerda=passar, foto grande, menu Conta vendedor/ADM, e fotos. Não mexer em produção até validação.
