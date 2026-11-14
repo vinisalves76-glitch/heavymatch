@@ -108,3 +108,14 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - O cabeçalho mobile em `styles/catiramatch-theme.css` usa duas linhas: marca + `Pra você` na primeira; ações Entrar/Conta, filtros, favoritos, Sair e Ajuda na segunda.
 - Não recolocar botões dentro da mesma linha da logo. O controle Ajuda fica compacto com ícone `?` no celular, mas seu click handler e nome acessível permanecem.
 - Preservar a nav inferior, perfis e swipe. Rodar `tests/mobile-header-no-overlap.test.mjs` e todos os testes; publicar apenas após validação.
+
+
+## Descoberta imersiva CatiraMatch — Preview 14/11/2026
+- Prioridade mobile: **a foto do equipamento é o elemento principal**, usando altura disponível de viewport, preservando fotos horizontais por inteiro e mantendo o gesto de swipe direito=curtir, esquerdo=passar.
+- Não recolocar cabeçalho de duas linhas, menus duplicados, CTA pesado nem uma barra adicional abaixo da foto.
+- Barra inferior visível com apenas 4 destinos: Descobrir, Buscar, Salvos, Conta. Contato WhatsApp e detalhes no cartão; Entrar/Conta, vendedor, ADM, Ajuda e Sair no painel `mobile-discovery.js` com suas permissões.
+- Aplicação modular: estilos exclusivos do celular em `styles/mobile-discovery.css` (carregado por último); controlador de Conta em `mobile-discovery.js`. Não alterar layout desktop nem código de backend para um ajuste puramente visual.
+- `#sellerNav` e `#hmAdminNav` mantêm seus listeners e guardas; o menu Conta aciona esses controles após verificar autorização. Não criar opção pública de cadastrar anúncio.
+- Preservar foto alternável ao toque; atualizar primeiro plano E fundo desfocado em `changeEquipmentPhoto`. Nenhuma foto deve ser excluída para melhorar a vitrine.
+- Testar `tests/immersive-discovery.test.mjs`, `tests/mobile-header-no-overlap.test.mjs`, swipe, perfil, login, anúncios e tour.
+- Apenas Preview e PR #15; produção só depois de aprovação.
