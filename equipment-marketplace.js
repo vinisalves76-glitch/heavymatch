@@ -47,7 +47,9 @@
           <form id="hmVehicleForm" class="hm-vehicle-form">
             <div class="hm-vehicle-field full" id="hmVSellerWrap" hidden><label for="hmVSeller">Vendedor responsável</label><select id="hmVSeller"><option value="">Minha conta (ADM)</option></select><small style="color:#687680;font-size:10px">Escolha o vendedor que receberá os contatos deste anúncio.</small></div>
             <div class="hm-vehicle-field full"><label for="hmVTitle">Título do anúncio *</label><input id="hmVTitle" required maxlength="140" placeholder="Ex.: Escavadeira hidráulica em ótimo estado"></div>
-            <div class="hm-vehicle-field"><label for="hmVCategory">Categoria *</label><select id="hmVCategory" required><option value="">Selecione</option><option>Caminhão</option><option>Carreta</option><option>Escavadeira</option><option>Carregadeira</option><option>Retroescavadeira</option><option>Motoniveladora</option><option>Trator</option><option>Empilhadeira</option><option>Outro equipamento</option></select></div>
+            <div class="hm-vehicle-field"><label for="hmVCategory">Tipo de equipamento *</label><select id="hmVCategory" required><option value="">Selecione</option><optgroup label="Veículos rodoviários"><option>Caminhão</option><option>Cavalo mecânico</option><option value="Carreta / implemento">Carreta / implemento</option></optgroup><optgroup label="Máquinas e outros equipamentos"><option>Escavadeira</option><option>Carregadeira</option><option>Retroescavadeira</option><option>Motoniveladora</option><option>Trator</option><option>Empilhadeira</option><option>Outro equipamento</option></optgroup></select></div>
+            <div class="hm-vehicle-field" id="hmVAxleWrap" hidden><label for="hmVAxles">Configuração de eixos / tração</label><select id="hmVAxles"><option value="">Não informado</option></select></div>
+            <div class="hm-vehicle-field" id="hmVImplementWrap" hidden><label for="hmVImplement">Tipo de carreta / implemento</label><select id="hmVImplement"><option value="">Não informado</option></select></div>
             <div class="hm-vehicle-field"><label for="hmVBrand">Marca *</label><input id="hmVBrand" required maxlength="80" placeholder="Ex.: Volvo, SANY, Scania"></div>
             <div class="hm-vehicle-field"><label for="hmVModel">Modelo *</label><input id="hmVModel" required maxlength="100" placeholder="Modelo"></div>
             <div class="hm-vehicle-field"><label for="hmVYear">Ano *</label><input id="hmVYear" type="number" min="1900" max="2100" required placeholder="2024"></div>
@@ -69,8 +71,34 @@
   let client = null, session = null, role = "buyer", user = null;
   let items = [], sellers = [], editing = null, existingPhotos = [], pickedFiles = [], previewUrls = [];
   const $ = id => document.getElementById(id);
+  const taxonomy = window.hmListingCategories;
+  function updateCategoryFields() {
+    const category=$("hmVCategory").value;
+    const isTruck=category==="Caminhão"||category==="Cavalo mecânico";
+    const isImplement=category==="Carreta / implemento";
+    $("hmVAxleWrap").hidden=!isTruck;
+    $("hmVImplementWrap").hidden=!isImplement;
+    if(!isTruck)$("hmVAxles").value="";
+    if(!isImplement)$("hmVImplement").value="";
+  }
+  function setCategoryFromStored(stored) {
+    const category=taxonomy.base(stored);
+    $("hmVCategory").value=category;
+    updateCategoryFields();
+    const detail=taxonomy.variant(stored);
+    if(category==="Caminhão"||category==="Cavalo mecânico")$("hmVAxles").value=taxonomy.truckConfigs.includes(detail)?detail:"";
+    if(category==="Carreta / implemento")$("hmVImplement").value=taxonomy.implementTypes.includes(detail)?detail:"";
+  }
+  function getStoredCategory() {
+    const category=$("hmVCategory").value;
+    const detail=category==="Carreta / implemento"?$("hmVImplement").value:$("hmVAxles").value;
+    return taxonomy.compose(category,detail);
+  }
   const sellerNav = $("sellerNav");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  taxonomy.truckConfigs.forEach(value=>$("hmVAxles").add(new Option(value,value)));
+  taxonomy.implementTypes.forEach(value=>$("hmVImplement").add(new Option(value,value)));
+  $("hmVCategory").addEventListener("change",updateCategoryFields);
   const setMessage = (text, bad=false) => { $("hmVMessage").textContent=text; $("hmVMessage").style.color=bad?"#b42332":"#246b45"; };
   const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2,maximumFractionDigits:2});
   // Aceita o padrão brasileiro 250.000,00 e números simples sem ambiguidades.
@@ -125,6 +153,7 @@
   function clearForm() {
     editing=null; existingPhotos=[]; pickedFiles=[];
     $("hmVehicleForm").reset();
+    updateCategoryFields();
     $("hmVStatus").value="draft";
     $("hmVPriceOnRequest").value="false";
     updatePriceUI();
@@ -284,7 +313,7 @@
       $("hmVSave").textContent="Salvar alterações";
       $("hmVCancelEdit").hidden=false;
       $("hmVTitle").value=v.title||"";
-      $("hmVCategory").value=v.category||"";
+      setCategoryFromStored(v.category||"");
       $("hmVBrand").value=v.brand||"";
       $("hmVModel").value=v.model||"";
       $("hmVYear").value=v.manufacture_year||"";
@@ -355,7 +384,7 @@
         uploaded.push(path);paths.push(path);
       }
       const body={
-        title:$("hmVTitle").value.trim(),category:$("hmVCategory").value,
+        title:$("hmVTitle").value.trim(),category:getStoredCategory(),
         brand:$("hmVBrand").value.trim(),model:$("hmVModel").value.trim(),
         manufacture_year:Number($("hmVYear").value),
         price_on_request:isOnRequest,
