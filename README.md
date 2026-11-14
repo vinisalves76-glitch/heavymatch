@@ -124,7 +124,7 @@ Branch de testes: `feat/seller-admin-listings-20261114`. **Não publicar na prod
 ### Restrições e segurança
 - A API de anúncios verifica perfil e propriedade no servidor; vendedor nunca pode editar/excluir anúncios de outras contas.
 - Não existe nova tabela nesta versão. Os oito anúncios e as fotos já existentes devem ser preservados.
-- **PENDÊNCIA CRÍTICA antes de considerar o controle totalmente seguro:** o banco compartilhado ainda permite que `authenticated` altere `public.profiles.role` e faça upload direto de `vehicle-photos` sem verificação de perfil. A migração revisável em `docs/seller-admin-storage-security.sql` prepara o ajuste, mas **NÃO foi executada**. Aplicar apenas após autorização específica e homologação, pois modifica regras do banco compartilhado.
+- **Segurança do banco corrigida em 14/11/2026:** a política `profile_insert_own` foi removida, e os privilégios de `profiles` passaram a restringir `UPDATE` às colunas `full_name` e `phone` (não `role`). As políticas de fotos agora exigem um usuário `seller` ou `admin` com diretório próprio no Storage. A alteração está registrada em `docs/seller-admin-storage-security.sql`; não reaplicar sem auditoria.
 - Não atribuir automaticamente perfis privilegiados com base em `user_metadata`. Não compartilhar a chave service role no cliente.
 - Não modificar a `main` até a Preview aprovada.
 
@@ -148,3 +148,9 @@ Branch de testes: `feat/seller-admin-listings-20261114`. **Não publicar na prod
 - Depois de entrar ou sair, o aplicativo recalcula a permissão e mostra/oculta os atalhos; só contas comerciais cadastradas pelo ADM recebem acesso.
 - **Não criar vendedores automaticamente:** o ADM Master continua responsável por criar e autorizar contas de vendedores.
 - Teste novo: `tests/seller-navigation.test.mjs`, incluindo simulação de perfis buyer, seller, admin e visitante.
+
+### Publicação segura — 14/11/2026
+- Foram verificadas as permissões do Supabase após a atualização, confirmando que usuários autenticados **não** podem modificar `profiles.role` nem inserir perfis arbitrariamente.
+- O servidor continua autorizando a criação e edição de anúncios apenas para seller/admin e validando a titularidade em operações de vendedor.
+- Nenhuma conta, anúncio ou foto foi apagada; verificadas 8 entradas em `vehicles`, 28 em `vehicle_photos` e 4 em `profiles`.
+- Atenção: testes E2E autenticados reais e upload pela câmera devem ser validados no celular após a publicação.
