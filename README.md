@@ -170,3 +170,15 @@ Branch: `feat/listing-price-visible-20261114`. **Não publicar em produção sem
 - Na edição, o valor informado anteriormente é recuperado, mantendo os anúncios existentes e a opção Sob consulta.
 - Nenhuma migração, alteração de RLS, exclusão ou modificação dos dados em produção.
 - Rodar `node --test tests/*.test.mjs`, incluindo `tests/listing-price.test.mjs`.
+
+
+### Classificação correta — caminhões, cavalos mecânicos e carretas
+
+- **Caminhão:** categoria própria. Quando aplicável, permite selecionar configuração de eixos como 4x2, 6x2, 6x4, 8x2, 8x4, 10x4 ou Outra.
+- **Cavalo mecânico:** categoria independente de Caminhão; seleção opcional de configuração de eixos/tração (4x2, 6x2, 6x4, 8x2, 8x4, 10x4, Outra).
+- **Carreta / implemento:** categoria de implemento rebocado; seleção opcional de tipo (Basculante, Graneleira, Prancha, Baú, Sider, Tanque, Frigorífica, Porta-contêiner, Cegonha, Florestal, Canavieira, Dolly, Outro).
+- No catálogo e na pesquisa, as opções têm filtros separados para Caminhão, Cavalo mecânico e Carreta / implemento.
+- Persistência sem alteração de schema: os campos são codificados em `vehicles.category` (ex.: `Cavalo mecânico 6x4`, `Carreta / implemento — Prancha`). `listing-categories.js` contém o conversor e o filtro normalizador. A categoria composta é exibida na ficha e no cartão do anúncio.
+- Anúncios antigos gravados com `category='Carreta'` continuam sendo encontrados no filtro de carretas; ao editar, são interpretados como `Carreta / implemento`. Preferências antigas de compradores com `Carreta` também são convertidas ao abrir e salvar o perfil.
+- Não há alteração de tabelas nem de registros de produção nesta branch; somente Preview até aprovação.
+- Executar `node --test tests/listing-categories.test.mjs` e todos os testes do workflow.
