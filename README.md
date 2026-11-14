@@ -196,3 +196,10 @@ Marca adotada: **CatiraMatch**, antiga marca HeavyMatch. Identidade baseada nas 
 - **Infraestrutura:** repositório GitHub e domínio `machinematch.vercel.app` continuam com nomes técnicos antigos para evitar interromper o serviço. **Não alterar domínio em produção sem aprovação.**
 - **Escopo:** branch `feat/listing-price-visible-20261114` em Preview. Sem alterações de banco, contas, anúncios ou produção. A publicação requer validação do usuário.
 - **Regressões:** `node --test tests/*.test.mjs`, inspeção manual do logo e dos preços no mobile e desktop.
+
+
+### Ajuste visual da logo no topo
+- Corrigido o problema de renderização: o retângulo branco com cantos arredondados do cabeçalho não faz parte da identidade e foi removido.
+- A logo do cabeçalho agora é `assets/catiramatch-logo-header.png` (PNG com transparência, tipografia branca e setas branca/vermelha) e fica diretamente sobre a barra carvão. A versão original preta é preservada para telas claras.
+- Estilos desktop/mobile de `.brand .brand-logo` retiram `background:#fff`, padding, sombras e bordas. O arquivo PNG foi recortado para eliminar margens transparentes excessivas.
+- Sem mudanças no banco ou nas funcionalidades; testes em `tests/catiramatch-brand.test.mjs`.
