@@ -203,3 +203,15 @@ Marca adotada: **CatiraMatch**, antiga marca HeavyMatch. Identidade baseada nas 
 - A logo do cabeçalho agora é `assets/catiramatch-logo-header.png` (PNG com transparência, tipografia branca e setas branca/vermelha) e fica diretamente sobre a barra carvão. A versão original preta é preservada para telas claras.
 - Estilos desktop/mobile de `.brand .brand-logo` retiram `background:#fff`, padding, sombras e bordas. O arquivo PNG foi recortado para eliminar margens transparentes excessivas.
 - Sem mudanças no banco ou nas funcionalidades; testes em `tests/catiramatch-brand.test.mjs`.
+
+
+### Correção do gesto de swipe do CatiraMatch (Preview 14/11/2026)
+
+- **Deslizar para a direita = CURTIR/SALVAR**; animação sai para a direita, exibe selo SALVO e adiciona o item aos salvos.
+- **Deslizar para a esquerda = PASSAR**; animação sai para a esquerda, exibe selo PULOU e não adiciona aos salvos.
+- Botão X permanece à esquerda (passar); botão ♥ permanece à direita (curtir). As teclas ← e → mantêm o mesmo significado.
+- O gesto agora é reconhecido pelo `pointerup` registrado no documento, não apenas dentro da foto. Isso permite concluir o arrasto mesmo que o dedo termine fora do cartão.
+- Durante o gesto, o cartão acompanha a direção e mostra o selo correto. Deslocamentos menores que 65px, movimentos predominantemente verticais e `pointercancel` não geram like/pass.
+- Evita capturar o pointer para não interferir na galeria de fotos e na rolagem vertical do celular.
+- Testes de eventos simulados em `tests/swipe-direction-real-events.test.mjs` validam gesto para ambos os lados, arrasto fora da foto, toque curto, scroll vertical, cancelamento e botões.
+- Mudança em branch de teste com Preview; não altera banco, fotos, anúncios nem produção até aprovação.
