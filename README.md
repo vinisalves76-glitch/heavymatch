@@ -154,3 +154,19 @@ Branch de testes: `feat/seller-admin-listings-20261114`. **Não publicar na prod
 - O servidor continua autorizando a criação e edição de anúncios apenas para seller/admin e validando a titularidade em operações de vendedor.
 - Nenhuma conta, anúncio ou foto foi apagada; verificadas 8 entradas em `vehicles`, 28 em `vehicle_photos` e 4 em `profiles`.
 - Atenção: testes E2E autenticados reais e upload pela câmera devem ser validados no celular após a publicação.
+
+
+## Preview — preço de venda visível no cadastro e nos anúncios
+
+Branch: `feat/listing-price-visible-20261114`. **Não publicar em produção sem aprovação.**
+
+- O formulário comercial agora começa em **Mostrar preço**, com campo de valor em reais habilitado.
+- Aceita valores `250.000,00`, `250000`, `R$ 250.000,00` e centavos. Faz validação e envia um número para o campo `vehicles.price`.
+- A opção **Sob consulta** continua disponível, desabilitando a exigência de valor numérico e salvando `price_on_request=true`.
+- Um resumo no formulário mostra exatamente como o preço será exibido.
+- A vitrine exibe o preço sobre a foto do equipamento, inclusive no layout mobile.
+- Ao abrir **Detalhes**, o preço aparece em destaque na descrição visual do anúncio, sem duplicar texto dentro de `vehicles.description`.
+- O filtro de faixa de preço interpreta o padrão brasileiro `R$ 250.000,00`.
+- Na edição, o valor informado anteriormente é recuperado, mantendo os anúncios existentes e a opção Sob consulta.
+- Nenhuma migração, alteração de RLS, exclusão ou modificação dos dados em produção.
+- Rodar `node --test tests/*.test.mjs`, incluindo `tests/listing-price.test.mjs`.
