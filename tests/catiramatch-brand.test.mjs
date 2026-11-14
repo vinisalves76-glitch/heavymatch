@@ -14,7 +14,7 @@ const [html,theme,login,form,profile,tour] = await Promise.all([
 
 test("nome e identidade CatiraMatch consistentes em toda a interface",()=>{
   assert.match(html,/<title>CatiraMatch — Seu próximo negócio começa aqui\.<\/title>/);
-  assert.match(html,/class="brand-logo" src="\/assets\/catiramatch-logo\.png"/);
+  assert.match(html,/class="brand-logo" src="\/assets\/catiramatch-logo-header\.png"/);
   assert.match(html,/href="\/styles\/catiramatch-theme\.css"/);
   assert.match(html,/href="\/assets\/catiramatch-icon\.png"/);
   for(const [name,source] of [
@@ -26,8 +26,17 @@ test("nome e identidade CatiraMatch consistentes em toda a interface",()=>{
   assert.match(profile,/CATIRAMATCH · PERFIL DE COMPRA/);
 });
 
+test("logo do cabeçalho é PNG transparente, sem fundo branco ou moldura",async()=>{
+  const path=new URL("../assets/catiramatch-logo-header.png",import.meta.url);
+  const b=await readFile(path);
+  assert.deepEqual(Array.from(b.subarray(0,8)),[137,80,78,71,13,10,26,10]);
+  assert.match(theme,/\.brand \.brand-logo\{[^}]*background:transparent;[^}]*border:0;[^}]*border-radius:0;[^}]*padding:0;[^}]*box-shadow:none/);
+  assert.match(theme,/\.brand \.brand-logo\{display:block;width:clamp\(155px,47vw,200px\);/);
+  assert.doesNotMatch(theme,/\.brand \.brand-logo\{[^}]*background:#fff/);
+});
+
 test("logo original do usuário e ícone estão incluídos no deploy",async()=>{
-  for(const path of ["../assets/catiramatch-logo.png","../assets/catiramatch-icon.png"]){
+  for(const path of ["../assets/catiramatch-logo.png","../assets/catiramatch-logo-header.png","../assets/catiramatch-icon.png"]){
     const file=new URL(path,import.meta.url);
     const b=await readFile(file);
     assert.deepEqual(Array.from(b.subarray(0,8)),[137,80,78,71,13,10,26,10],path);
