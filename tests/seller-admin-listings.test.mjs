@@ -106,10 +106,12 @@ test("ADM e vendedor possuem WhatsApp e acesso ao painel de anúncios",()=>{
   assert.match(index,/seller_phone/);
   assert.doesNotMatch(index,/https:\/\/wa\.me\/\$\{WHATSAPP_NUMBER\}/);
 });
-test("mudanças de RLS estão documentadas, mas não aplicadas",()=>{
+test("migração de RLS aplicada e controles documentados",()=>{
   assert.match(security,/REVOKE ALL PRIVILEGES ON TABLE public\.profiles/);
   assert.match(security,/vehicle_photos_commercial_upload/);
-  assert.match(security,/NOT been run/);
+  assert.match(security,/APPLIED TO THE HEAVYMATCH SUPABASE PROJECT/);
+  assert.match(security,/GRANT UPDATE \(full_name, phone\)/);
+  assert.match(security,/profile_insert_own/);
 });
 test("o swipe permanece: esquerda pula e direita curte",()=>{
   assert.match(index,/swipeActions=\{left:pass,right:like\}/);
