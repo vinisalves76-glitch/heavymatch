@@ -51,8 +51,9 @@
             <div class="hm-vehicle-field"><label for="hmVBrand">Marca *</label><input id="hmVBrand" required maxlength="80" placeholder="Ex.: Volvo, SANY, Scania"></div>
             <div class="hm-vehicle-field"><label for="hmVModel">Modelo *</label><input id="hmVModel" required maxlength="100" placeholder="Modelo"></div>
             <div class="hm-vehicle-field"><label for="hmVYear">Ano *</label><input id="hmVYear" type="number" min="1900" max="2100" required placeholder="2024"></div>
-            <div class="hm-vehicle-field"><label for="hmVPrice">Preço (R$)</label><input id="hmVPrice" type="number" min="0" step="0.01" placeholder="0,00"></div>
-            <div class="hm-vehicle-field"><label for="hmVPriceOnRequest">Preço</label><select id="hmVPriceOnRequest"><option value="true">Sob consulta</option><option value="false">Informar preço</option></select></div>
+            <div class="hm-vehicle-field"><label for="hmVPrice">Preço do equipamento (R$) *</label><input id="hmVPrice" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 250.000,00" required><small style="display:block;color:#687680;margin-top:5px;font-size:10px">Informe o valor em reais. Ele aparecerá nos detalhes do anúncio.</small></div>
+            <div class="hm-vehicle-field"><label for="hmVPriceOnRequest">Como mostrar o preço?</label><select id="hmVPriceOnRequest"><option value="false" selected>Mostrar preço</option><option value="true">Sob consulta</option></select></div>
+            <div class="hm-vehicle-field full"><div id="hmVPricePreview" style="border:1px solid #e9d09a;background:#fff8e8;border-radius:10px;padding:12px;font-size:13px;font-weight:900;color:#684900" aria-live="polite">Preço no anúncio: informe o valor acima.</div></div>
             <div class="hm-vehicle-field"><label for="hmVState">Estado</label><input id="hmVState" maxlength="80" placeholder="MG"></div>
             <div class="hm-vehicle-field"><label for="hmVCity">Cidade</label><input id="hmVCity" maxlength="100" placeholder="Belo Horizonte"></div>
             <div class="hm-vehicle-field full"><label for="hmVDescription">Descrição</label><textarea id="hmVDescription" maxlength="5000" placeholder="Condição, horímetro/quilometragem, opcionais e detalhes"></textarea></div>
@@ -71,7 +72,32 @@
   const sellerNav = $("sellerNav");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
   const setMessage = (text, bad=false) => { $("hmVMessage").textContent=text; $("hmVMessage").style.color=bad?"#b42332":"#246b45"; };
-  const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:2});
+  const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2,maximumFractionDigits:2});
+  // Aceita o padrão brasileiro 250.000,00 e números simples sem ambiguidades.
+  function parsePriceBR(value) {
+    const raw=String(value??"").trim().replace(/^R\$\s*/i,"").replace(/\s/g,"");
+    if(!raw)return null;
+    let normalized=raw;
+    if(raw.includes(",")){
+      if(!/^(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d{1,2})?$/.test(raw))return NaN;
+      normalized=raw.replace(/\./g,"").replace(",",".");
+    }else if(raw.includes(".")){
+      if(/^\d{1,3}(?:\.\d{3})+$/.test(raw))normalized=raw.replace(/\./g,"");
+      else if(!/^\d+\.\d{1,2}$/.test(raw))return NaN;
+    }else if(!/^\d+$/.test(raw))return NaN;
+    const price=Number(normalized);
+    return Number.isFinite(price)&&price>=0&&price<=1e10?price:NaN;
+  }
+  function updatePriceUI() {
+    const showPrice=$("hmVPriceOnRequest").value!=="true";
+    $("hmVPrice").disabled=!showPrice;
+    $("hmVPrice").required=showPrice;
+    const amount=showPrice?parsePriceBR($("hmVPrice").value):null;
+    $("hmVPricePreview").textContent=!showPrice?"Preço no anúncio: Sob consulta":
+      amount===null?"Preço no anúncio: informe o valor acima.":
+      Number.isNaN(amount)?"Confira o preço. Exemplo: 250.000,00":
+      "Preço no anúncio: "+money({price:amount,price_on_request:false});
+  }
   function revokePreviews() {
     previewUrls.forEach(url => URL.revokeObjectURL(url));
     previewUrls = [];
@@ -100,7 +126,8 @@
     editing=null; existingPhotos=[]; pickedFiles=[];
     $("hmVehicleForm").reset();
     $("hmVStatus").value="draft";
-    $("hmVPrice").disabled=true;
+    $("hmVPriceOnRequest").value="false";
+    updatePriceUI();
     $("hmVehicleFormTitle").textContent="Cadastrar equipamento";
     $("hmVSave").textContent="Cadastrar equipamento";
     $("hmVCancelEdit").hidden=true;
@@ -242,8 +269,10 @@
   overlay.addEventListener("click",event=>{if(event.target===overlay)close();});
   $("hmVCancelEdit").addEventListener("click",clearForm);
   $("hmVReset").addEventListener("click",clearForm);
-  $("hmVPriceOnRequest").addEventListener("change",()=>{$("hmVPrice").disabled=$("hmVPriceOnRequest").value==="true";});
-  $("hmVPrice").disabled=true;
+  $("hmVPriceOnRequest").addEventListener("change",updatePriceUI);
+  $("hmVPrice").addEventListener("input",updatePriceUI);
+  $("hmVPrice").addEventListener("blur",()=>{const price=parsePriceBR($("hmVPrice").value);if(price!==null&&Number.isFinite(price))$("hmVPrice").value=money({price,price_on_request:false}).replace(/^R\$\s*/,"");updatePriceUI();});
+  updatePriceUI();
   $("hmVehicleItems").addEventListener("click",async event=>{
     const edit=event.target.closest("[data-edit]");
     const del=event.target.closest("[data-delete]");
@@ -260,8 +289,8 @@
       $("hmVModel").value=v.model||"";
       $("hmVYear").value=v.manufacture_year||"";
       $("hmVPriceOnRequest").value=String(!!v.price_on_request||v.price==null);
-      $("hmVPrice").disabled=$("hmVPriceOnRequest").value==="true";
-      $("hmVPrice").value=v.price??"";
+      $("hmVPrice").value=v.price==null?"":money({price:v.price,price_on_request:false}).replace(/^R\$\s*/,"");
+      updatePriceUI();
       $("hmVState").value=v.state||"";
       $("hmVCity").value=v.city||"";
       $("hmVDescription").value=v.description||"";
@@ -316,6 +345,9 @@
       const total=existingPhotos.length+pickedFiles.length;
       if(total>10)throw new Error("Escolha no máximo 10 fotos.");
       if($("hmVStatus").value==="published"&&total===0)throw new Error("Adicione pelo menos uma foto para publicar.");
+      const isOnRequest=$("hmVPriceOnRequest").value==="true";
+      const priceValue=isOnRequest?null:parsePriceBR($("hmVPrice").value);
+      if(!isOnRequest&&(priceValue===null||Number.isNaN(priceValue)))throw new Error("Informe um preço válido. Exemplo: 250.000,00, ou selecione Sob consulta.");
       const paths=existingPhotos.map(photo=>photo.path);
       for(let i=0;i<pickedFiles.length;i++){
         setMessage("Enviando foto "+(i+1)+" de "+pickedFiles.length+"...");
@@ -326,8 +358,8 @@
         title:$("hmVTitle").value.trim(),category:$("hmVCategory").value,
         brand:$("hmVBrand").value.trim(),model:$("hmVModel").value.trim(),
         manufacture_year:Number($("hmVYear").value),
-        price_on_request:$("hmVPriceOnRequest").value==="true",
-        price:$("hmVPrice").value===""?null:Number($("hmVPrice").value),
+        price_on_request:isOnRequest,
+        price:priceValue,
         description:$("hmVDescription").value.trim(),state:$("hmVState").value.trim(),
         city:$("hmVCity").value.trim(),status:$("hmVStatus").value,photos:paths
       };
