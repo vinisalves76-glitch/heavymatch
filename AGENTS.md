@@ -85,3 +85,11 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - O preço é armazenado **apenas** no campo numérico `vehicles.price` com flag `price_on_request`. A seção pública **Bio do equipamento** deve exibir o preço formatado (ou Sob consulta) junto à descrição técnica, sem copiar preço para `vehicles.description`.
 - CatiraMatch não muda roles, sessão, tabelas, URL de produção, policies RLS nem a lógica de swipe sem autorização específica.
 - Atualizar nome, paleta e logo sempre em todas as telas (login, perfil, tour, anúncio e área ADM) e validar em Preview antes da publicação.
+
+
+## Correção do cabeçalho CatiraMatch — 14/11/2026
+- Nunca colocar a logo dentro de cartão retangular branco, com padding, borda arredondada ou sombra.
+- No cabeçalho carvão usar `assets/catiramatch-logo-header.png`: PNG **transparente**, lettering branco, seta superior branca e inferior vermelha, produzido a partir da marca oficial fornecida.
+- `assets/catiramatch-logo.png` permanece disponível para superfícies claras (por exemplo, login). Não aplicar filtros que tornem o lettering invisível.
+- O estilo `.brand .brand-logo` em `styles/catiramatch-theme.css` deve manter `background:transparent`, `padding:0`, `border:0` e `box-shadow:none` tanto no desktop quanto no mobile.
+- Validar o recorte/legibilidade do PNG e executar os testes antes da publicação; não alterar produção sem aprovação.
