@@ -31,7 +31,13 @@ test("X, detalhes, WhatsApp e coração acessíveis sobre a foto",()=>{
   assert.match(css,/#secondaryActions #passBtn\{order:0/);
   assert.match(css,/#secondaryActions #hmMobileContact\{order:2/);
   assert.match(css,/#secondaryActions #likeBtn\{order:3/);
-  assert.match(css,/#secondaryActions\{[^}]*backdrop-filter:blur\(15px\)/);
+  // A linha flutuante não pode se parecer com outro menu: sem cápsula nem fundo.
+  assert.match(css,/#secondaryActions\{[^}]*background:transparent;backdrop-filter:none/);
+  assert.match(css,/#secondaryActions\{[^}]*border:0;border-radius:0/);
+  assert.match(css,/#secondaryActions\{[^}]*pointer-events:none/);
+  assert.match(css,/#secondaryActions \.round-action\{[^}]*pointer-events:auto/);
+  assert.match(css,/#secondaryActions #passBtn\{[^}]*width:52px;height:52px/);
+  assert.match(css,/#secondaryActions #likeBtn\{[^}]*width:52px;height:52px/);
   assert.ok(html.includes("$(\'hmMobileDetails\').addEventListener(\'click\',openDetails)"));
   assert.ok(html.includes("$(\'hmMobileContact\').addEventListener(\'click\',contact)"));
   assert.match(html,/const swipeActions=\{left:pass,right:like\}/);
