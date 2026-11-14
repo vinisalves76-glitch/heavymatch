@@ -1,7 +1,8 @@
 (() => {
   const style = document.createElement("style");
   style.textContent = `
-    .hm-listings-btn{border:0;background:#f5b323;color:#17212a;border-radius:12px;padding:11px 16px;font-weight:900;font-size:13px;display:none;margin-top:12px;box-shadow:0 5px 14px #ac75002c}
+    .hm-listings-btn{border:0;background:#f5b323;color:#17212a;border-radius:12px;padding:10px 13px;font-weight:900;font-size:12px;display:none;box-shadow:0 5px 14px #ac75002c}
+    @media(max-width:799px){.hm-listings-btn{display:none!important}}
     .hm-vehicle-overlay{position:fixed;inset:0;z-index:110;background:#08111de8;display:none;align-items:center;justify-content:center;padding:10px}
     .hm-vehicle-overlay.open{display:flex}
     .hm-vehicle-card{width:100%;max-width:920px;max-height:96vh;overflow:auto;background:#fff;color:#18242d;border-radius:20px;padding:20px}
@@ -27,8 +28,9 @@
   document.head.appendChild(style);
   const topActions = document.querySelector(".top-actions");
   const openButton = document.createElement("button");
-  openButton.type = "button"; openButton.className = "hm-listings-btn"; openButton.textContent = "📸 Cadastrar / gerenciar anúncios";
-  (document.querySelector(".intro") || topActions)?.appendChild(openButton);
+  openButton.type = "button"; openButton.className = "hm-listings-btn"; openButton.textContent = "＋ Meus anúncios";
+  // A área .intro é oculta pelo tema Tinder; por isso o acesso comercial fica no topo do desktop e no menu inferior do celular.
+  topActions?.appendChild(openButton);
   const overlay = document.createElement("div");
   overlay.className = "hm-vehicle-overlay";
   overlay.innerHTML = `
@@ -66,6 +68,7 @@
   let client = null, session = null, role = "buyer", user = null;
   let items = [], sellers = [], editing = null, existingPhotos = [], pickedFiles = [], previewUrls = [];
   const $ = id => document.getElementById(id);
+  const sellerNav = $("sellerNav");
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
   const setMessage = (text, bad=false) => { $("hmVMessage").textContent=text; $("hmVMessage").style.color=bad?"#b42332":"#246b45"; };
   const money = v => v.price_on_request || v.price == null ? "Sob consulta" : Number(v.price).toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:2});
@@ -124,10 +127,12 @@
     }
     const canManage=!!user&&["seller","admin"].includes(role);
     openButton.style.display=canManage?"inline-block":"none";
+    if(sellerNav){sellerNav.hidden=!canManage; sellerNav.setAttribute("aria-hidden",String(!canManage));}
+    $("hmVehiclesTitle").textContent=role==="admin"?"Gestão de anúncios · ADM Master":"Área do vendedor · Meus anúncios";
     if(!canManage&&overlay.classList.contains("open"))close();
     return canManage;
   }
-  async function refreshRole() { try{await getSession();}catch(error){openButton.style.display="none";} }
+  async function refreshRole() { try{await getSession();}catch(error){openButton.style.display="none";if(sellerNav){sellerNav.hidden=true;sellerNav.setAttribute("aria-hidden","true");}} }
   async function request(action,payload={}) {
     await getSession();
     const token=session?.access_token;
@@ -200,6 +205,7 @@
   }
   window.hmOpenListings=open;
   openButton.addEventListener("click",open);
+  sellerNav?.addEventListener("click",open);
   $("hmVSaveWhatsApp").addEventListener("click",async()=>{
     const button=$("hmVSaveWhatsApp");button.disabled=true;
     try {
