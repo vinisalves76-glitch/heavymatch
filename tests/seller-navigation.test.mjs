@@ -91,6 +91,6 @@ test("comprador e visitante nunca veem Anunciar",async()=>{
 test("login atualiza o menu e o fluxo de criação de anúncios continua autorizado no servidor",()=>{
   assert.match(moduleSource,/window\.addEventListener\("hm-auth-changed",refreshRole\)/);
   assert.match(moduleSource,/window\.addEventListener\("hm-supabase-ready",refreshRole\)/);
-  assert.match(authSource,/new CustomEvent\("hm-auth-changed", \{ detail: \{ userId: user\.id, role: currentRole \} \}\)/);
+  assert.match(authSource,/new CustomEvent\("hm-auth-changed", \{ detail: \{ userId: user\.id, role: currentRole, agencyRequestStatus \} \}\)/);
   assert.match(moduleSource,/if\(!await getSession\(\)\)throw new Error\("Somente vendedor ou ADM Master pode cadastrar anúncios\."\)/);
 });

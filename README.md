@@ -1,5 +1,31 @@
 # HeavyMatch
 
+## Taxa de anúncios particulares — Preview 15/11/2026
+
+- Em **Conta → ADM Master → Taxas e anúncios**, o administrador define a taxa única por anúncio particular em reais. Não há preço inicial inventado, mensalidade ou mudança nos anúncios de agência.
+- A interface apresenta o valor salvo, sua última atualização, edição e recarga. Valores vazios, negativos, zero, formatos inválidos e mais de duas casas decimais são recusados.
+- `admin-fees.js` é o controlador; `lib/listing-fee.js` converte reais em centavos; `api/admin/fees.js` usa o handler protegido `lib/admin-fees-handler.js`.
+- A API valida a sessão no Supabase e consulta `profiles.role` no servidor. Apenas `admin` lê/altera. Não confiar em `user_metadata` ou em papel enviado pelo navegador.
+- Preview e produção usam linhas distintas, escolhidas exclusivamente por `VERCEL_ENV` no servidor. A Preview nunca escreve na taxa de produção.
+- Salvamento exige a revisão atualmente carregada; outra sessão que já alterou o valor provoca conflito e solicita recarga.
+- A tabela `marketplace_fees` foi criada no Supabase compartilhado, com uma linha para Preview e outra para produção, ambas inicialmente sem valor, RLS habilitado e acesso direto negado a `anon` e `authenticated`.
+- O fluxo de cadastro de pessoa física/agência e anúncios particulares está em implementação nesta branch de Preview. A cobrança usa Mercado Pago; a taxa e sua revisão ficam congeladas em cada tentativa de pagamento.
+- O checkout real permanece fechado até que os segredos Mercado Pago e a URL pública HTTPS de notificações estejam configurados no Vercel. Nenhum sucesso é simulado.
+- Validação automatizada: `node --test tests/*.test.mjs`, incluindo permissão por perfil, assinatura de webhook, taxa congelada, revisão ADM e regressões do app. A confirmação pela tela ADM autenticada depende do teste no Preview.
+- Preservar o fluxo atual de agência e a intermediação obrigatória nas futuras trocas; não conectar proprietários diretamente.
+
+## Cadastro público, agência e anúncio particular — Preview
+
+- No cadastro público, a pessoa escolhe entre pessoa física com um veículo para vender/trocar e solicitação de vendedor/agência com vários equipamentos.
+- Ambos concluem a autenticação como `buyer`. A solicitação de agência fica pendente; um especialista entra em contato e o ADM libera a role `seller`. `user_metadata` nunca altera permissões.
+- A pessoa física envia dados, localização, condição, descrição e fotos do anúncio; na modalidade troca, informa o veículo desejado.
+- O servidor lê a taxa configurada no ADM e cria o checkout do Mercado Pago. O webhook verifica assinatura HMAC, consulta o pagamento diretamente no Mercado Pago e só confirma o valor exato associado àquela tentativa.
+- Após o pagamento, o anúncio fica em revisão. O ADM pode pedir substituição/ajuste de fotos com orientação; o proprietário envia as novas imagens e o anúncio retorna para revisão. Não existe ação de reprovação.
+- Para liberar o anúncio, o ADM aprova e escolhe um vendedor com WhatsApp válido. A publicação cria o anúncio no catálogo vinculado ao vendedor; o telefone do proprietário não é exposto, e os interessados chegam ao vendedor responsável.
+- Tabelas: `agency_signup_requests`, `private_listings` e `private_listing_payments`; RLS ligado, sem acesso direto de cliente. `publish_private_listing` executa a publicação transacionalmente e só pode ser chamada por `service_role`.
+- SQL registrado em `docs/private-listings-migration.sql`. Segredos no servidor: `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`; configure também `MERCADOPAGO_APP_URL` e uma URL HTTPS pública em `MERCADOPAGO_NOTIFICATION_URL` compatível com a proteção de deployment do Preview. Nunca incluir valores no repositório ou navegador.
+- Não promover para produção até credenciais, webhooks reais, e-mail de confirmação, revisão de fotos e atribuição do vendedor serem testados na Preview.
+
 Marketplace digital com experiência mobile de descoberta de caminhões, carretas e máquinas pesadas.
 
 ## Estrutura atual
@@ -113,7 +139,7 @@ A aplicação do SQL de endurecimento das permissões `profiles.role` é uma que
 Branch de testes: `feat/seller-admin-listings-20261114`. **Não publicar na produção sem validação e autorização.**
 
 ### Fluxos implementados
-- **Comprador:** pode visualizar o catálogo e acessar os cartões, mas não tem botão de cadastro. As APIs de anúncios e token de upload respondem 403 para perfis buyer.
+- **Comprador:** visualiza o catálogo e pode usar a modalidade separada de anúncio particular. As APIs comuns de veículos e tokens de upload de vendedor continuam respondendo 403 para buyer.
 - **Vendedor:** botão amarelo "Cadastrar / gerenciar anúncios" abaixo da apresentação do catálogo. Pode criar, editar, publicar, pausar, marcar vendido e remover apenas anúncios vinculados ao seu UUID. Pode cadastrar seu WhatsApp de contato.
 - **ADM Master:** pode usar o botão abaixo da apresentação ou a aba "Gestão de anúncios" no painel ADM. Visualiza todos os anúncios, cria em nome de uma conta comercial selecionada e pode editar/remover anúncios existentes. O formulário de criação de vendedor exige WhatsApp com DDD.
 - **Fotos:** galeria ou câmera do celular, até 10 fotos por anúncio, JPG/PNG/WebP, até 10 MB por foto. Pré-visualização da capa, remoção de fotos e inclusão de novas imagens na edição. Publicação exige ao menos uma foto; rascunho pode ficar sem fotos.
@@ -129,7 +155,7 @@ Branch de testes: `feat/seller-admin-listings-20261114`. **Não publicar na prod
 - Não modificar a `main` até a Preview aprovada.
 
 ### Roteiro de QA
-1. Com usuário comprador, confirme que não existe botão de cadastro e que tentativas à API de anúncios/fotos são negadas.
+1. Com buyer PF, confirme acesso apenas ao CTA de anúncio particular; tentativas às APIs comuns de veículos/fotos continuam negadas. Teste checkout apenas com ambiente Mercado Pago configurado.
 2. Com vendedor, preencha WhatsApp, cadastre rascunho, adicione fotos de câmera e galeria, publique e verifique o anúncio no catálogo.
 3. Edite sem selecionar fotos novas (as fotos atuais devem permanecer), depois adicione/remova fotos individualmente e confira o resultado.
 4. Teste os limites: 10 fotos, formato incompatível, arquivo maior que 10 MB, publicação sem fotos.

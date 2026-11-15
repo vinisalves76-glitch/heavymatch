@@ -66,13 +66,28 @@ export default async function handler(req, res) {
     }
 
     if (!profile) throw new Error("Perfil não disponível após a criação.");
+    // O tipo declarado só abre uma solicitação para análise; nunca altera permissões.
+    if (profile.role === "buyer" && user.user_metadata?.account_type === "agency_request") {
+      const metadata = user.user_metadata || {};
+      const count = Number(metadata.equipment_count);
+      const { error: requestError } = await db.from("agency_signup_requests").upsert({
+        user_id: user.id,
+        business_name: metadataText(metadata.business_name, 160) || null,
+        equipment_count: Number.isInteger(count) && count >= 2 && count <= 10000 ? count : 2
+      }, { onConflict: "user_id", ignoreDuplicates: true });
+      if (requestError) throw requestError;
+    }
+    const { data: agencyRequest, error: agencyReadError } = await db.from("agency_signup_requests")
+      .select("status").eq("user_id", user.id).maybeSingle();
+    if (agencyReadError) throw agencyReadError;
     // Nunca usar user_metadata.account_type para determinar permissões.
     return respond(res, 200, {
       profile: {
         id: profile.id,
         full_name: profile.full_name || "",
         phone: profile.phone || "",
-        role: profile.role
+        role: profile.role,
+        agency_request_status: agencyRequest?.status || null
       }
     });
   } catch (error) {
