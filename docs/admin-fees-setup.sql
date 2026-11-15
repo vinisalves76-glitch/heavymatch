@@ -1,5 +1,5 @@
--- Proposta de configuração persistente. NÃO APLICADA ao banco compartilhado.
--- Aplicar somente após aprovação específica para habilitar o salvamento.
+-- Registro histórico do schema já aplicado ao Supabase compartilhado em 15/11/2026.
+-- Não executar novamente como etapa de instalação; use migration versionada para mudanças futuras.
 begin;
 create table public.marketplace_fees (
   scope text primary key check (scope in ('preview', 'production')),

@@ -9,8 +9,12 @@ A área de **perfil de comprador** é um recurso de testes desenvolvido na branc
 - `admin-fees.js`, `lib/listing-fee.js` e `api/admin/fees.js` incluem a configuração da taxa única em ADM → Taxas e anúncios. Não cobrar agências nem criar preço inicial automaticamente.
 - Papel ADM é conferido no servidor em `profiles.role`; valores são centavos inteiros positivos e salvamento usa revisão para evitar sobrescrita concorrente.
 - `marketplace_fees.scope` distingue Preview de produção pelo ambiente do servidor. Não aceitar o ambiente no payload do navegador.
-- `docs/admin-fees-setup.sql` está preparado, mas NÃO aplicado ao banco compartilhado. Não declarar salvamento real validado até ativação aprovada e teste autenticado.
-- A configuração da taxa não implementa checkout, anúncio particular nem matching. O usuário autorizou planejar a modalidade de troca com intermediação obrigatória do vendedor; nunca mostrar contato de um proprietário ao outro.
+- A tabela `marketplace_fees` foi aplicada ao Supabase compartilhado em 15/11/2026; Preview e produção começam sem valor, com RLS habilitado e sem leitura de `anon`/`authenticated`. O salvamento pela tela autenticada ainda depende de validação no Preview.
+- O novo fluxo está em desenvolvimento nesta branch de Preview: cadastro público de PF ou solicitação de agência, cobrança única via Mercado Pago, revisão ADM sem reprovação (somente pedido de ajuste de fotos), vinculação obrigatória de vendedor e publicação depois do pagamento e da aprovação.
+- Nunca usar `user_metadata` para elevar role. A solicitação pública de agência fica como buyer até aprovação do ADM.
+- Nunca mostrar contato do proprietário ao interessado, nem no HTML nem na API. Todos os contatos passam pelo vendedor designado pelo ADM.
+- Checkout não deve simular sucesso. `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, URL HTTPS pública para notificações e URLs de retorno precisam estar configurados antes de validar cobrança real.
+- O valor da taxa e sua revisão devem ser gravados em cada pagamento ao iniciar o checkout para que futuras mudanças no ADM não alterem transações existentes.
 - Testar `tests/admin-fees.test.mjs` e a suíte completa. Não modificar produção sem aprovação.
 
 ## Regras inegociáveis
@@ -68,7 +72,7 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - `api/vehicles/photo-token.js`: gera token de upload exclusivo por sessão e valida role seller/admin usando JWT autenticado.
 - `api/admin/users.js`: cadastro de vendedor com WhatsApp obrigatório.
 - `docs/seller-admin-storage-security.sql`: políticas de segurança aplicadas e verificadas no Supabase em 14/11/2026; o SQL está registrado para auditoria e não deve ser reexecutado automaticamente.
-- O comprador NUNCA deve ter acesso de criação, edição, remoção ou upload. Vendedor gerencia somente os próprios; ADM gerencia todos.
+- O comprador não pode criar, editar, remover ou fazer upload diretamente em `vehicles` ou nos fluxos do vendedor. A exceção é a modalidade de anúncio particular, que usa exclusivamente `private_listings`/API própria, exige pagamento confirmado e aprovação+vínculo de vendedor pelo ADM; nunca altera o role buyer.
 - Nunca confiar em role do navegador nem em user_metadata para autorização; conferir profiles.role no servidor, com políticas RLS corretas.
 - Antes de promover novas alterações, valide os fluxos autenticados reais e confirme que o endurecimento do banco continua ativo.
 - Preserve fotos e anúncios existentes; uploads devem manter as imagens atuais a menos que o responsável solicite exclusão.
@@ -123,7 +127,7 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - Não recolocar cabeçalho de duas linhas, menus duplicados, CTA pesado nem uma barra adicional abaixo da foto.
 - Barra inferior visível com apenas 4 destinos: Descobrir, Buscar, Salvos, Conta. Contato WhatsApp e detalhes no cartão; Entrar/Conta, vendedor, ADM, Ajuda e Sair no painel `mobile-discovery.js` com suas permissões.
 - Aplicação modular: estilos exclusivos do celular em `styles/mobile-discovery.css` (carregado por último); controlador de Conta em `mobile-discovery.js`. Não alterar layout desktop nem código de backend para um ajuste puramente visual.
-- `#sellerNav` e `#hmAdminNav` mantêm seus listeners e guardas; o menu Conta aciona esses controles após verificar autorização. Não criar opção pública de cadastrar anúncio.
+- `#sellerNav` e `#hmAdminNav` mantêm seus listeners e guardas; o menu Conta aciona esses controles após verificar autorização. O CTA separado “Anunciar meu caminhão” é somente para buyer pessoa física e usa as rotas privadas de anúncio, sem acesso ao cadastro comum de seller/admin.
 - Preservar foto alternável ao toque; atualizar primeiro plano E fundo desfocado em `changeEquipmentPhoto`. Nenhuma foto deve ser excluída para melhorar a vitrine.
 - Testar `tests/immersive-discovery.test.mjs`, `tests/mobile-header-no-overlap.test.mjs`, swipe, perfil, login, anúncios e tour.
 - Apenas Preview e PR #15; produção só depois de aprovação.
@@ -143,3 +147,4 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - `#hmPhotoBio` fica no rodapé do texto do anúncio. Ao clicar, chama `openDetails()`, e dentro da bio o botão existente `#modalContact` abre o WhatsApp do vendedor. Clicar nesse link não avança a galeria de fotos.
 - A **única barra de navegação visível** permanece com Descobrir, Buscar, Salvos e Conta. O desktop conserva os controles anteriores.
 - Preservar swipe direita=curtir e esquerda=passar, foto grande, menu Conta vendedor/ADM, e fotos. Não mexer em produção até validação.
+
