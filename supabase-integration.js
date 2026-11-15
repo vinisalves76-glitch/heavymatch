@@ -63,7 +63,7 @@
       <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">CATIRAMATCH · ACESSO RESTRITO</div>
       <h2 id="hmAdminTitle">ADM Master</h2>
       <p>Gerencie os acessos da plataforma. Somente administradores autorizados conseguem criar novas contas privilegiadas.</p>
-      <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button></div>
+      <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button><button class="hm-admin-tab" data-pane="fees">Taxas e anúncios</button></div>
       <div id="hmAdminAccounts">
         <div class="hm-admin-kpis"><div class="hm-admin-kpi"><small>Total de contas</small><strong id="hmTotalUsers">—</strong></div><div class="hm-admin-kpi"><small>Vendedores</small><strong id="hmTotalSellers">—</strong></div><div class="hm-admin-kpi"><small>Administradores</small><strong id="hmTotalAdmins">—</strong></div></div>
         <div class="hm-admin-grid">
@@ -84,6 +84,7 @@
         </div>
       </div>
       <div id="hmAdminFuture" hidden><div class="hm-admin-section"><h3>Gestão de anúncios</h3><p>Cadastre caminhões, carretas e máquinas com fotos, preço, descrição e situação de publicação. O ADM visualiza todos os anúncios e pode escolher o vendedor responsável.</p><div class="hm-admin-actions"><button type="button" class="primary" id="hmAdminOpenListings">Abrir cadastro de equipamentos</button></div><div class="hm-admin-note">O vendedor gerencia somente os próprios anúncios. O comprador não possui acesso ao cadastro.</div></div></div>
+      <div id="hmAdminFees" hidden></div>
       <div class="hm-admin-actions"><button type="button" id="hmAdminLogout">Sair da conta</button><button type="button" class="primary" id="hmAdminCloseBottom">Fechar ADM</button></div>
       <div class="hm-admin-message" id="hmAdminMessage" role="status" aria-live="polite"></div>
     </section>`;
@@ -120,6 +121,7 @@
     if (currentRole !== "admin" || !currentUser) { showAuth(); return; }
     adminOverlay.classList.add("open"); document.body.style.overflow = "hidden";
     document.getElementById("hmAdminAccounts").hidden = false; document.getElementById("hmAdminFuture").hidden = true;
+    document.getElementById("hmAdminFees").hidden = true;
     document.querySelectorAll(".hm-admin-tab").forEach(button => button.classList.toggle("active", button.dataset.pane === "accounts"));
     await loadUsers();
   };
@@ -150,10 +152,12 @@
   accountButton.addEventListener("click", () => currentRole === "admin" ? openAdmin() : currentUser ? showAccountInfo() : showAuth());
   adminNav.addEventListener("click", openAdmin);
   document.querySelectorAll(".hm-admin-tab").forEach(button => button.addEventListener("click", () => {
-    const accounts = button.dataset.pane === "accounts";
+    const selected = button.dataset.pane;
     document.querySelectorAll(".hm-admin-tab").forEach(tab => tab.classList.toggle("active", tab === button));
-    document.getElementById("hmAdminAccounts").hidden = !accounts;
-    document.getElementById("hmAdminFuture").hidden = accounts;
+    document.getElementById("hmAdminAccounts").hidden = selected !== "accounts";
+    document.getElementById("hmAdminFuture").hidden = selected !== "future";
+    document.getElementById("hmAdminFees").hidden = selected !== "fees";
+    window.dispatchEvent(new CustomEvent("hm-admin-pane-changed", { detail: { pane: selected } }));
   }));
   function showAccountInfo() {
     overlay.classList.add("open"); document.body.style.overflow = "hidden";

@@ -1,5 +1,18 @@
 # HeavyMatch
 
+## Taxa de anúncios particulares — Preview 15/11/2026
+
+- Em **Conta → ADM Master → Taxas e anúncios**, o administrador define a taxa única por anúncio particular em reais. Não há preço inicial inventado, mensalidade ou mudança nos anúncios de agência.
+- A interface apresenta o valor salvo, sua última atualização, edição e recarga. Valores vazios, negativos, zero, formatos inválidos e mais de duas casas decimais são recusados.
+- `admin-fees.js` é o controlador; `lib/listing-fee.js` converte reais em centavos; `api/admin/fees.js` usa o handler protegido `lib/admin-fees-handler.js`.
+- A API valida a sessão no Supabase e consulta `profiles.role` no servidor. Apenas `admin` lê/altera. Não confiar em `user_metadata` ou em papel enviado pelo navegador.
+- Preview e produção usam linhas distintas, escolhidas exclusivamente por `VERCEL_ENV` no servidor. A Preview nunca escreve na taxa de produção.
+- Salvamento exige a revisão atualmente carregada; outra sessão que já alterou o valor provoca conflito e solicita recarga.
+- **Preparação pendente de aprovação:** `docs/admin-fees-setup.sql` adiciona somente a tabela `marketplace_fees` com RLS e acesso exclusivo do backend. O SQL NÃO foi aplicado ao banco compartilhado. Sem essa estrutura, a interface comunica indisponibilidade e não simula gravação nem usa valor zero.
+- Esta entrega configura a taxa. Checkout, cobrança, pedidos, anúncios particulares e compatibilidade de trocas ainda não estão implementados. Ao implementar pedidos, guardar o valor e a revisão no pedido para que mudanças futuras da taxa não alterem pagamentos já iniciados ou concluídos.
+- Validação: `node --test tests/*.test.mjs`, incluindo autorização, valores, concorrência e separação dos ambientes. QA de interface usa ambiente local isolado com dados simulados; salvamento real no banco depende da ativação acima e de autenticação ADM.
+- Preservar o fluxo atual de agência e a intermediação obrigatória nas futuras trocas; não conectar proprietários diretamente.
+
 Marketplace digital com experiência mobile de descoberta de caminhões, carretas e máquinas pesadas.
 
 ## Estrutura atual

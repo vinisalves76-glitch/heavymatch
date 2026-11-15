@@ -5,6 +5,14 @@ HeavyMatch é um marketplace mobile-first de caminhões, carretas e máquinas pe
 O fluxo principal é visualizar anúncios em cartões, curtir/salvar ou pular e contatar o vendedor por WhatsApp.
 A área de **perfil de comprador** é um recurso de testes desenvolvido na branch feature/buyer-profile-marketplace.
 
+## Taxa de anúncio particular — Preview 15/11/2026
+- `admin-fees.js`, `lib/listing-fee.js` e `api/admin/fees.js` incluem a configuração da taxa única em ADM → Taxas e anúncios. Não cobrar agências nem criar preço inicial automaticamente.
+- Papel ADM é conferido no servidor em `profiles.role`; valores são centavos inteiros positivos e salvamento usa revisão para evitar sobrescrita concorrente.
+- `marketplace_fees.scope` distingue Preview de produção pelo ambiente do servidor. Não aceitar o ambiente no payload do navegador.
+- `docs/admin-fees-setup.sql` está preparado, mas NÃO aplicado ao banco compartilhado. Não declarar salvamento real validado até ativação aprovada e teste autenticado.
+- A configuração da taxa não implementa checkout, anúncio particular nem matching. O usuário autorizou planejar a modalidade de troca com intermediação obrigatória do vendedor; nunca mostrar contato de um proprietário ao outro.
+- Testar `tests/admin-fees.test.mjs` e a suíte completa. Não modificar produção sem aprovação.
+
 ## Regras inegociáveis
 1. Leia este arquivo e o README.md antes de qualquer alteração.
 2. Nunca desenvolva na main ou modifique produção sem autorização explícita do responsável.
