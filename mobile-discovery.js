@@ -13,6 +13,7 @@
       <div class="hm-mobile-menu-group">
         <button class="hm-mobile-menu-option" type="button" id="hmMenuAccount"><span aria-hidden="true">♙</span><strong>Entrar ou criar conta</strong></button>
         <button class="hm-mobile-menu-option" type="button" id="hmMenuProfile" hidden><span aria-hidden="true">◉</span>Meu perfil de compra</button>
+        <button class="hm-mobile-menu-option" type="button" id="hmMenuPrivateListing" hidden><span aria-hidden="true">🚛</span>Anunciar meu caminhão</button>
         <button class="hm-mobile-menu-option" type="button" id="hmMenuListings" hidden><span aria-hidden="true">＋</span>Cadastrar e gerenciar anúncios</button>
         <button class="hm-mobile-menu-option" type="button" id="hmMenuAdmin" hidden><span aria-hidden="true">⚙</span>ADM Master</button>
         <button class="hm-mobile-menu-option" type="button" id="hmMenuHelp"><span aria-hidden="true">?</span>Ajuda e tutorial</button>
@@ -24,6 +25,7 @@
   const $ = id => document.getElementById(id);
   const mobile = () => window.matchMedia("(max-width: 799px)").matches;
   let previousFocus = null, previousOverflow = "";
+  let accountRole = window.hmAccountAccess?.role || "buyer", agencyRequestStatus = window.hmAccountAccess?.agencyRequestStatus || null;
 
   function sync() {
     const account=$("hmAccountButton");
@@ -33,6 +35,7 @@
     const signedIn=!!logout && !logout.hidden;
     $("hmMenuAccount").querySelector("strong").textContent=signedIn?"Minha conta":"Entrar ou criar conta";
     $("hmMenuProfile").hidden=!signedIn || (seller && !seller.hidden);
+    $("hmMenuPrivateListing").hidden=!signedIn || accountRole!=="buyer" || !!agencyRequestStatus;
     $("hmMenuListings").hidden=!(seller && !seller.hidden);
     $("hmMenuAdmin").hidden=!(admin && admin.classList.contains("hm-visible"));
     $("hmMenuLogout").hidden=!signedIn;
@@ -83,6 +86,7 @@
   forward("hmMenuHelp","hmTourHelp");
   forward("hmMenuLogout","hmTopLogout");
   $("hmMenuProfile").addEventListener("click",()=>{close();window.hmOpenBuyerProfile?.();});
+  $("hmMenuPrivateListing").addEventListener("click",()=>{close();window.hmOpenPrivateListing?.();});
   // A barra de navegação informa de forma consistente qual área está aberta.
   const primaryTabs=["homeNav","exploreNav","savedNav","profileNav"];
   function selectTab(id) {
@@ -106,7 +110,7 @@
     selectTab($("savedPanel")?.classList.contains("is-open")?"savedNav":"homeNav");
   });
   $("hmMobileMenuClose")?.setAttribute("title","Voltar ao anúncio");
-    window.addEventListener("hm-auth-changed",sync);
+    window.addEventListener("hm-auth-changed",event=>{accountRole=event.detail?.role||"buyer";agencyRequestStatus=event.detail?.agencyRequestStatus||null;sync();});
   window.addEventListener("hm-supabase-ready",sync);
   window.addEventListener("resize",()=>{if(!mobile())close();});
 })();

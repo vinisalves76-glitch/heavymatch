@@ -13,6 +13,7 @@
     .hm-auth-card h2,.hm-admin-card h2{margin:0 0 6px;font-size:23px}.hm-auth-card p,.hm-admin-card p{color:#64727c;font-size:13px;line-height:1.5}
     .hm-auth-card label,.hm-admin-card label{display:block;font-size:12px;font-weight:800;margin:13px 0 6px}
     .hm-auth-card input,.hm-admin-card input,.hm-admin-card select{width:100%;height:44px;border:1px solid #dce2e6;border-radius:10px;padding:0 12px;color:#17242e;background:#fff}
+    .hm-auth-type{border:1px solid #e2e7ea;border-radius:12px;padding:10px;margin:12px 0}.hm-auth-type legend{font-size:12px;font-weight:850;padding:0 5px}.hm-auth-type label{display:flex;align-items:flex-start;gap:8px;margin:8px 0;font-size:12px;line-height:1.4}.hm-auth-type input[type=radio]{width:17px;height:17px;min-width:17px;margin:1px 0 0;accent-color:#E32227}.hm-auth-business{display:grid;grid-template-columns:1fr 125px;gap:8px}.hm-private-cta{width:100%;min-height:43px;margin-top:12px;border:0;border-radius:10px;background:#E32227;color:#fff;font-weight:850}.hm-private-cta[hidden]{display:none!important}
     .hm-auth-actions,.hm-admin-actions{display:flex;gap:8px;margin-top:17px;flex-wrap:wrap}.hm-auth-actions button,.hm-admin-actions button{flex:1;min-height:43px;border-radius:10px;font-weight:800;border:1px solid #dce2e6}
     .hm-auth-actions .primary,.hm-admin-actions .primary{background:#E32227;border-color:#E32227;color:#fff}
     .hm-auth-recovery{color:#705000;font-weight:850;width:100%;padding:9px 5px;border:0;background:transparent;cursor:pointer;font-size:12px;text-align:center}.hm-auth-recovery[hidden]{display:none!important}
@@ -43,6 +44,8 @@
         <label for="hmAuthName" id="hmAuthNameWrap" hidden>Nome completo</label><input id="hmAuthName" type="text" autocomplete="name" maxlength="120" placeholder="Seu nome completo" hidden>
         <label for="hmAuthPhone" id="hmAuthPhoneWrap" hidden>Telefone / WhatsApp</label><input id="hmAuthPhone" type="tel" autocomplete="tel" maxlength="30" placeholder="(31) 99999-9999" hidden>
         <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden>
+        <fieldset class="hm-auth-type" id="hmAuthTypeWrap" hidden><legend>Como você pretende anunciar?</legend><label><input type="radio" name="hmAccountType" value="buyer" checked><span>Tenho um caminhão para vender ou trocar (pessoa física)</span></label><label><input type="radio" name="hmAccountType" value="agency_request"><span>Sou vendedor ou represento uma agência com vários equipamentos</span></label></fieldset>
+        <div id="hmAuthAgencyFields" class="hm-auth-business" hidden><div><label for="hmAuthBusiness">Nome da agência</label><input id="hmAuthBusiness" maxlength="160" placeholder="Empresa ou agência"></div><div><label for="hmAuthEquipmentCount">Veículos</label><input id="hmAuthEquipmentCount" type="number" min="2" max="10000" value="2"></div></div>
         <label for="hmAuthEmail" id="hmAuthEmailLabel">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
         <label for="hmAuthPassword">Senha</label><input id="hmAuthPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres" required>
         <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
@@ -51,6 +54,7 @@
       <button type="button" class="hm-auth-recovery" id="hmAuthRecovery">Esqueci minha senha</button>
       <button type="button" class="hm-auth-switch" id="hmAuthSwitch">Ainda não tem conta? Fazer cadastro</button>
       <button type="button" class="hm-auth-switch" id="hmAuthLogout" hidden>Sair da conta e entrar com outro acesso</button>
+      <button type="button" class="hm-private-cta" id="hmPrivateListingStart" hidden>Anunciar meu caminhão</button>
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
     </section>`;
   document.body.appendChild(overlay);
@@ -63,7 +67,7 @@
       <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">CATIRAMATCH · ACESSO RESTRITO</div>
       <h2 id="hmAdminTitle">ADM Master</h2>
       <p>Gerencie os acessos da plataforma. Somente administradores autorizados conseguem criar novas contas privilegiadas.</p>
-      <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button><button class="hm-admin-tab" data-pane="fees">Taxas e anúncios</button></div>
+      <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button><button class="hm-admin-tab" data-pane="fees">Taxas e anúncios</button><button class="hm-admin-tab" data-pane="marketplace">Solicitações</button></div>
       <div id="hmAdminAccounts">
         <div class="hm-admin-kpis"><div class="hm-admin-kpi"><small>Total de contas</small><strong id="hmTotalUsers">—</strong></div><div class="hm-admin-kpi"><small>Vendedores</small><strong id="hmTotalSellers">—</strong></div><div class="hm-admin-kpi"><small>Administradores</small><strong id="hmTotalAdmins">—</strong></div></div>
         <div class="hm-admin-grid">
@@ -85,6 +89,7 @@
       </div>
       <div id="hmAdminFuture" hidden><div class="hm-admin-section"><h3>Gestão de anúncios</h3><p>Cadastre caminhões, carretas e máquinas com fotos, preço, descrição e situação de publicação. O ADM visualiza todos os anúncios e pode escolher o vendedor responsável.</p><div class="hm-admin-actions"><button type="button" class="primary" id="hmAdminOpenListings">Abrir cadastro de equipamentos</button></div><div class="hm-admin-note">O vendedor gerencia somente os próprios anúncios. O comprador não possui acesso ao cadastro.</div></div></div>
       <div id="hmAdminFees" hidden></div>
+      <div id="hmAdminMarketplace" hidden></div>
       <div class="hm-admin-actions"><button type="button" id="hmAdminLogout">Sair da conta</button><button type="button" class="primary" id="hmAdminCloseBottom">Fechar ADM</button></div>
       <div class="hm-admin-message" id="hmAdminMessage" role="status" aria-live="polite"></div>
     </section>`;
@@ -103,6 +108,8 @@
   let supabaseClient = null;
   let currentUser = null;
   let currentRole = "buyer";
+  let agencyRequestStatus = null;
+  window.hmAccountAccess = { role: "buyer", agencyRequestStatus: null };
   let authMode = "login";
   let recoveryPending = false;
   let configError = "";
@@ -122,6 +129,7 @@
     adminOverlay.classList.add("open"); document.body.style.overflow = "hidden";
     document.getElementById("hmAdminAccounts").hidden = false; document.getElementById("hmAdminFuture").hidden = true;
     document.getElementById("hmAdminFees").hidden = true;
+    document.getElementById("hmAdminMarketplace").hidden = true;
     document.querySelectorAll(".hm-admin-tab").forEach(button => button.classList.toggle("active", button.dataset.pane === "accounts"));
     await loadUsers();
   };
@@ -130,8 +138,8 @@
     topLogoutButton.disabled = true; topLogoutButton.textContent = "Saindo…";
     try {
       if (supabaseClient) { const { error } = await supabaseClient.auth.signOut(); if (error) throw error; }
-      currentUser = null; currentRole = "buyer"; topLogoutButton.hidden = true;
-      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+      currentUser = null; currentRole = "buyer"; agencyRequestStatus = null; window.hmAccountAccess = { role: currentRole, agencyRequestStatus }; topLogoutButton.hidden = true;
+      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer", agencyRequestStatus: null } }));
       adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; topLogoutButton.hidden = true;
       closeAdmin(); closeAuth(); resetAuthForm();
       message("Você saiu da sua conta.");
@@ -157,6 +165,7 @@
     document.getElementById("hmAdminAccounts").hidden = selected !== "accounts";
     document.getElementById("hmAdminFuture").hidden = selected !== "future";
     document.getElementById("hmAdminFees").hidden = selected !== "fees";
+    document.getElementById("hmAdminMarketplace").hidden = selected !== "marketplace";
     window.dispatchEvent(new CustomEvent("hm-admin-pane-changed", { detail: { pane: selected } }));
   }));
   function showAccountInfo() {
@@ -166,7 +175,10 @@
     document.querySelector("#hmAuthForm").hidden = true;
     document.getElementById("hmAuthSwitch").hidden = true;
     document.getElementById("hmAuthLogout").hidden = false;
-    message("Conectado como " + (currentUser?.email || "") + ". Perfil: " + currentRole + ".", false);
+    document.getElementById("hmPrivateListingStart").hidden = currentRole !== "buyer" || !!agencyRequestStatus;
+    message(agencyRequestStatus && agencyRequestStatus !== "approved"
+      ? "Cadastro de vendedor aguardando finalização pelo especialista e liberação do ADM."
+      : "Conectado como " + (currentUser?.email || "") + ". Perfil: " + currentRole + ".", false);
   }
   document.getElementById("hmAuthLogout").addEventListener("click", async () => {
     const button = document.getElementById("hmAuthLogout");
@@ -176,8 +188,8 @@
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
       }
-      currentUser = null; currentRole = "buyer";
-      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+      currentUser = null; currentRole = "buyer"; agencyRequestStatus = null; window.hmAccountAccess = { role: currentRole, agencyRequestStatus };
+      window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer", agencyRequestStatus: null } }));
       adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar";
       document.getElementById("hmAuthLogout").hidden = true;
       document.getElementById("hmAuthSubtitle").textContent = "Entre com seu e-mail e senha para acessar sua conta.";
@@ -188,6 +200,11 @@
     } finally {
       button.disabled = false; button.textContent = "Sair da conta e entrar com outro acesso";
     }
+  });
+  document.getElementById("hmPrivateListingStart").addEventListener("click", () => {
+    closeAuth();
+    if (typeof window.hmOpenPrivateListing === "function") window.hmOpenPrivateListing();
+    else message("O formulário de anúncio particular está carregando. Tente novamente em instantes.", true);
   });
   function setAuthMode(mode) {
     authMode = ["login", "signup", "recover", "reset"].includes(mode) ? mode : "login";
@@ -205,6 +222,13 @@
       const input = document.getElementById("hmAuth" + field);
       wrap.hidden = !signup; input.hidden = !signup; input.required = signup;
     });
+    document.getElementById("hmAuthTypeWrap").hidden = !signup;
+    const accountType = document.querySelector('input[name="hmAccountType"]:checked')?.value || "buyer";
+    const agency = signup && accountType === "agency_request";
+    document.getElementById("hmAuthAgencyFields").hidden = !agency;
+    document.getElementById("hmAuthBusiness").required = agency;
+    document.getElementById("hmAuthEquipmentCount").required = agency;
+    document.getElementById("hmPrivateListingStart").hidden = true;
     const emailInput = document.getElementById("hmAuthEmail");
     const emailLabel = document.querySelector('label[for="hmAuthEmail"]');
     emailInput.hidden = reset; emailInput.required = !reset;
@@ -234,9 +258,18 @@
   function resetAuthForm() {
     document.getElementById("hmAuthForm").hidden = false;
     document.getElementById("hmAuthSwitch").hidden = false;
+    document.querySelector('input[name="hmAccountType"][value="buyer"]').checked = true;
     setAuthMode("login");
     message("");
   }
+  document.querySelectorAll('input[name="hmAccountType"]').forEach(input => input.addEventListener("change", () => {
+    const agency = input.checked && input.value === "agency_request";
+    if (input.checked) {
+      document.getElementById("hmAuthAgencyFields").hidden = !agency;
+      document.getElementById("hmAuthBusiness").required = agency;
+      document.getElementById("hmAuthEquipmentCount").required = agency;
+    }
+  }));
   async function apiAdmin(action, payload = {}) {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const token = sessionData?.session?.access_token;
@@ -295,7 +328,7 @@
   });
   document.getElementById("hmAdminLogout").addEventListener("click", async () => {
     if (supabaseClient) await supabaseClient.auth.signOut();
-    currentUser = null; currentRole = "buyer"; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; topLogoutButton.hidden = true;
+    currentUser = null; currentRole = "buyer"; agencyRequestStatus = null; window.hmAccountAccess = { role: currentRole, agencyRequestStatus }; window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer", agencyRequestStatus: null } })); adminNav.classList.remove("hm-visible"); accountButton.textContent = "Entrar"; topLogoutButton.hidden = true;
     closeAdmin(); resetAuthForm(); showAuth();
     message("Você saiu da sua conta.");
   });
@@ -341,11 +374,11 @@
         if (event === "PASSWORD_RECOVERY") { enterResetFlow(); return; }
         if (!session?.user) {
           currentUser = null;
-          currentRole = "buyer";
+          currentRole = "buyer"; agencyRequestStatus = null; window.hmAccountAccess = { role: currentRole, agencyRequestStatus };
           topLogoutButton.hidden = true;
           adminNav.classList.remove("hm-visible");
           accountButton.textContent = "Entrar";
-          window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+          window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer", agencyRequestStatus: null } }));
         }
       });
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -370,8 +403,10 @@
     const profile = await ensureAccountProfile();
     currentUser = user;
     currentRole = profile.role;
+    agencyRequestStatus = profile.agency_request_status || null;
+    window.hmAccountAccess = { role: currentRole, agencyRequestStatus };
     topLogoutButton.hidden = false;
-    window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole } }));
+    window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: user.id, role: currentRole, agencyRequestStatus } }));
     adminNav.classList.toggle("hm-visible", currentRole === "admin");
     accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
     message(currentRole === "seller" ? "Login de vendedor confirmado." : "Login realizado. Perfil: " + currentRole + ".", false);
@@ -408,7 +443,7 @@
         cleanUrl.hash = "";
         window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
         currentUser = null;
-        currentRole = "buyer";
+        currentRole = "buyer"; agencyRequestStatus = null; window.hmAccountAccess = { role: currentRole, agencyRequestStatus };
         document.getElementById("hmAuthForm").reset();
         setAuthMode("login");
         message("Senha atualizada com sucesso! Entre com seu e-mail e a nova senha.");
@@ -416,14 +451,18 @@
         const fullName = document.getElementById("hmAuthName").value.trim();
         const phone = document.getElementById("hmAuthPhone").value.trim();
         const address = document.getElementById("hmAuthAddress").value.trim();
+        const accountType = document.querySelector('input[name="hmAccountType"]:checked')?.value === "agency_request" ? "agency_request" : "buyer";
+        const businessName = document.getElementById("hmAuthBusiness").value.trim();
+        const equipmentCount = Number(document.getElementById("hmAuthEquipmentCount").value || 2);
         const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
         if (!fullName || !phone || !address) throw new Error("Preencha nome, telefone e endereço.");
         if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite a mesma senha nos dois campos.");
+        if (accountType === "agency_request" && (!businessName || !Number.isInteger(equipmentCount) || equipmentCount < 2)) throw new Error("Informe o nome da agência e a quantidade de equipamentos.");
         const { data, error } = await supabaseClient.auth.signUp({
           email, password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: fullName, phone, address, account_type: "buyer" }
+            data: { full_name: fullName, phone, address, account_type: accountType, business_name: accountType === "agency_request" ? businessName : null, equipment_count: accountType === "agency_request" ? equipmentCount : null }
           }
         });
         if (error) throw error;
@@ -437,13 +476,15 @@
         topLogoutButton.hidden = true;
         accountButton.textContent = "Entrar";
         adminNav.classList.remove("hm-visible");
-        window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer" } }));
+        window.dispatchEvent(new CustomEvent("hm-auth-changed", { detail: { userId: null, role: "buyer", agencyRequestStatus: null } }));
         document.getElementById("hmAuthForm").reset();
         resetAuthForm();
         document.getElementById("hmAuthEmail").value = email;
-        message(data.session
-          ? "Cadastro concluído! Agora entre usando seu e-mail e sua senha."
-          : "Solicitação recebida. Verifique seu e-mail para confirmar o cadastro. Se você já tinha uma conta, use Entrar ou Esqueci minha senha.", false);
+        message(accountType === "agency_request"
+          ? "Cadastro recebido. Um especialista entrará em contato para finalizar seu cadastro de vendedor. Confirme seu e-mail para ativar o acesso."
+          : data.session
+            ? "Cadastro concluído! Agora entre usando seu e-mail e sua senha."
+            : "Solicitação recebida. Verifique seu e-mail para confirmar o cadastro. Se você já tinha uma conta, use Entrar ou Esqueci minha senha.", false);
       } else {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
