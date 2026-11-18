@@ -72,7 +72,7 @@ filtered.forEach(function(p){
 var row=el("article","partner");
 var picture=p.image?el("img","photo"):el("div","photo",CATS[p.category]?CATS[p.category][1]:"🤝");if(p.image){picture.src=p.image;picture.alt=""}
 var desc=el("div");desc.append(el("strong",null,p.name||"Parceiro sem nome"),el("div","sub",(CATS[p.category]?CATS[p.category][0]:"Serviços")+" · "+(p.demo?"Exemplo de demonstração":"Parceiro cadastrado")));
-var loc=el("div","location");loc.append(el("strong",null,(p.city||"—")+" / "+(p.state||"—")),el("div","sub",p.phone||"WhatsApp não informado"));
+var loc=el("div","location");var location=[p.city,p.state].filter(Boolean).join(" / ");loc.append(el("strong",null,location||"Local não informado"),el("div","sub",p.phone||"WhatsApp não informado"));
 var statusCol=el("div","status");var label=p.status==="published"?"Publicado":p.status==="paused"?"Pausado":"Rascunho";statusCol.append(el("span","tag "+p.status,label));
 var actions=el("div","action-row");
 var edit=el("button","mini","Editar");edit.type="button";edit.addEventListener("click",function(){openEditor(p.id)});
