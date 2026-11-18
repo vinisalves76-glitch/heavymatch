@@ -56,17 +56,20 @@ test("scripts inline das páginas são sintaticamente válidos", () => {
 });
 
 test("apenas nome, telefone e setor são obrigatórios no formulário", () => {
+  const controls = [...admin.matchAll(/<(?:input|select|textarea)\b[^>]*>/g)].map(match => match[0]);
   const field = id => {
-    const match = admin.match(new RegExp("<(?:input|select|textarea)\\\\b[^>]*\\\\bid=\\\"" + id + "\\\"[^>]*>"));
+    const match = controls.find(html => html.includes('id="' + id + '"'));
     assert.ok(match, "Campo ausente: " + id);
-    return match[0];
+    return match;
   };
-  for (const id of ["name", "category", "phone"]) assert.match(field(id), /\\brequired\\b/, id + " deveria ser obrigatório");
-  for (const id of ["city", "state", "description", "address", "region", "hours", "image"]) {
-    assert.doesNotMatch(field(id), /\\brequired\\b/, id + " deve ser opcional");
+  for (const id of ["name", "category", "phone"]) {
+    assert.match(field(id), /\srequired(?:\s|>)/, id + " deveria ser obrigatório");
   }
-  assert.match(admin, /if\\(!value\\.name\\|\\|!CATS\\[value\\.category\\]\\|\\|!value\\.phone\\)/);
-  assert.doesNotMatch(admin, /!value\\.city|!value\\.description|!STATES\\.includes\\(value\\.state\\)\\|\\|/);
-  assert.match(admin, /value\\.state&&\\!STATES\\.includes\\(value\\.state\\)/);
-  assert.match(catalog, /var location=\\[p\\.city,p\\.state\\]\\.filter\\(Boolean\\)/);
+  for (const id of ["city", "state", "description", "address", "region", "hours", "image"]) {
+    assert.doesNotMatch(field(id), /\srequired(?:\s|>)/, id + " deve ser opcional");
+  }
+  assert.match(admin, /if\(!value\.name\|\|!CATS\[value\.category\]\|\|!value\.phone\)/);
+  assert.doesNotMatch(admin, /!value\.city|!value\.description/);
+  assert.match(admin, /value\.state&&!STATES\.includes\(value\.state\)/);
+  assert.match(catalog, /var location=\[p\.city,p\.state\]\.filter\(Boolean\)/);
 });
