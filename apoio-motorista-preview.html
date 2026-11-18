@@ -49,7 +49,7 @@ if(!filtered.length){var empty=el("div","empty-support");empty.append(el("strong
 else{var list=el("div","partner-list");filtered.forEach(function(p){
 var card=el("article","dispatch"),details=el("div"),head=el("div","dispatch-head"),badge;
 if(typeof p.image==="string"&&/^data:image\/jpeg;base64,/.test(p.image)){badge=el("img","partner-logo");badge.src=p.image;badge.alt=""}else badge=el("div","dispatch-icon",CATS[p.category][1]);
-var title=el("div");title.append(el("div","label",CATS[p.category][0]+" · "+(p.city||"")+" / "+(p.state||"")),el("h3",null,p.name||"Parceiro"));head.append(badge,title);details.appendChild(head);details.appendChild(el("p",null,p.description||"Entre em contato para mais informações."));
+var title=el("div");var location=[p.city,p.state].filter(Boolean).join(" / ");title.append(el("div","label",CATS[p.category][0]+(location?" · "+location:"")),el("h3",null,p.name||"Parceiro"));head.append(badge,title);details.appendChild(head);details.appendChild(el("p",null,p.description||"Entre em contato para mais informações."));
 var tags=el("div","tags");if(p.region)tags.append(el("span","tag","📍 "+p.region));if(p.hours)tags.append(el("span","tag","🕒 "+p.hours));if(p.address)tags.append(el("span","tag",p.address));details.appendChild(tags);
 var actions=el("div","dispatch-actions"),digits=phoneNumber(p.phone);var wa=el("a","action primary","Conversar no WhatsApp ↗");wa.href="https://wa.me/55"+digits+"?text="+encodeURIComponent("Olá! Encontrei seu serviço no CatiraMatch e gostaria de informações.");wa.target="_blank";wa.rel="noopener noreferrer";
 var call=el("a","action secondary","Ligar");call.href="tel:+55"+digits;actions.append(wa,call);
