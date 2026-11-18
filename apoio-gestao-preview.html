@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#181818">
+<title>Gestão do Apoio ao Motorista | CatiraMatch</title>
+<style>
+:root{--red:#e32227;--dark:#181818;--muted:#747d85;--line:#e7e9ec;--bg:#f5f6f8;--green:#16844e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#20262b;font:14px Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}[hidden]{display:none!important}
+header{background:var(--dark);color:#fff;height:68px;padding:0 max(18px,calc((100vw - 1160px)/2));display:flex;align-items:center;gap:15px}.brand img{width:184px;max-height:48px;object-fit:contain;object-position:left center}.header-tag{color:#ffcccc;background:#3e2022;border:1px solid #793134;padding:6px 10px;border-radius:7px;font-weight:900;font-size:10px;letter-spacing:.6px}.header-right{margin-left:auto;display:flex;gap:9px}.header-right a{border:1px solid #525252;padding:10px 12px;border-radius:9px;font-size:12px;font-weight:750}
+.shell{max-width:1160px;margin:auto;padding:28px 20px 80px}.breadcrumb{font-size:12px;color:#8a9298;margin-bottom:13px}.breadcrumb b{color:#df2b30}.hero{display:flex;justify-content:space-between;gap:25px;align-items:center}.eyebrow{font-size:10px;letter-spacing:1.7px;font-weight:950;color:var(--red);margin-bottom:8px}.hero h1{margin:0;font-size:clamp(27px,4vw,40px);letter-spacing:-1.4px}.hero p{margin:8px 0 0;color:#6a7680;line-height:1.5;max-width:665px}.primary{background:var(--red);border:1px solid var(--red);color:#fff;font-weight:850;border-radius:11px;padding:12px 16px}.primary:hover{background:#c7171e}.secondary{border:1px solid var(--line);background:#fff;color:#323b43;border-radius:11px;padding:11px 14px;font-weight:800}.primary:disabled,.secondary:disabled{opacity:.5;cursor:not-allowed}
+.notice{margin:20px 0;background:#fff8e9;border:1px solid #f5dfac;color:#72520e;padding:12px 15px;border-radius:12px;font-size:12px;line-height:1.5}.notice b{color:#66470b}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0 27px}.stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px}.stat small{font-size:11px;color:#7e8991;display:block;font-weight:700}.stat strong{font-size:29px;display:block;margin:5px 0 0;letter-spacing:-1px}.stat .accent{color:var(--red)}
+.panel{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 28px #0f192708}.panel-head{padding:19px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.panel-head h2{margin:0;font-size:17px;letter-spacing:-.4px}.panel-head p{margin:5px 0 0;color:#889199;font-size:12px}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters input,.filters select{border:1px solid #dfe4e7;background:#fff;border-radius:9px;padding:10px;font-size:12px;min-height:40px;max-width:220px}.filters input{min-width:180px}.rows{padding:7px 18px 15px}.partner{display:grid;grid-template-columns:56px minmax(150px,1.5fr) minmax(150px,1fr) 110px auto;gap:16px;align-items:center;padding:15px 1px;border-bottom:1px solid #edf0f1}.partner:last-child{border-bottom:0}.photo{width:56px;height:56px;border-radius:12px;background:#f4f4f4;object-fit:cover;display:grid;place-items:center;font-size:26px}.partner strong{display:block;font-size:13px;overflow-wrap:anywhere}.sub{color:#859098;font-size:11px;margin-top:4px;line-height:1.45;overflow-wrap:anywhere}.tag{display:inline-block;padding:6px 9px;border-radius:30px;font-weight:850;font-size:10px;background:#f2f4f5;color:#59636b}.tag.published{background:#e5f5eb;color:#147d48}.tag.paused{background:#fff1de;color:#916219}.action-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.mini{background:#fff;border:1px solid #dce2e5;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:800;color:#37424a}.mini.danger{color:#b22b34}.empty{padding:58px 20px;text-align:center;color:#79848c}.empty b{display:block;color:#27323b;font-size:16px;margin-bottom:7px}.link-row{padding:15px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center;color:#7d868e;font-size:12px;flex-wrap:wrap}
+.lock{max-width:480px;margin:60px auto;background:#fff;border:1px solid #e4e7e9;border-radius:20px;text-align:center;padding:32px;box-shadow:0 14px 35px #151b2220}.lock h1{font-size:24px}.lock p{line-height:1.55;color:#71808a}.lock a{display:inline-block;margin-top:12px}.loading{text-align:center;padding:80px 20px;color:#77838b;font-weight:700}
+.overlay{position:fixed;inset:0;background:#101619b5;z-index:10;display:flex;justify-content:flex-end}.drawer{background:#fff;width:min(100%,600px);height:100%;overflow-y:auto;padding:25px;box-shadow:-14px 0 45px #0003}.drawer-head{display:flex;justify-content:space-between;align-items:start;gap:14px;margin-bottom:18px}.drawer-head h2{font-size:23px;letter-spacing:-.6px;margin:0}.drawer-head p{font-size:12px;color:#7c8790;line-height:1.4}.x{border:1px solid var(--line);background:#fff;width:36px;height:36px;border-radius:9px;font-size:20px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field.wide{grid-column:1/-1}.field label{font-weight:800;font-size:12px;color:#3d4951}.field input,.field select,.field textarea{border:1px solid #dce2e6;border-radius:10px;padding:11px 12px;color:#1c252c;width:100%;background:#fff;outline-color:#e32227}.field textarea{resize:vertical;min-height:92px}.hint{font-size:10px;color:#849099;line-height:1.35}.upload{display:flex;align-items:center;gap:12px;border:1px dashed #ccd4d8;padding:11px;border-radius:11px}.upload img{width:64px;height:64px;object-fit:cover;border-radius:10px;background:#f1f3f4}.upload .meta{flex:1;min-width:0}.upload input{font-size:11px;max-width:100%}.drawer-actions{display:flex;gap:9px;position:sticky;bottom:-25px;background:#fff;padding:15px 0 25px;margin-top:10px;border-top:1px solid #e7ebed}.feedback{color:#ad2830;font-size:12px;min-height:18px;line-height:1.4;margin:12px 0}
+@media(max-width:800px){header{height:60px;padding:0 14px}.brand img{width:150px}.header-tag{font-size:9px}.header-right a{padding:8px}.header-right a:last-child{display:none}.shell{padding:19px 13px 65px}.hero{align-items:start;flex-wrap:wrap}.hero>button{width:100%}.stats{grid-template-columns:repeat(2,1fr);gap:8px}.stat{padding:13px}.stat strong{font-size:24px}.panel-head{padding:15px}.filters{width:100%}.filters input{flex:1;max-width:none;min-width:110px}.filters select{flex:1;max-width:none}.rows{padding:2px 13px}.partner{grid-template-columns:48px 1fr;gap:10px;padding:14px 0}.partner .photo{width:48px;height:48px}.partner .location,.partner .status,.partner .action-row{grid-column:2}.partner .action-row{justify-content:flex-start}.drawer{padding:16px}.drawer-actions{bottom:-16px;padding-bottom:18px}}
+@media(max-width:450px){.form-grid{grid-template-columns:1fr}.header-tag{display:none}.field.wide{grid-column:1}.drawer-actions button{flex:1}}
+</style>
+</head>
+<body>
+<header><a href="/" class="brand" aria-label="Voltar ao CatiraMatch"><img src="/assets/catiramatch-logo-header.png" alt="CatiraMatch"></a><span class="header-tag">PREVIEW · ADM</span><div class="header-right"><a href="/apoio-motorista-preview.html">Ver área do motorista</a><a href="/">Marketplace</a></div></header>
+<div id="securityStatus" class="loading" role="status">Verificando acesso de administrador…</div>
+<main class="shell" id="dashboard" hidden>
+ <div class="breadcrumb">ADM Master › <b>Apoio ao motorista</b></div>
+ <div class="hero"><div><div class="eyebrow">CATIRAMATCH · GESTÃO DE PARCEIROS</div><h1>Apoio ao motorista</h1><p>Cadastre e organize lojas, despachantes, guinchos, reboques, eletricistas, mecânicos e outros serviços da estrada.</p></div><button class="primary" id="addPartner" type="button">＋ Cadastrar parceiro</button></div>
+ <div class="notice"><b>Ambiente de demonstração isolado:</b> as alterações ficam apenas neste navegador da Preview. Nenhum parceiro, tabela ou registro do Supabase de produção será modificado. Para testar a vitrine, use “Ver área do motorista” no mesmo navegador.</div>
+ <div class="stats"><div class="stat"><small>Parceiros cadastrados</small><strong id="total">0</strong></div><div class="stat"><small>Publicados</small><strong id="published" class="accent">0</strong></div><div class="stat"><small>Rascunhos</small><strong id="drafts">0</strong></div><div class="stat"><small>Pausados</small><strong id="paused">0</strong></div></div>
+ <section class="panel"><div class="panel-head"><div><h2>Gerenciar parceiros</h2><p>Edite os dados, controle a visibilidade ou retire cadastros da demonstração.</p></div><div class="filters"><input id="search" type="search" placeholder="Buscar nome ou cidade" aria-label="Buscar parceiro"><select id="filterCategory" aria-label="Filtrar categoria"><option value="">Todas as categorias</option></select><select id="filterStatus" aria-label="Filtrar status"><option value="">Todos os status</option><option value="published">Publicado</option><option value="draft">Rascunho</option><option value="paused">Pausado</option></select></div></div><div class="rows" id="partnerRows"></div><div class="link-row"><span id="countLabel">Nenhum parceiro encontrado</span><a href="/apoio-motorista-preview.html">Visualizar catálogo público ↗</a></div></section>
+</main>
+<div class="overlay" id="editor" hidden><section class="drawer" role="dialog" aria-modal="true" aria-labelledby="editorTitle"><div class="drawer-head"><div><div class="eyebrow">CADASTRO DE SERVIÇOS</div><h2 id="editorTitle">Novo parceiro</h2><p>Somente nome, telefone/WhatsApp e setor são obrigatórios. Os demais dados podem ser preenchidos depois.</p></div><button type="button" class="x" id="closeEditor" aria-label="Fechar cadastro">×</button></div>
+<form id="partnerForm" novalidate><div class="form-grid">
+<div class="field wide"><label for="name">Nome da loja ou profissional *</label><input id="name" maxlength="100" required placeholder="Ex.: Auto Peças Estrada"></div>
+<div class="field"><label for="category">Setor / categoria *</label><select id="category" required></select></div>
+<div class="field"><label for="status">Situação</label><select id="status"><option value="draft">Rascunho</option><option value="published">Publicado</option><option value="paused">Pausado</option></select></div>
+<div class="field"><label for="city">Cidade (opcional)</label><input id="city" maxlength="80" placeholder="Belo Horizonte"></div>
+<div class="field"><label for="state">UF (opcional)</label><select id="state"><option value="">Não informado</option></select></div>
+<div class="field wide"><label for="region">Região de atendimento</label><input id="region" maxlength="140" placeholder="Ex.: Grande BH e rodovias próximas"></div>
+<div class="field wide"><label for="address">Endereço (opcional)</label><input id="address" maxlength="200" placeholder="Rua, número e bairro"></div>
+<div class="field"><label for="phone">Telefone / WhatsApp com DDD *</label><input id="phone" type="tel" inputmode="tel" maxlength="24" required placeholder="(31) 99999-9999"><span class="hint">Obrigatório para salvar. DDD necessário; prefixo +55 opcional.</span></div>
+<div class="field"><label for="hours">Horário de atendimento</label><input id="hours" maxlength="100" placeholder="Ex.: Seg–Sex, 8h às 18h"></div>
+<div class="field wide"><label for="description">Serviços oferecidos (opcional)</label><textarea id="description" maxlength="650" placeholder="Descreva o que o parceiro realiza…"></textarea></div>
+<div class="field wide"><label for="image">Foto ou logo da loja (opcional)</label><div class="upload"><img id="imagePreview" alt="Prévia da imagem do parceiro"><div class="meta"><input id="image" type="file" accept="image/jpeg,image/png,image/webp"><span class="hint">Imagem otimizada para demonstração no navegador (até 4 MB).</span><button class="mini" type="button" id="removeImage">Remover foto</button></div></div></div>
+</div><div class="feedback" id="formError" role="alert"></div><div class="drawer-actions"><button type="button" class="secondary" id="cancelEditor">Cancelar</button><button type="submit" class="primary" id="savePartner">Salvar parceiro</button></div></form>
+</section></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+"use strict";
+var KEY="catiramatch_apoio_preview_v1";
+var CATS={despachante:["Despachante","📄"],pecas:["Lojas de peças","🧰"],guincho:["Guincho","🚛"],reboque:["Reboque","🪝"],eletricista:["Eletricista","⚡"],mecanica:["Mecânica","🔧"],outros:["Outros serviços","＋"]};
+var STATES=["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MG","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"];
+var $=function(id){return document.getElementById(id)};
+var entries=[], editing=null, currentImage="";
+function text(node,value){node.textContent=String(value==null?"":value)}
+function el(tag,cls,value){var n=document.createElement(tag);if(cls)n.className=cls;if(value!=null)text(n,value);return n}
+function demoData(){return [
+{id:"ex1",name:"Despachante de demonstração",category:"despachante",city:"Belo Horizonte",state:"MG",region:"",address:"",phone:"",hours:"",description:"Exemplo de parceiro para testar o cadastro.",status:"draft",image:"",demo:true},
+{id:"ex2",name:"Loja de peças de demonstração",category:"pecas",city:"Contagem",state:"MG",region:"",address:"",phone:"",hours:"",description:"Exemplo de loja para testar o painel.",status:"draft",image:"",demo:true},
+{id:"ex3",name:"Guincho de demonstração",category:"guincho",city:"Betim",state:"MG",region:"",address:"",phone:"",hours:"",description:"Exemplo de serviço de atendimento na estrada.",status:"draft",image:"",demo:true}
+]}
+function load(){try{var raw=localStorage.getItem(KEY);if(raw===null){entries=demoData();persist()}else{var parsed=JSON.parse(raw);entries=Array.isArray(parsed)?parsed.filter(function(p){return p&&typeof p==="object"}):[]}}catch(e){entries=[];alert("Armazenamento local indisponível. Alterações poderão não persistir.")}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(entries));return true}catch(e){alert("Espaço local insuficiente para salvar. Remova imagens maiores ou dados de demonstração.");return false}}
+function validPhone(phone){var digits=String(phone||"").replace(/\D/g,"");if(digits.startsWith("55")&&digits.length>11)digits=digits.slice(2);return digits.length===10||digits.length===11}
+function render(){
+text($("total"),entries.length);text($("published"),entries.filter(function(p){return p.status==="published"}).length);text($("drafts"),entries.filter(function(p){return p.status==="draft"}).length);text($("paused"),entries.filter(function(p){return p.status==="paused"}).length);
+var q=$("search").value.toLocaleLowerCase("pt-BR").trim(),cat=$("filterCategory").value,status=$("filterStatus").value;
+var filtered=entries.filter(function(p){return(!q||(String(p.name||"")+" "+String(p.city||"")).toLocaleLowerCase("pt-BR").includes(q))&&(!cat||p.category===cat)&&(!status||p.status===status)});
+var root=$("partnerRows");root.replaceChildren();text($("countLabel"),filtered.length+" parceiro(s) na seleção");
+if(!filtered.length){var empty=el("div","empty");empty.append(el("b",null,"Nenhum parceiro nesta seleção"),el("span",null,"Cadastre um parceiro ou ajuste os filtros."));root.appendChild(empty);return}
+filtered.forEach(function(p){
+var row=el("article","partner");
+var picture=p.image?el("img","photo"):el("div","photo",CATS[p.category]?CATS[p.category][1]:"🤝");if(p.image){picture.src=p.image;picture.alt=""}
+var desc=el("div");desc.append(el("strong",null,p.name||"Parceiro sem nome"),el("div","sub",(CATS[p.category]?CATS[p.category][0]:"Serviços")+" · "+(p.demo?"Exemplo de demonstração":"Parceiro cadastrado")));
+var loc=el("div","location");var location=[p.city,p.state].filter(Boolean).join(" / ");loc.append(el("strong",null,location||"Local não informado"),el("div","sub",p.phone||"WhatsApp não informado"));
+var statusCol=el("div","status");var label=p.status==="published"?"Publicado":p.status==="paused"?"Pausado":"Rascunho";statusCol.append(el("span","tag "+p.status,label));
+var actions=el("div","action-row");
+var edit=el("button","mini","Editar");edit.type="button";edit.addEventListener("click",function(){openEditor(p.id)});
+var toggle=el("button","mini",p.status==="published"?"Pausar":"Publicar");toggle.type="button";toggle.addEventListener("click",function(){toggleStatus(p.id)});
+var del=el("button","mini danger","Remover");del.type="button";del.addEventListener("click",function(){removePartner(p.id)});
+actions.append(edit,toggle,del);row.append(picture,desc,loc,statusCol,actions);root.appendChild(row)
+})
+}
+function openEditor(id){
+editing=id||null;var p=entries.find(function(row){return row.id===id})||{};
+text($("editorTitle"),id?"Editar parceiro":"Novo parceiro");$("partnerForm").reset();$("formError").textContent="";currentImage=p.image||"";
+["name","category","status","city","state","region","address","phone","hours","description"].forEach(function(k){if(p[k]!=null)$(k).value=p[k]});
+if(!id)$("status").value="draft";updateImage();$("editor").hidden=false;document.body.style.overflow="hidden";$("name").focus()
+}
+function updateImage(){var img=$("imagePreview");img.hidden=!currentImage;if(currentImage)img.src=currentImage;else img.removeAttribute("src")}
+function closeEditor(){$("editor").hidden=true;document.body.style.overflow="";editing=null;$("image").value=""}
+function toggleStatus(id){var p=entries.find(function(x){return x.id===id});if(!p)return;if(p.status!=="published"&&!validPhone(p.phone)){alert("Cadastre um WhatsApp com DDD antes de publicar.");return}var previous=p.status;p.status=previous==="published"?"paused":"published";if(!persist())p.status=previous;render()}
+function removePartner(id){var p=entries.find(function(x){return x.id===id});if(!p||!confirm('Remover "'+p.name+'" desta demonstração?'))return;var previous=entries;entries=entries.filter(function(x){return x.id!==id});if(!persist())entries=previous;render()}
+function save(e){e.preventDefault();var value={};["name","category","status","city","state","region","address","phone","hours","description"].forEach(function(k){value[k]=$(k).value.trim()});
+if(!value.name||!CATS[value.category]||!value.phone){$("formError").textContent="Preencha nome, telefone/WhatsApp com DDD e setor.";return}
+if(value.state&&!STATES.includes(value.state)){$("formError").textContent="Escolha uma UF válida ou deixe o campo em branco.";return}
+if(!validPhone(value.phone)){$("formError").textContent="Informe um telefone/WhatsApp com DDD válido.";return}
+value.phone=value.phone.replace(/\D/g,"");value.image=currentImage;value.demo=false;
+var previous=entries.slice(),old=entries.find(function(x){return x.id===editing});
+value.id=old?old.id:("p-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9));
+if(old)entries=entries.map(function(x){return x.id===old.id?value:x});else entries.unshift(value);
+if(!persist()){entries=previous;return}closeEditor();render()
+}
+async function resizeImage(file){
+if(!file)return;if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>4*1024*1024){$("formError").textContent="Escolha uma foto JPEG, PNG ou WebP de até 4 MB.";return}
+try{var url=URL.createObjectURL(file),img=new Image();await new Promise(function(resolve,reject){img.onload=resolve;img.onerror=reject;img.src=url});URL.revokeObjectURL(url);
+var size=Math.min(1,720/Math.max(img.naturalWidth,img.naturalHeight)),canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.naturalWidth*size));canvas.height=Math.max(1,Math.round(img.naturalHeight*size));canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);currentImage=canvas.toDataURL("image/jpeg",.73);updateImage();$("formError").textContent=""}catch(e){$("formError").textContent="Não foi possível processar esta imagem."}
+}
+async function verify(){
+try{
+var resp=await fetch("/api/config",{cache:"no-store"}),config=await resp.json();if(!resp.ok||!window.supabase)throw new Error("Configuração de login indisponível.");
+var sb=window.supabase.createClient(config.url,config.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+var sessionResult=await sb.auth.getSession(),token=sessionResult.data&&sessionResult.data.session&&sessionResult.data.session.access_token;
+if(!token)throw new Error("Entre no CatiraMatch com sua conta ADM Master para acessar.");
+var access=await fetch("/api/admin/apoio-access",{headers:{Authorization:"Bearer "+token},cache:"no-store"}),result=await access.json();
+if(!access.ok||!result.authorized)throw new Error(result.error||"Acesso permitido somente para ADM Master.");
+$("securityStatus").hidden=true;$("dashboard").hidden=false;load();render()
+}catch(e){$("securityStatus").className="lock";$("securityStatus").replaceChildren(el("div",null,"🔐"),el("h1",null,"Acesso administrativo restrito"),el("p",null,e.message||"Verifique sua sessão e permissões."));var link=el("a","primary","Voltar ao CatiraMatch e entrar");link.href="/";$("securityStatus").appendChild(link)}
+}
+Object.keys(CATS).forEach(function(k){var o=el("option",null,CATS[k][0]);o.value=k;$("category").appendChild(o);var q=o.cloneNode(true);$("filterCategory").appendChild(q)});
+STATES.forEach(function(k){var o=el("option",null,k);o.value=k;$("state").appendChild(o)});
+$("addPartner").addEventListener("click",function(){openEditor()});$("closeEditor").addEventListener("click",closeEditor);$("cancelEditor").addEventListener("click",closeEditor);$("editor").addEventListener("click",function(e){if(e.target===$("editor"))closeEditor()});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("editor").hidden)closeEditor()});
+$("partnerForm").addEventListener("submit",save);$("image").addEventListener("change",function(){resizeImage(this.files&&this.files[0])});$("removeImage").addEventListener("click",function(){currentImage="";$("image").value="";updateImage()});
+["search","filterCategory","filterStatus"].forEach(function(k){$(k).addEventListener(k==="search"?"input":"change",render)});
+verify();
+})();
+</script>
+</body>
+</html>
