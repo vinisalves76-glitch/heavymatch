@@ -28,18 +28,18 @@ header{background:var(--dark);color:#fff;height:68px;padding:0 max(18px,calc((10
  <div class="stats"><div class="stat"><small>Parceiros cadastrados</small><strong id="total">0</strong></div><div class="stat"><small>Publicados</small><strong id="published" class="accent">0</strong></div><div class="stat"><small>Rascunhos</small><strong id="drafts">0</strong></div><div class="stat"><small>Pausados</small><strong id="paused">0</strong></div></div>
  <section class="panel"><div class="panel-head"><div><h2>Gerenciar parceiros</h2><p>Edite os dados, controle a visibilidade ou retire cadastros da demonstração.</p></div><div class="filters"><input id="search" type="search" placeholder="Buscar nome ou cidade" aria-label="Buscar parceiro"><select id="filterCategory" aria-label="Filtrar categoria"><option value="">Todas as categorias</option></select><select id="filterStatus" aria-label="Filtrar status"><option value="">Todos os status</option><option value="published">Publicado</option><option value="draft">Rascunho</option><option value="paused">Pausado</option></select></div></div><div class="rows" id="partnerRows"></div><div class="link-row"><span id="countLabel">Nenhum parceiro encontrado</span><a href="/apoio-motorista-preview.html">Visualizar catálogo público ↗</a></div></section>
 </main>
-<div class="overlay" id="editor" hidden><section class="drawer" role="dialog" aria-modal="true" aria-labelledby="editorTitle"><div class="drawer-head"><div><div class="eyebrow">CADASTRO DE SERVIÇOS</div><h2 id="editorTitle">Novo parceiro</h2><p>O cadastro pode começar como rascunho. Para publicar, é necessário informar WhatsApp válido.</p></div><button type="button" class="x" id="closeEditor" aria-label="Fechar cadastro">×</button></div>
+<div class="overlay" id="editor" hidden><section class="drawer" role="dialog" aria-modal="true" aria-labelledby="editorTitle"><div class="drawer-head"><div><div class="eyebrow">CADASTRO DE SERVIÇOS</div><h2 id="editorTitle">Novo parceiro</h2><p>Somente nome, telefone/WhatsApp e setor são obrigatórios. Os demais dados podem ser preenchidos depois.</p></div><button type="button" class="x" id="closeEditor" aria-label="Fechar cadastro">×</button></div>
 <form id="partnerForm" novalidate><div class="form-grid">
 <div class="field wide"><label for="name">Nome da loja ou profissional *</label><input id="name" maxlength="100" required placeholder="Ex.: Auto Peças Estrada"></div>
-<div class="field"><label for="category">Categoria *</label><select id="category" required></select></div>
+<div class="field"><label for="category">Setor / categoria *</label><select id="category" required></select></div>
 <div class="field"><label for="status">Situação</label><select id="status"><option value="draft">Rascunho</option><option value="published">Publicado</option><option value="paused">Pausado</option></select></div>
-<div class="field"><label for="city">Cidade *</label><input id="city" maxlength="80" required placeholder="Belo Horizonte"></div>
-<div class="field"><label for="state">UF *</label><select id="state" required></select></div>
+<div class="field"><label for="city">Cidade (opcional)</label><input id="city" maxlength="80" placeholder="Belo Horizonte"></div>
+<div class="field"><label for="state">UF (opcional)</label><select id="state"><option value="">Não informado</option></select></div>
 <div class="field wide"><label for="region">Região de atendimento</label><input id="region" maxlength="140" placeholder="Ex.: Grande BH e rodovias próximas"></div>
 <div class="field wide"><label for="address">Endereço (opcional)</label><input id="address" maxlength="200" placeholder="Rua, número e bairro"></div>
-<div class="field"><label for="phone">WhatsApp com DDD</label><input id="phone" type="tel" inputmode="tel" maxlength="24" placeholder="(31) 99999-9999"><span class="hint">Obrigatório para publicar. Não informar o prefixo +55 é permitido.</span></div>
+<div class="field"><label for="phone">Telefone / WhatsApp com DDD *</label><input id="phone" type="tel" inputmode="tel" maxlength="24" required placeholder="(31) 99999-9999"><span class="hint">Obrigatório para salvar. DDD necessário; prefixo +55 opcional.</span></div>
 <div class="field"><label for="hours">Horário de atendimento</label><input id="hours" maxlength="100" placeholder="Ex.: Seg–Sex, 8h às 18h"></div>
-<div class="field wide"><label for="description">Serviços oferecidos *</label><textarea id="description" maxlength="650" placeholder="Descreva o que o parceiro realiza…" required></textarea></div>
+<div class="field wide"><label for="description">Serviços oferecidos (opcional)</label><textarea id="description" maxlength="650" placeholder="Descreva o que o parceiro realiza…"></textarea></div>
 <div class="field wide"><label for="image">Foto ou logo da loja (opcional)</label><div class="upload"><img id="imagePreview" alt="Prévia da imagem do parceiro"><div class="meta"><input id="image" type="file" accept="image/jpeg,image/png,image/webp"><span class="hint">Imagem otimizada para demonstração no navegador (até 4 MB).</span><button class="mini" type="button" id="removeImage">Remover foto</button></div></div></div>
 </div><div class="feedback" id="formError" role="alert"></div><div class="drawer-actions"><button type="button" class="secondary" id="cancelEditor">Cancelar</button><button type="submit" class="primary" id="savePartner">Salvar parceiro</button></div></form>
 </section></div>
@@ -92,9 +92,9 @@ function closeEditor(){$("editor").hidden=true;document.body.style.overflow="";e
 function toggleStatus(id){var p=entries.find(function(x){return x.id===id});if(!p)return;if(p.status!=="published"&&!validPhone(p.phone)){alert("Cadastre um WhatsApp com DDD antes de publicar.");return}var previous=p.status;p.status=previous==="published"?"paused":"published";if(!persist())p.status=previous;render()}
 function removePartner(id){var p=entries.find(function(x){return x.id===id});if(!p||!confirm('Remover "'+p.name+'" desta demonstração?'))return;var previous=entries;entries=entries.filter(function(x){return x.id!==id});if(!persist())entries=previous;render()}
 function save(e){e.preventDefault();var value={};["name","category","status","city","state","region","address","phone","hours","description"].forEach(function(k){value[k]=$(k).value.trim()});
-if(!value.name||!CATS[value.category]||!value.city||!STATES.includes(value.state)||!value.description){$("formError").textContent="Preencha nome, categoria, cidade, UF e serviços oferecidos.";return}
-if(value.phone&&!validPhone(value.phone)){$("formError").textContent="Informe um WhatsApp com DDD válido.";return}
-if(value.status==="published"&&!validPhone(value.phone)){$("formError").textContent="É obrigatório informar WhatsApp com DDD antes de publicar.";return}
+if(!value.name||!CATS[value.category]||!value.phone){$("formError").textContent="Preencha nome, telefone/WhatsApp com DDD e setor.";return}
+if(value.state&&!STATES.includes(value.state)){$("formError").textContent="Escolha uma UF válida ou deixe o campo em branco.";return}
+if(!validPhone(value.phone)){$("formError").textContent="Informe um telefone/WhatsApp com DDD válido.";return}
 value.phone=value.phone.replace(/\D/g,"");value.image=currentImage;value.demo=false;
 var previous=entries.slice(),old=entries.find(function(x){return x.id===editing});
 value.id=old?old.id:("p-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9));
@@ -118,7 +118,7 @@ $("securityStatus").hidden=true;$("dashboard").hidden=false;load();render()
 }catch(e){$("securityStatus").className="lock";$("securityStatus").replaceChildren(el("div",null,"🔐"),el("h1",null,"Acesso administrativo restrito"),el("p",null,e.message||"Verifique sua sessão e permissões."));var link=el("a","primary","Voltar ao CatiraMatch e entrar");link.href="/";$("securityStatus").appendChild(link)}
 }
 Object.keys(CATS).forEach(function(k){var o=el("option",null,CATS[k][0]);o.value=k;$("category").appendChild(o);var q=o.cloneNode(true);$("filterCategory").appendChild(q)});
-STATES.forEach(function(k){var o=el("option",null,k);o.value=k;$("state").appendChild(o)});$("state").value="MG";
+STATES.forEach(function(k){var o=el("option",null,k);o.value=k;$("state").appendChild(o)});
 $("addPartner").addEventListener("click",function(){openEditor()});$("closeEditor").addEventListener("click",closeEditor);$("cancelEditor").addEventListener("click",closeEditor);$("editor").addEventListener("click",function(e){if(e.target===$("editor"))closeEditor()});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("editor").hidden)closeEditor()});
 $("partnerForm").addEventListener("submit",save);$("image").addEventListener("change",function(){resizeImage(this.files&&this.files[0])});$("removeImage").addEventListener("click",function(){currentImage="";$("image").value="";updateImage()});
 ["search","filterCategory","filterStatus"].forEach(function(k){$(k).addEventListener(k==="search"?"input":"change",render)});
