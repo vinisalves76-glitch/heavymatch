@@ -54,3 +54,19 @@ test("scripts inline das páginas são sintaticamente válidos", () => {
     for (const match of scripts) new Script(match[1]);
   }
 });
+
+test("apenas nome, telefone e setor são obrigatórios no formulário", () => {
+  const field = id => {
+    const match = admin.match(new RegExp("<(?:input|select|textarea)\\\\b[^>]*\\\\bid=\\\"" + id + "\\\"[^>]*>"));
+    assert.ok(match, "Campo ausente: " + id);
+    return match[0];
+  };
+  for (const id of ["name", "category", "phone"]) assert.match(field(id), /\\brequired\\b/, id + " deveria ser obrigatório");
+  for (const id of ["city", "state", "description", "address", "region", "hours", "image"]) {
+    assert.doesNotMatch(field(id), /\\brequired\\b/, id + " deve ser opcional");
+  }
+  assert.match(admin, /if\\(!value\\.name\\|\\|!CATS\\[value\\.category\\]\\|\\|!value\\.phone\\)/);
+  assert.doesNotMatch(admin, /!value\\.city|!value\\.description|!STATES\\.includes\\(value\\.state\\)\\|\\|/);
+  assert.match(admin, /value\\.state&&\\!STATES\\.includes\\(value\\.state\\)/);
+  assert.match(catalog, /var location=\\[p\\.city,p\\.state\\]\\.filter\\(Boolean\\)/);
+});
