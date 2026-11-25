@@ -6,8 +6,17 @@ const str=(v,n=160)=>typeof v==="string"?v.trim().slice(0,n):"";
 export default async function handler(req,res){
  const url=process.env.SUPABASE_URL,anon=process.env.SUPABASE_ANON_KEY,key=process.env.SUPABASE_SERVICE_ROLE_KEY;
  if(!url||!anon||!key)return reply(res,503,{error:"Agenciamento indisponível no Preview."});
- const token=(req.headers.authorization||"").replace(/^Bearer /,""); if(!token)return reply(res,401,{error:"Entre na sua conta para continuar."});
- const auth=createClient(url,anon,opt),db=createClient(url,key,opt);
+ const token=(req.headers.authorization||"").replace(/^Bearer /,"");
+ const db=createClient(url,key,opt);
+ if(req.method==="GET"&&!token){
+  try{
+   const {data,error}=await db.from("freight_loads").select("id,origin_city,origin_state,destination_city,destination_state,cargo_description,vehicle_type,axle_config,implement_type,loading_date,freights_remaining").eq("status","open").gt("freights_remaining",0).order("loading_date",{ascending:true});
+   if(error)throw error;
+   return reply(res,200,{public:true,loads:data||[]});
+  }catch(error){return reply(res,500,{error:error.message||"Não foi possível carregar as cargas."});}
+ }
+ if(!token)return reply(res,401,{error:"Entre na sua conta para continuar."});
+ const auth=createClient(url,anon,opt);
  try{
   const {data:u,error:ae}=await auth.auth.getUser(token); if(ae||!u?.user)return reply(res,401,{error:"Sessão inválida. Entre novamente."});
   const user=u.user; const {data:p,error:pe}=await db.from("profiles").select("role,full_name,phone").eq("id",user.id).maybeSingle(); if(pe)throw pe;
