@@ -21,7 +21,7 @@
     .hm-admin-kpi{padding:13px;background:#f3f5f6;border-radius:13px}.hm-admin-kpi small{display:block;color:#687680;font-size:11px}.hm-admin-kpi strong{font-size:23px;display:block;margin-top:4px}
     .hm-admin-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
     .hm-admin-section{border:1px solid #e3e7ea;border-radius:15px;padding:15px;min-width:0}.hm-admin-section h3{margin:0 0 8px;font-size:15px}
-    .hm-admin-table-wrap{overflow:auto;margin-top:10px}.hm-admin-table{border-collapse:collapse;width:100%;font-size:12px}.hm-admin-table th,.hm-admin-table td{text-align:left;border-bottom:1px solid #e6e9eb;padding:10px 7px;white-space:nowrap}.hm-admin-role{display:inline-block;padding:4px 7px;border-radius:20px;background:#edf0f2;font-size:10px;font-weight:800}.hm-admin-role.admin{background:#fff0c9;color:#805600}.hm-admin-role.seller{background:#e0f6e9;color:#176b3d}
+    .hm-admin-table-wrap{overflow:auto;margin-top:10px}.hm-admin-table{border-collapse:collapse;width:100%;font-size:12px}.hm-admin-table th,.hm-admin-table td{text-align:left;border-bottom:1px solid #e6e9eb;padding:10px 7px;white-space:nowrap}.hm-admin-role{display:inline-block;padding:4px 7px;border-radius:20px;background:#edf0f2;font-size:10px;font-weight:800}.hm-admin-role.admin{background:#fff0c9;color:#805600}.hm-admin-role.seller{background:#e0f6e9;color:#176b3d}.hm-admin-role.broker{background:#e7efff;color:#254f91}
     .hm-admin-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}.hm-admin-tab{border:1px solid #dce2e6;background:#fff;color:#25343e;border-radius:10px;padding:9px 12px;font-weight:800;font-size:12px}.hm-admin-tab.active{background:#17242e;color:#fff}
     .hm-admin-note{background:#fff7e5;border:1px solid #f4dfad;padding:10px;border-radius:10px;font-size:11px;line-height:1.5;color:#654a10}
     .hm-admin-nav{display:none!important}.hm-admin-nav.hm-visible{display:grid!important;color:#E32227!important}
@@ -264,12 +264,12 @@
       const result = await apiAdmin("list");
       const users = result.users || [];
       document.getElementById("hmTotalUsers").textContent = users.length;
-      document.getElementById("hmTotalSellers").textContent = users.filter(u => u.role === "seller").length;
+      document.getElementById("hmTotalSellers").textContent = users.filter(u => u.role === "seller" || u.role === "broker").length;
       document.getElementById("hmTotalAdmins").textContent = users.filter(u => u.role === "admin").length;
       if (!users.length) { table.innerHTML = '<tr><td colspan="4">Nenhuma conta encontrada.</td></tr>'; return; }
       table.innerHTML = users.map(user => {
-        const role = ["admin", "seller", "buyer"].includes(user.role) ? user.role : "buyer";
-        const roleLabel = role === "admin" ? "Administrador" : role === "seller" ? "Vendedor" : "Comprador";
+        const role = ["admin", "seller", "broker", "buyer"].includes(user.role) ? user.role : "buyer";
+        const roleLabel = role === "admin" ? "Administrador" : role === "broker" ? "Agenciador de cargas" : role === "seller" ? "Vendedor" : "Comprador";
         const date = user.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "—";
         return '<tr><td><strong>' + escapeHtml(user.full_name || user.email || "Usuário") + '</strong><br><span style="color:#71808a">' + escapeHtml(user.email) + '</span></td><td>' + escapeHtml(user.phone || "—") + '</td><td><span class="hm-admin-role ' + role + '">' + roleLabel + '</span></td><td>' + date + '</td></tr>';
       }).join("");
