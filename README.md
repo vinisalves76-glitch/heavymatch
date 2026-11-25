@@ -254,3 +254,17 @@ Somente **Descobrir, Buscar, Salvos e Conta** formam o menu inferior; a barra do
 O cadastro público pergunta se a pessoa oferece serviços para caminhoneiros e permite selecionar mais de um setor. A solicitação permanece pendente até análise do ADM Master na aba **Prestadores**.
 
 A escolha feita no navegador não concede permissões. Após a aprovação do ADM, o servidor libera somente o acesso correspondente; no caso de **Agenciamento de cargas**, o perfil recebe acesso ao painel de publicação e gestão de cargas.
+
+
+## Preview — experiência simplificada (2026-11-25)
+
+Branch: `feature/ux-simples-20261125` (não publicada em produção).
+
+- Navegação principal reduzida para Início, Explorar, Publicar, Atividade e Conta.
+- Alternância clara entre Compra e venda e Serviços e cargas.
+- Publicação contextual para equipamentos, cargas e prestadores.
+- Cadastro dividido em duas etapas, preservando intenção, caminhão, implemento e serviços oferecidos.
+- Área de atividade reúne salvos, interesses em cargas, serviços e preferências.
+- Serviços futuros recolhidos para priorizar recursos já disponíveis.
+- Tour reduzido às ações essenciais e estado vazio com alternativas úteis.
+- Compatibilidade mantida com swipe, filtros, login, favoritos, WhatsApp, anúncios e permissões existentes.
