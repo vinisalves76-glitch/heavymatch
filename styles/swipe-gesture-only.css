@@ -1,0 +1,6 @@
+/* Mantém os gestos de swipe como única ação de passar/curtir. */
+#passBtn,#likeBtn,.secondary-actions .round-action.pass,.secondary-actions .round-action.like{display:none!important}
+@media(max-width:799px){
+  .secondary-actions{display:none!important}
+  .swipe-caption{margin-top:5px;font-size:11px;opacity:.76}
+}
