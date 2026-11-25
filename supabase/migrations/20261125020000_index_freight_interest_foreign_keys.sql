@@ -1,0 +1,2 @@
+create index if not exists freight_interests_equipment_idx on public.freight_interests (driver_equipment_id);
+create index if not exists freight_interests_responded_by_idx on public.freight_interests (responded_by);
