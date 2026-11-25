@@ -79,6 +79,7 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
 <link rel="stylesheet" href="/styles/catiramatch-theme.css">
 <link rel="stylesheet" href="/styles/mobile-discovery.css">
 <link rel="stylesheet" href="/styles/app-shell.css">
+<link rel="stylesheet" href="/styles/swipe-gesture-only.css">
 </head>
 <body>
 <div id="app">
@@ -90,7 +91,7 @@ body,#app{background:#111;color:#fff;min-height:100svh}#app{padding-bottom:82px}
 <section class="feed"><div id="deck"></div></section>
 <div class="gesture-hint"><span>← <b>PASSAR</b></span><span>•</span><span><b>DESLIZE PARA DIREITA</b> ♥</span></div>
 <div class="bottom-actions" id="bottomActions"><button class="detail-btn" id="detailsBtn">⌄ &nbsp; Ver mais detalhes</button><button class="contact-btn" id="contactBtn">☏ &nbsp; Falar com consultor</button></div>
-<div class="secondary-actions" id="secondaryActions" aria-label="Ações do anúncio"><button type="button" class="round-action pass" id="passBtn" data-swipe-action="left" aria-label="Pular anúncio para a esquerda" title="Pular anúncio">×</button><button type="button" class="round-action hm-mobile-card-action" id="hmMobileDetails" aria-label="Ver detalhes do equipamento" title="Ver detalhes">ⓘ</button><button type="button" class="round-action hm-mobile-card-action" id="hmMobileContact" aria-label="Conversar com o vendedor no WhatsApp" title="WhatsApp do vendedor">✆</button><button type="button" class="round-action like" id="likeBtn" data-swipe-action="right" aria-label="Curtir e salvar anúncio para a direita" title="Curtir e salvar">♥</button></div>
+<div class="secondary-actions" id="secondaryActions" aria-label="Ações do anúncio"><button type="button" class="round-action hm-mobile-card-action" id="hmMobileDetails" aria-label="Ver detalhes do equipamento" title="Ver detalhes">ⓘ</button><button type="button" class="round-action hm-mobile-card-action" id="hmMobileContact" aria-label="Conversar com o vendedor no WhatsApp" title="WhatsApp do vendedor">✆</button></div>
 <div class="swipe-caption">Deslize o anúncio para a direita para salvar · para a esquerda para passar</div>
 <section class="section-card" id="savedPanel"><button type="button" class="saved-panel-close" id="closeSavedPanel" aria-label="Fechar curtidos" title="Fechar">×</button><div class="section-head"><h3>♥ Sua lista de interesse</h3><span class="badge" id="savedBadge">0 salvos</span></div><div id="savedList" class="saved-list"><div class="empty"><div class="heart">♡</div>Curtiu uma máquina? Ela aparece aqui para você consultar depois.</div></div></section>
 <section class="trust"><h3>Encontrou uma máquina interessante?</h3><p>Converse com um consultor para confirmar disponibilidade, especificações e condições comerciais.</p><a href="#" id="generalWhatsapp" target="_blank" rel="noopener">CONVERSAR PELO WHATSAPP ↗</a></section>
