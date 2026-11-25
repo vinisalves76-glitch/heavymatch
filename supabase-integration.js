@@ -42,7 +42,7 @@
       <form id="hmAuthForm">
         <label for="hmAuthName" id="hmAuthNameWrap" hidden>Nome completo</label><input id="hmAuthName" type="text" autocomplete="name" maxlength="120" placeholder="Seu nome completo" hidden>
         <label for="hmAuthPhone" id="hmAuthPhoneWrap" hidden>Telefone / WhatsApp</label><input id="hmAuthPhone" type="tel" autocomplete="tel" maxlength="30" placeholder="(31) 99999-9999" hidden>
-        <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden>
+        <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden><label for="hmPrimaryIntent" id="hmPrimaryIntentWrap" hidden>Qual é seu principal interesse no app?</label><select id="hmPrimaryIntent" hidden><option value="marketplace">Compra e venda de equipamentos</option><option value="services">Serviços e apoio ao motorista</option></select>
         <label for="hmAuthEmail" id="hmAuthEmailLabel">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
         <label for="hmAuthPassword">Senha</label><input id="hmAuthPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres" required>
         <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
@@ -73,7 +73,7 @@
               <label for="hmNewPhone">WhatsApp do vendedor (com DDD)</label><input id="hmNewPhone" type="tel" inputmode="tel" maxlength="20" placeholder="(31) 99999-9999">
               <label for="hmNewEmail">E-mail de acesso</label><input id="hmNewEmail" type="email" autocomplete="off" placeholder="nome@empresa.com.br" required>
               <label for="hmNewPassword">Senha inicial</label><input id="hmNewPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" required>
-              <label for="hmNewRole">Tipo de acesso</label><select id="hmNewRole"><option value="seller">Vendedor</option><option value="admin">Administrador</option></select>
+              <label for="hmNewRole">Tipo de acesso</label><select id="hmNewRole"><option value="seller">Vendedor</option><option value="broker">Agenciador de cargas</option><option value="admin">Administrador</option></select>
               <div class="hm-admin-actions"><button class="primary" id="hmCreateUserSubmit" type="submit">Criar conta</button><button type="button" id="hmReloadUsers">Atualizar lista</button></div>
             </form>
             <div class="hm-admin-message" id="hmCreateMessage" role="status" aria-live="polite"></div>
@@ -158,10 +158,16 @@
   function showAccountInfo() {
     overlay.classList.add("open"); document.body.style.overflow = "hidden";
     document.getElementById("hmAuthTitle").textContent = "Minha conta";
-    document.getElementById("hmAuthSubtitle").textContent = "Sua sessão está ativa. Para entrar com outro e-mail ou criar uma nova conta de cliente, saia primeiro desta conta.";
+    document.getElementById("hmAuthSubtitle").textContent = "Você pode mudar o foco principal do aplicativo quando quiser.";
     document.querySelector("#hmAuthForm").hidden = true;
     document.getElementById("hmAuthSwitch").hidden = true;
     document.getElementById("hmAuthLogout").hidden = false;
+    let box=document.getElementById("hmAccountPreferences");
+    if(!box){box=document.createElement("div");box.id="hmAccountPreferences";document.querySelector(".hm-auth-card").insertBefore(box,document.getElementById("hmAuthRecovery"));}
+    const intent=currentUser?.user_metadata?.primary_intent==="services"?"services":"marketplace";
+    box.innerHTML='<label for="hmAccountIntent" style="display:block;margin:12px 0 6px;font-weight:800;font-size:12px">Meu foco principal</label><select id="hmAccountIntent" style="width:100%;height:44px;border:1px solid #dce2e6;border-radius:10px;padding:0 10px"><option value="marketplace">Compra e venda de equipamentos</option><option value="services">Serviços e apoio ao motorista</option></select><button id="hmSaveIntent" type="button" style="width:100%;margin-top:9px;border:0;border-radius:10px;background:#E32227;color:white;padding:12px;font-weight:850">Salvar preferência</button>';
+    box.querySelector("#hmAccountIntent").value=intent;
+    box.querySelector("#hmSaveIntent").onclick=async function(){try{const value=box.querySelector("#hmAccountIntent").value;const result=await supabaseClient.auth.updateUser({data:{primary_intent:value}});if(result.error)throw result.error;currentUser=result.data.user||currentUser;message("Preferência salva. Ela pode ser alterada a qualquer momento.",false);}catch(error){message(error?.message||"Não foi possível salvar a preferência.",true);}};
     message("Conectado como " + (currentUser?.email || "") + ". Perfil: " + currentRole + ".", false);
   }
   document.getElementById("hmAuthLogout").addEventListener("click", async () => {
@@ -201,6 +207,7 @@
       const input = document.getElementById("hmAuth" + field);
       wrap.hidden = !signup; input.hidden = !signup; input.required = signup;
     });
+    const intentWrap=document.getElementById("hmPrimaryIntentWrap"),intentInput=document.getElementById("hmPrimaryIntent");intentWrap.hidden=!signup;intentInput.hidden=!signup;intentInput.required=signup;
     const emailInput = document.getElementById("hmAuthEmail");
     const emailLabel = document.querySelector('label[for="hmAuthEmail"]');
     emailInput.hidden = reset; emailInput.required = !reset;
@@ -362,6 +369,22 @@
       console.error("[CatiraMatch] Supabase:", configError);
     }
   }
+  function maybeShowBioPrompt(user) {
+    if(user?.user_metadata?.primary_intent==="services") {
+      if(window.location.pathname==="/"&&!sessionStorage.getItem("hm_focus_route_seen")){sessionStorage.setItem("hm_focus_route_seen","1");window.setTimeout(()=>{window.location.href="/apoio-motorista-preview.html";},1800);}
+      return;
+    }
+    if(localStorage.getItem("hm_bio_prompt_"+user.id))return;
+    window.setTimeout(()=>{
+      if(localStorage.getItem("hm_bio_prompt_"+user.id))return;
+      const box=document.createElement("div");box.id="hmBioPrompt";box.style.cssText="position:fixed;inset:0;z-index:130;background:#08111ddd;display:grid;place-items:center;padding:18px";
+      box.innerHTML='<section style="max-width:430px;background:white;border-radius:18px;padding:22px;color:#17242e"><div style="color:#E32227;font-size:10px;font-weight:900;letter-spacing:1px">PERSONALIZE SUA BUSCA</div><h2 style="margin:8px 0">Complete sua Bio</h2><p style="font-size:13px;line-height:1.55;color:#64727c">Sua Bio ajuda o sistema e nossos consultores a entender o que você procura e priorizar anúncios mais compatíveis. Você pode preencher agora ou deixar para depois.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="hmBioNow" style="flex:1;border:0;border-radius:10px;background:#E32227;color:white;padding:12px;font-weight:850">Preencher Bio</button><button id="hmBioSkip" style="flex:1;border:1px solid #dce2e6;border-radius:10px;background:white;padding:12px;font-weight:850">Agora não</button></div></section>';
+      document.body.appendChild(box);
+      function done(){localStorage.setItem("hm_bio_prompt_"+user.id,"1");box.remove();}
+      box.querySelector("#hmBioSkip").onclick=done;
+      box.querySelector("#hmBioNow").onclick=()=>{done();window.hmOpenBuyerProfile?.();};
+    },1600);
+  }
   async function showSignedIn(user) {
     const profile = await ensureAccountProfile();
     currentUser = user;
@@ -371,6 +394,7 @@
     adminNav.classList.toggle("hm-visible", currentRole === "admin");
     accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
     message(currentRole === "seller" ? "Login de vendedor confirmado." : "Login realizado. Perfil: " + currentRole + ".", false);
+    maybeShowBioPrompt(user);
   }
   document.getElementById("hmAuthForm").addEventListener("submit", async event => {
     event.preventDefault();
@@ -412,14 +436,16 @@
         const fullName = document.getElementById("hmAuthName").value.trim();
         const phone = document.getElementById("hmAuthPhone").value.trim();
         const address = document.getElementById("hmAuthAddress").value.trim();
+        const primaryIntent=document.getElementById("hmPrimaryIntent").value;
         const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
         if (!fullName || !phone || !address) throw new Error("Preencha nome, telefone e endereço.");
+        if (!["services","marketplace"].includes(primaryIntent)) throw new Error("Escolha seu principal interesse no aplicativo.");
         if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite a mesma senha nos dois campos.");
         const { data, error } = await supabaseClient.auth.signUp({
           email, password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: fullName, phone, address, account_type: "buyer" }
+            data: { full_name: fullName, phone, address, account_type: "buyer", primary_intent: primaryIntent, hm_buyer_profile_v1: { allow_recommendations: true } }
           }
         });
         if (error) throw error;
