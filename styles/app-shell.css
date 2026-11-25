@@ -30,6 +30,9 @@
 .no-results .hm-empty-secondary{border:1px solid #dfe3e6;background:#fff;color:var(--hm-shell-ink)}
 @media(max-width:799px){
   .top-actions #supportNav,.top-actions #favoritesJump{display:none}
+  .hm-experience-switch{max-width:100%;margin:4px 12px 8px;padding:3px;border-radius:11px}
+  .hm-experience-switch button{padding:7px 9px;font-size:11px;border-radius:8px}
+  .intro{padding-top:2px}
   .intro{padding-top:8px}
   .hm-experience-switch{margin:10px 16px 16px}
   .bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}
