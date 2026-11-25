@@ -248,3 +248,23 @@ Nenhuma mudança de API, login, Supabase, banco, anúncios ou produção. Testes
 O agrupamento horizontal X/Info/WhatsApp/Coração foi eliminado da experiência mobile. CSS `styles/mobile-discovery.css` usa `display:contents` no contêiner para que não exista outra faixa de ícones; X e coração aparecem **separados em cantos da foto**, mantendo suas funções de passar e curtir. O acesso a informações técnicas e WhatsApp fica no próprio anúncio através de **Ver bio e contato**, que abre a ficha completa com o botão de conversa do vendedor. Isso preserva a galeria ao toque e a lógica de swipe.
 
 Somente **Descobrir, Buscar, Salvos e Conta** formam o menu inferior; a barra do navegador iOS não é uma barra do aplicativo. A mudança está na mesma branch de Preview do PR #15 e não modifica backend, permissões, banco nem produção. Os testes `immersive-discovery.test.mjs` e regressões cobrem a separação.
+
+## Cadastro de prestadores de serviços
+
+O cadastro público pergunta se a pessoa oferece serviços para caminhoneiros e permite selecionar mais de um setor. A solicitação permanece pendente até análise do ADM Master na aba **Prestadores**.
+
+A escolha feita no navegador não concede permissões. Após a aprovação do ADM, o servidor libera somente o acesso correspondente; no caso de **Agenciamento de cargas**, o perfil recebe acesso ao painel de publicação e gestão de cargas.
+
+
+## Preview — experiência simplificada (2026-11-25)
+
+Branch: `feature/ux-simples-20261125` (não publicada em produção).
+
+- Navegação principal reduzida para Início, Explorar, Publicar, Atividade e Conta.
+- Alternância clara entre Compra e venda e Serviços e cargas.
+- Publicação contextual para equipamentos, cargas e prestadores.
+- Cadastro dividido em duas etapas, preservando intenção, caminhão, implemento e serviços oferecidos.
+- Área de atividade reúne salvos, interesses em cargas, serviços e preferências.
+- Serviços futuros recolhidos para priorizar recursos já disponíveis.
+- Tour reduzido às ações essenciais e estado vazio com alternativas úteis.
+- Compatibilidade mantida com swipe, filtros, login, favoritos, WhatsApp, anúncios e permissões existentes.
