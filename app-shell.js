@@ -142,6 +142,18 @@
   window.addEventListener("hm-auth-changed", event => {
     accountRole = event.detail?.role || "buyer";
   });
+
+  const requestedAction = new URLSearchParams(window.location.search).get("action");
+  if (requestedAction) {
+    window.setTimeout(() => {
+      if (requestedAction === "publish") openPublish();
+      if (requestedAction === "activity") activity?.click();
+      if (requestedAction === "account") openAccount();
+      if (requestedAction === "explore") explore?.click();
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, "", cleanUrl);
+    }, 80);
+  }
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && overlay.classList.contains("open")) closePublish();
   });
