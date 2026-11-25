@@ -42,7 +42,9 @@
       <form id="hmAuthForm">
         <label for="hmAuthName" id="hmAuthNameWrap" hidden>Nome completo</label><input id="hmAuthName" type="text" autocomplete="name" maxlength="120" placeholder="Seu nome completo" hidden>
         <label for="hmAuthPhone" id="hmAuthPhoneWrap" hidden>Telefone / WhatsApp</label><input id="hmAuthPhone" type="tel" autocomplete="tel" maxlength="30" placeholder="(31) 99999-9999" hidden>
-        <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden><label for="hmPrimaryIntent" id="hmPrimaryIntentWrap" hidden>Qual é seu principal interesse no app?</label><select id="hmPrimaryIntent" hidden><option value="marketplace">Compra e venda de equipamentos</option><option value="services">Serviços e apoio ao motorista</option></select>
+        <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden>
+        <label for="hmHasTruck" id="hmHasTruckWrap" hidden>Você tem caminhão ou cavalo mecânico disponível para rodar?</label><select id="hmHasTruck" hidden><option value="">Selecione</option><option value="yes">Sim</option><option value="no">Não</option></select>
+        <div id="hmTruckInfo" hidden><label for="hmTruckType">Veículo disponível</label><select id="hmTruckType"><option>Caminhão</option><option>Cavalo mecânico</option></select><label for="hmTruckAxles">Configuração de eixos</label><select id="hmTruckAxles"><option>4x2</option><option>6x2</option><option>6x4</option><option>8x2</option><option>8x4</option><option>10x4</option><option>Outra configuração</option></select><label for="hmTruckImplement">Implemento acoplado</label><select id="hmTruckImplement"><option>Basculante</option><option>Graneleira</option><option>Prancha</option><option>Baú</option><option>Sider</option><option>Tanque</option><option>Frigorífica</option><option>Porta-contêiner</option><option>Cegonha</option><option>Florestal</option><option>Canavieira</option><option>Dolly</option><option>Outro implemento</option></select></div><label for="hmPrimaryIntent" id="hmPrimaryIntentWrap" hidden>Qual é seu principal interesse no app?</label><select id="hmPrimaryIntent" hidden><option value="marketplace">Compra e venda de equipamentos</option><option value="services">Serviços e apoio ao motorista</option></select>
         <label for="hmAuthEmail" id="hmAuthEmailLabel">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
         <label for="hmAuthPassword">Senha</label><input id="hmAuthPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres" required>
         <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
@@ -208,6 +210,8 @@
       wrap.hidden = !signup; input.hidden = !signup; input.required = signup;
     });
     const intentWrap=document.getElementById("hmPrimaryIntentWrap"),intentInput=document.getElementById("hmPrimaryIntent");intentWrap.hidden=!signup;intentInput.hidden=!signup;intentInput.required=signup;
+    const hasTruckWrap=document.getElementById("hmHasTruckWrap"),hasTruck=document.getElementById("hmHasTruck"),truckInfo=document.getElementById("hmTruckInfo");hasTruckWrap.hidden=!signup;hasTruck.hidden=!signup;hasTruck.required=signup;truckInfo.hidden=!signup||hasTruck.value!=="yes";
+    if(!hasTruck.dataset.bound){hasTruck.addEventListener("change",()=>{truckInfo.hidden=hasTruck.value!=="yes";});hasTruck.dataset.bound="1";}
     const emailInput = document.getElementById("hmAuthEmail");
     const emailLabel = document.querySelector('label[for="hmAuthEmail"]');
     emailInput.hidden = reset; emailInput.required = !reset;
@@ -385,6 +389,14 @@
       box.querySelector("#hmBioNow").onclick=()=>{done();window.hmOpenBuyerProfile?.();};
     },1600);
   }
+  async function syncFreightEquipment(user) {
+    const eq=user?.user_metadata?.freight_equipment;if(!eq||!supabaseClient)return;
+    try{const {data}=await supabaseClient.auth.getSession();const token=data?.session?.access_token;if(!token)return;
+      const r=await fetch("/api/freight",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({action:"equipment_save",...eq})});
+      if(!r.ok)console.warn("[CatiraMatch cargas] Não foi possível sincronizar o conjunto inicial.");
+      else await supabaseClient.auth.updateUser({data:{freight_equipment:null}});
+    }catch(error){console.warn("[CatiraMatch cargas] Sincronização pendente.",error?.message);}
+  }
   async function showSignedIn(user) {
     const profile = await ensureAccountProfile();
     currentUser = user;
@@ -394,6 +406,7 @@
     adminNav.classList.toggle("hm-visible", currentRole === "admin");
     accountButton.textContent = currentRole === "admin" ? "ADM Master" : "Minha conta";
     message(currentRole === "seller" ? "Login de vendedor confirmado." : "Login realizado. Perfil: " + currentRole + ".", false);
+    syncFreightEquipment(user);
     maybeShowBioPrompt(user);
   }
   document.getElementById("hmAuthForm").addEventListener("submit", async event => {
@@ -437,15 +450,18 @@
         const phone = document.getElementById("hmAuthPhone").value.trim();
         const address = document.getElementById("hmAuthAddress").value.trim();
         const primaryIntent=document.getElementById("hmPrimaryIntent").value;
+        const hasTruck=document.getElementById("hmHasTruck").value;
+        const freightEquipment=hasTruck==="yes"?{vehicle_type:document.getElementById("hmTruckType").value,axle_config:document.getElementById("hmTruckAxles").value,implement_type:document.getElementById("hmTruckImplement").value}:null;
         const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
         if (!fullName || !phone || !address) throw new Error("Preencha nome, telefone e endereço.");
         if (!["services","marketplace"].includes(primaryIntent)) throw new Error("Escolha seu principal interesse no aplicativo.");
+        if(!["yes","no"].includes(hasTruck))throw new Error("Informe se você tem caminhão disponível para rodar.");
         if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite a mesma senha nos dois campos.");
         const { data, error } = await supabaseClient.auth.signUp({
           email, password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: fullName, phone, address, account_type: "buyer", primary_intent: primaryIntent, hm_buyer_profile_v1: { allow_recommendations: true } }
+            data: { full_name: fullName, phone, address, account_type: "buyer", primary_intent: primaryIntent, freight_equipment: freightEquipment, hm_buyer_profile_v1: { allow_recommendations: true } }
           }
         });
         if (error) throw error;
