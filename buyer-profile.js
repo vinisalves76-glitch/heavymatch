@@ -204,7 +204,7 @@
       var initial=Object.assign({},metadata[model.metadataKey]||{});
       if(!initial.display_name)initial.display_name=metadata.full_name||"";
       if(!initial.whatsapp)initial.whatsapp=metadata.phone||"";
-      state=model.sanitize(initial);dirty=false;currentTab=0;
+      state=model.sanitize(initial);window.hmBuyerProfileData=state;window.dispatchEvent(new Event("hm-buyer-profile-updated"));dirty=false;currentTab=0;
       $("hmProfileFooter").hidden=false;
       renderForm();feedback("Suas informações ainda não foram publicadas");
     }catch(error){
@@ -228,7 +228,7 @@
       var result=await supabase.auth.updateUser({data:{[model.metadataKey]:next}});
       if(result.error)throw result.error;
       currentUser=result.data.user||currentUser;
-      state=next;dirty=false;renderForm();
+      state=next;window.hmBuyerProfileData=next;window.dispatchEvent(new Event("hm-buyer-profile-updated"));dirty=false;renderForm();
       feedback("Perfil salvo no Supabase com sucesso!");
     }catch(error){
       console.error("[CatiraMatch perfil] Falha no salvamento:",error?.message);

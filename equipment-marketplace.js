@@ -53,6 +53,7 @@
             <div class="hm-vehicle-field"><label for="hmVBrand">Marca *</label><input id="hmVBrand" required maxlength="80" placeholder="Ex.: Volvo, SANY, Scania"></div>
             <div class="hm-vehicle-field"><label for="hmVModel">Modelo *</label><input id="hmVModel" required maxlength="100" placeholder="Modelo"></div>
             <div class="hm-vehicle-field"><label for="hmVYear">Ano *</label><input id="hmVYear" type="number" min="1900" max="2100" required placeholder="2024"></div>
+            <div class="hm-vehicle-field"><label for="hmVPower">Potência (cv)</label><input id="hmVPower" type="number" min="0" max="10000" step="1" placeholder="Ex.: 450"></div><div class="hm-vehicle-field"><label for="hmVQuantity">Quantidade disponível</label><input id="hmVQuantity" type="number" min="1" max="10000" value="1"></div>
             <div class="hm-vehicle-field"><label for="hmVPrice">Preço do equipamento (R$) *</label><input id="hmVPrice" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 250.000,00" required><small style="display:block;color:#687680;margin-top:5px;font-size:10px">Informe o valor em reais. Ele aparecerá nos detalhes do anúncio.</small></div>
             <div class="hm-vehicle-field"><label for="hmVPriceOnRequest">Como mostrar o preço?</label><select id="hmVPriceOnRequest"><option value="false" selected>Mostrar preço</option><option value="true">Sob consulta</option></select></div>
             <div class="hm-vehicle-field full"><div id="hmVPricePreview" style="border:1px solid #e9d09a;background:#fff8e8;border-radius:10px;padding:12px;font-size:13px;font-weight:900;color:#684900" aria-live="polite">Preço no anúncio: informe o valor acima.</div></div>
@@ -204,7 +205,7 @@
   }
   function toCatalog(v) {
     return {id:v.id,category:v.category,brand:v.brand,model:v.model,year:v.manufacture_year,
-      power:"Consultar",usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),
+      power:v.power_cv?Number(v.power_cv)+" cv":"Consultar",available_quantity:Number(v.available_quantity)||1,usage:"Consultar",price:v.price_on_request||v.price==null?"Sob consulta":money(v),
       location:[v.city,v.state].filter(Boolean).join(", ")||"Brasil",featured:false,
       description:v.description||"",image:v.image||"",photos:v.photos||[],
       seller_name:v.seller_name||"",seller_phone:v.seller_phone||""};
@@ -386,7 +387,7 @@
       const body={
         title:$("hmVTitle").value.trim(),category:getStoredCategory(),
         brand:$("hmVBrand").value.trim(),model:$("hmVModel").value.trim(),
-        manufacture_year:Number($("hmVYear").value),
+        manufacture_year:Number($("hmVYear").value),power_cv:$("hmVPower").value===""?null:Number($("hmVPower").value),available_quantity:Math.max(1,Number($("hmVQuantity").value)||1),
         price_on_request:isOnRequest,
         price:priceValue,
         description:$("hmVDescription").value.trim(),state:$("hmVState").value.trim(),

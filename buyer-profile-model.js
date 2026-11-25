@@ -77,7 +77,7 @@
       F("inspections","Pretende vistoriar antes de comprar?","yesno"),
       F("negotiation_notes","Outras preferências","textarea",{max:500,placeholder:"Documentação, região, vistoria, garantia...",wide:true}),
       F("allow_contact","Autorizo contato comercial sobre minha busca","check",{wide:true}),
-      F("allow_recommendations","Quero ver recomendações de anúncios compatíveis quando o recurso estiver disponível","check",{wide:true})
+      F("allow_recommendations","Priorizar anúncios compatíveis com o que procuro","check",{wide:true})
     ]}
   ];
   var allFields=groups.reduce(function(list,group){return list.concat(group.fields);},[]);

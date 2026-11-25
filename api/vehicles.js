@@ -218,6 +218,8 @@ export default async function handler(req, res) {
     const record = {
       title, category, brand, model, manufacture_year: year,
       price: priceOnRequest ? null : price, price_on_request: priceOnRequest,
+      power_cv: body.power_cv == null || body.power_cv === "" ? null : Number(body.power_cv),
+      available_quantity: Math.max(1, Math.min(10000, Math.floor(Number(body.available_quantity) || 1))),
       description: clean(body.description) || null,
       city: clean(body.city, 100) || null, state: clean(body.state, 80) || null,
       status

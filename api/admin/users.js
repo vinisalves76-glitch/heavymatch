@@ -87,9 +87,9 @@ export default async function handler(req, res) {
         return reply(res, 400, { error: "Informe um e-mail válido." });
       }
       if (password.length < 8) return reply(res, 400, { error: "A senha precisa ter pelo menos 8 caracteres." });
-      if (!["seller", "admin"].includes(role)) return reply(res, 400, { error: "Perfil inválido." });
+      if (!["seller", "broker", "admin"].includes(role)) return reply(res, 400, { error: "Perfil inválido." });
       if (phone && (phone.length < 10 || phone.length > 13)) return reply(res, 400, { error: "Informe um telefone com DDD válido." });
-      if (role === "seller" && !phone) return reply(res, 400, { error: "O WhatsApp do vendedor é obrigatório." });
+      if (["seller", "broker"].includes(role) && !phone) return reply(res, 400, { error: "O WhatsApp do vendedor é obrigatório." });
 
       const { data: created, error: createError } = await adminClient.auth.admin.createUser({
         email,
@@ -115,7 +115,7 @@ export default async function handler(req, res) {
       }
 
       return reply(res, 201, {
-        message: role === "admin" ? "Administrador criado com sucesso." : "Vendedor criado com sucesso.",
+        message: role === "admin" ? "Administrador criado com sucesso." : role === "broker" ? "Agenciador de cargas criado com sucesso." : "Vendedor criado com sucesso.",
         user: { id: created.user.id, email, full_name: fullName, phone, role }
       });
     }
