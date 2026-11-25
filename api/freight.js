@@ -19,15 +19,16 @@ export default async function handler(req,res){
     let q=db.from("freight_loads").select("*").order("created_at",{ascending:false});if(role==="broker")q=q.eq("broker_id",user.id);
     const {data:d,error:e}=await q;if(e)throw e;myLoads=d||[];
     const ids=myLoads.map(x=>x.id);if(ids.length){const {data:i,error:ie}=await db.from("freight_interests").select("*").in("load_id",ids).order("created_at",{ascending:false});if(ie)throw ie;interests=i||[];
-      const users=[...new Set(interests.map(x=>x.driver_id))];if(users.length){const {data:profiles,error:pr}=await db.from("profiles").select("id,full_name,phone").in("id",users);if(pr)throw pr;const m=new Map((profiles||[]).map(x=>[x.id,x]));interests=interests.map(i=>({...i,driver:m.get(i.driver_id)||{}}));}}
+      const users=[...new Set(interests.map(x=>x.driver_id))];if(users.length){const {data:profiles,error:pr}=await db.from("profiles").select("id,full_name,phone").in("id",users);if(pr)throw pr;const m=new Map((profiles||[]).map(x=>[x.id,x]));interests=interests.map(i=>({...i,driver:{...(m.get(i.driver_id)||{}),phone:i.status==="approved"?(m.get(i.driver_id)?.phone||""):""}}));}}
    }
    const {data:mine,error:mi}=await db.from("freight_interests").select("*,load:freight_loads(*)").eq("driver_id",user.id).order("created_at",{ascending:false});if(mi)throw mi;
+   const mineRows=mine||[],approvedLoads=mineRows.filter(i=>i.status==="approved").map(i=>i.load?.broker_id).filter(Boolean);if(approvedLoads.length){const {data:brokers,error:be}=await db.from("profiles").select("id,full_name,phone").in("id",[...new Set(approvedLoads)]);if(be)throw be;const bm=new Map((brokers||[]).map(x=>[x.id,x]));mineRows.forEach(i=>{if(i.status==="approved"&&i.load)i.load.broker_contact=bm.get(i.load.broker_id)||null;});}
    if(role==="buyer"||role==="seller") {
     const equipment=eq||[]; if(equipment.length){let q=db.from("freight_loads").select("*").eq("status","open").gt("freights_remaining",0).order("loading_date",{ascending:true});
       const {data:all,error:le}=await q;if(le)throw le;
       loads=(all||[]).filter(l=>equipment.some(e=>e.is_available&&e.vehicle_type===l.vehicle_type&&e.axle_config===l.axle_config&&e.implement_type===l.implement_type));}
    }
-   return reply(res,200,{role,user:{id:user.id,name:p?.full_name||user.user_metadata?.full_name||"",phone:p?.phone||""},equipment:eq||[],loads,interests:mine||[],myLoads,brokerInterests:interests});
+   return reply(res,200,{role,user:{id:user.id,name:p?.full_name||user.user_metadata?.full_name||"",phone:p?.phone||""},equipment:eq||[],loads,interests:mineRows,myLoads,brokerInterests:interests});
   }
   if(action==="equipment_save"){
    const row={user_id:user.id,vehicle_type:str(body.vehicle_type,80),axle_config:str(body.axle_config,40),implement_type:str(body.implement_type,80),is_available:body.is_available!==false};
