@@ -85,19 +85,13 @@
     return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 && rect.top < window.innerHeight && rect.left < window.innerWidth;
   };
   const baseSteps = [
-    { selector: ".intro", title: "Bem-vindo à vitrine", description: "Explore caminhões, cavalos mecânicos, implementos e máquinas pesadas." },
-    { selector: "#quickbar", title: "Explore por categoria", description: "Escolha o tipo de equipamento que procura." },
-    { selector: "#exploreNav", title: "Buscar e filtrar", description: "Use Buscar para filtrar por marca, modelo, tipo e faixa de preço.", before: () => { const f=$("filters");if(f && !f.classList.contains("is-open"))$("exploreNav")?.click(); } },
-    { selector: "#filtersNav", title: "Filtros e busca", description: "No computador, abra os filtros para combinar marca, modelo e faixa de preço.", before: () => { const f=$("filters");if(f && !f.classList.contains("is-open"))$("filtersNav")?.click(); } },
-    { selector: "#deck", title: "Foto em destaque", description: "A imagem mostra o equipamento inteiro; toque na foto para ver outras imagens. Deslize para a direita para salvar ou para a esquerda para passar.", before: () => { const f=$("filters");if(f?.classList.contains("is-open"))$("exploreNav")?.click(); } },
-    { selector: "#likeBtn", title: "Curtir e salvar", description: "Toque no coração para salvar este equipamento. Você também pode deslizar para a direita." },
-    { selector: "#hmPhotoBio", title: "Bio e contato", description: "No próprio anúncio, abra a bio para ver preço, informações técnicas e o botão de WhatsApp do vendedor." },
-    { selector: "#detailsBtn", title: "Ver detalhes", description: "Abra a bio do equipamento para conferir preço, ano e descrição." },
-    { selector: "#savedNav", title: "Seus equipamentos salvos", description: "Veja os anúncios curtidos e retome a negociação quando quiser." },
-    { selector: "#modalContact", title: "Converse com o vendedor", description: "Na bio, o botão de WhatsApp leva você diretamente ao vendedor." },
-    { selector: "#chatNav", title: "Chat do vendedor", description: "Converse com o vendedor responsável pelo anúncio atual." },
-    { selector: "#profileNav", title: "Conta e opções", description: "No celular, abra Conta para entrar, ver seu perfil, cadastrar anúncios se for vendedor, acessar ADM Master e encontrar Ajuda." },
-    { selector: "#hmAccountButton", title: "Entrar na sua conta", description: "Entre para acessar seu perfil. Os recursos de vendedor e ADM aparecem somente para as contas autorizadas." }
+    { selector: ".intro", title: "Bem-vindo ao CatiraMatch", description: "Compra, venda, serviços e cargas ficam organizados no mesmo aplicativo." },
+    { selector: ".hm-experience-switch", title: "Escolha sua área", description: "Alterne entre compra e venda ou serviços e cargas sem procurar em vários menus." },
+    { selector: "#deck", title: "Descubra equipamentos", description: "Deslize para a direita para salvar e para a esquerda para passar. Toque na foto para ver mais imagens." },
+    { selector: "#exploreNav", title: "Explore com filtros", description: "Busque por marca, modelo, tipo e faixa de preço.", before: () => { const f=$("filters");if(f && !f.classList.contains("is-open"))$("exploreNav")?.click(); } },
+    { selector: "#hmPostNav", title: "Publique no lugar certo", description: "Cadastre equipamentos, cargas ou serviços conforme seu perfil." },
+    { selector: "#savedNav", title: "Acompanhe sua atividade", description: "Encontre salvos, interesses em cargas, serviços e suas preferências em uma única área." },
+    { selector: "#profileNav", title: "Conta e preferências", description: "Entre, atualize seu cadastro e mude seu foco principal quando quiser." }
   ];
   function buildSteps() {
     const result = baseSteps.slice();
