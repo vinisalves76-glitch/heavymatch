@@ -12,7 +12,7 @@
     .hm-auth-switch{width:100%;border:0;background:transparent;color:#705000;font-weight:850;padding:12px 6px 2px;font-size:12px}
     .hm-auth-card h2,.hm-admin-card h2{margin:0 0 6px;font-size:23px}.hm-auth-card p,.hm-admin-card p{color:#64727c;font-size:13px;line-height:1.5}
     .hm-auth-card label,.hm-admin-card label{display:block;font-size:12px;font-weight:800;margin:13px 0 6px}
-    .hm-auth-card input,.hm-admin-card input,.hm-admin-card select{width:100%;height:44px;border:1px solid #dce2e6;border-radius:10px;padding:0 12px;color:#17242e;background:#fff}
+    .hm-auth-card input,.hm-auth-card select,.hm-admin-card input,.hm-admin-card select{width:100%;height:44px;border:1px solid #dce2e6;border-radius:10px;padding:0 12px;color:#17242e;background:#fff}\n    .hm-service-options{border:1px solid #e0e5e8;border-radius:12px;padding:11px;margin-top:8px;background:#f8f9fa}.hm-service-options>span{display:block;font-size:12px;font-weight:850;margin-bottom:7px}.hm-service-options label{display:flex!important;align-items:center;gap:8px;margin:7px 0!important;font-weight:700!important}.hm-service-options input{width:18px!important;height:18px!important;flex:0 0 auto}.hm-service-options small{display:block;color:#687680;font-size:10px;line-height:1.45;margin-top:8px}.hm-provider-request{border:1px solid #e1e5e8;border-radius:13px;padding:13px;margin:9px 0}.hm-provider-request h4{margin:0 0 5px}.hm-provider-request p{margin:4px 0}.hm-provider-status{display:inline-block;border-radius:99px;padding:5px 8px;font-size:10px;font-weight:900}.hm-provider-status.pending{background:#fff0c9;color:#805600}.hm-provider-status.approved{background:#e0f6e9;color:#176b3d}.hm-provider-status.rejected{background:#ffe5e5;color:#9d2432}
     .hm-auth-actions,.hm-admin-actions{display:flex;gap:8px;margin-top:17px;flex-wrap:wrap}.hm-auth-actions button,.hm-admin-actions button{flex:1;min-height:43px;border-radius:10px;font-weight:800;border:1px solid #dce2e6}
     .hm-auth-actions .primary,.hm-admin-actions .primary{background:#E32227;border-color:#E32227;color:#fff}
     .hm-auth-recovery{color:#705000;font-weight:850;width:100%;padding:9px 5px;border:0;background:transparent;cursor:pointer;font-size:12px;text-align:center}.hm-auth-recovery[hidden]{display:none!important}
@@ -45,6 +45,21 @@
         <label for="hmAuthAddress" id="hmAuthAddressWrap" hidden>Endereço</label><input id="hmAuthAddress" type="text" autocomplete="street-address" maxlength="240" placeholder="Rua, número, bairro, cidade e estado" hidden>
         <label for="hmHasTruck" id="hmHasTruckWrap" hidden>Você tem caminhão ou cavalo mecânico disponível para rodar?</label><select id="hmHasTruck" hidden><option value="">Selecione</option><option value="yes">Sim</option><option value="no">Não</option></select>
         <div id="hmTruckInfo" hidden><label for="hmTruckType">Veículo disponível</label><select id="hmTruckType"><option>Caminhão</option><option>Cavalo mecânico</option></select><label for="hmTruckAxles">Configuração de eixos</label><select id="hmTruckAxles"><option>4x2</option><option>6x2</option><option>6x4</option><option>8x2</option><option>8x4</option><option>10x4</option><option>Outra configuração</option></select><label for="hmTruckImplement">Implemento acoplado</label><select id="hmTruckImplement"><option>Basculante</option><option>Graneleira</option><option>Prancha</option><option>Baú</option><option>Sider</option><option>Tanque</option><option>Frigorífica</option><option>Porta-contêiner</option><option>Cegonha</option><option>Florestal</option><option>Canavieira</option><option>Dolly</option><option>Outro implemento</option></select></div><label for="hmPrimaryIntent" id="hmPrimaryIntentWrap" hidden>Qual é seu principal interesse no app?</label><select id="hmPrimaryIntent" hidden><option value="marketplace">Compra e venda de equipamentos</option><option value="services">Serviços e apoio ao motorista</option></select>
+        <label for="hmOffersServices" id="hmOffersServicesWrap" hidden>Você oferece serviços para caminhoneiros?</label><select id="hmOffersServices" hidden><option value="">Selecione</option><option value="yes">Sim, ofereço serviços</option><option value="no">Não ofereço serviços</option></select>
+        <div id="hmServiceInfo" hidden>
+          <label for="hmServiceBusiness">Nome do negócio ou empresa (opcional)</label><input id="hmServiceBusiness" maxlength="120" placeholder="Ex.: Cargas Minas">
+          <div class="hm-service-options"><span>Quais serviços você oferece?</span>
+            <label><input type="checkbox" name="hmService" value="freight_broker">Agenciamento de cargas</label>
+            <label><input type="checkbox" name="hmService" value="dispatcher">Despachante e documentação</label>
+            <label><input type="checkbox" name="hmService" value="parts_store">Loja de peças e acessórios</label>
+            <label><input type="checkbox" name="hmService" value="tow_service">Guincho e reboque</label>
+            <label><input type="checkbox" name="hmService" value="electrician">Eletricista</label>
+            <label><input type="checkbox" name="hmService" value="mechanic">Oficina e serviços mecânicos</label>
+            <label><input type="checkbox" name="hmService" value="insurance_benefits">Seguros e benefícios</label>
+            <label><input type="checkbox" name="hmService" value="other">Outro serviço</label>
+            <small>O ADM analisará o cadastro. O painel correspondente só será liberado após a aprovação.</small>
+          </div>
+        </div>
         <label for="hmAuthEmail" id="hmAuthEmailLabel">E-mail</label><input id="hmAuthEmail" type="email" autocomplete="email" maxlength="254" required>
         <label for="hmAuthPassword">Senha</label><input id="hmAuthPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres" required>
         <label for="hmAuthConfirmPassword" id="hmAuthConfirmWrap" hidden>Confirmar senha</label><input id="hmAuthConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Digite a senha novamente" hidden>
@@ -65,7 +80,7 @@
       <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">CATIRAMATCH · ACESSO RESTRITO</div>
       <h2 id="hmAdminTitle">ADM Master</h2>
       <p>Gerencie os acessos da plataforma. Somente administradores autorizados conseguem criar novas contas privilegiadas.</p>
-      <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button></div>
+      <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="providers">Prestadores</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button></div>
       <div id="hmAdminAccounts">
         <div class="hm-admin-kpis"><div class="hm-admin-kpi"><small>Total de contas</small><strong id="hmTotalUsers">—</strong></div><div class="hm-admin-kpi"><small>Vendedores</small><strong id="hmTotalSellers">—</strong></div><div class="hm-admin-kpi"><small>Administradores</small><strong id="hmTotalAdmins">—</strong></div></div>
         <div class="hm-admin-grid">
@@ -85,6 +100,7 @@
           </section>
         </div>
       </div>
+      <div id="hmAdminProviders" hidden><div class="hm-admin-section"><h3>Solicitações de prestadores</h3><p>Aprove os serviços informados no cadastro. Agenciadores aprovados recebem acesso para publicar cargas.</p><div id="hmProviderRequests"><p>Carregando solicitações…</p></div></div></div>
       <div id="hmAdminFuture" hidden><div class="hm-admin-section"><h3>Gestão de anúncios</h3><p>Cadastre caminhões, carretas e máquinas com fotos, preço, descrição e situação de publicação. O ADM visualiza todos os anúncios e pode escolher o vendedor responsável.</p><div class="hm-admin-actions"><button type="button" class="primary" id="hmAdminOpenListings">Abrir cadastro de equipamentos</button></div><div class="hm-admin-note">O vendedor gerencia somente os próprios anúncios. O comprador não possui acesso ao cadastro.</div></div></div>
       <div class="hm-admin-actions"><button type="button" id="hmAdminLogout">Sair da conta</button><button type="button" class="primary" id="hmAdminCloseBottom">Fechar ADM</button></div>
       <div class="hm-admin-message" id="hmAdminMessage" role="status" aria-live="polite"></div>
@@ -121,9 +137,11 @@
   const openAdmin = async () => {
     if (currentRole !== "admin" || !currentUser) { showAuth(); return; }
     adminOverlay.classList.add("open"); document.body.style.overflow = "hidden";
-    document.getElementById("hmAdminAccounts").hidden = false; document.getElementById("hmAdminFuture").hidden = true;
+    document.getElementById("hmAdminAccounts").hidden = false;
+    document.getElementById("hmAdminProviders").hidden = true;
+    document.getElementById("hmAdminFuture").hidden = true;
     document.querySelectorAll(".hm-admin-tab").forEach(button => button.classList.toggle("active", button.dataset.pane === "accounts"));
-    await loadUsers();
+    await Promise.all([loadUsers(), loadProviderRequests()]);
   };
   async function signOutFromTopMenu() {
     if (!currentUser) return;
@@ -151,11 +169,14 @@
   adminOverlay.addEventListener("click", e => { if (e.target === adminOverlay) closeAdmin(); });
   accountButton.addEventListener("click", () => currentRole === "admin" ? openAdmin() : currentUser ? showAccountInfo() : showAuth());
   adminNav.addEventListener("click", openAdmin);
-  document.querySelectorAll(".hm-admin-tab").forEach(button => button.addEventListener("click", () => {
-    const accounts = button.dataset.pane === "accounts";
+  document.querySelectorAll(".hm-admin-tab").forEach(button => button.addEventListener("click", async () => {
+    const pane = button.dataset.pane;
     document.querySelectorAll(".hm-admin-tab").forEach(tab => tab.classList.toggle("active", tab === button));
-    document.getElementById("hmAdminAccounts").hidden = !accounts;
-    document.getElementById("hmAdminFuture").hidden = accounts;
+    document.getElementById("hmAdminAccounts").hidden = pane !== "accounts";
+    document.getElementById("hmAdminProviders").hidden = pane !== "providers";
+    document.getElementById("hmAdminFuture").hidden = pane !== "future";
+    if (pane === "accounts") await loadUsers();
+    if (pane === "providers") await loadProviderRequests();
   }));
   function showAccountInfo() {
     overlay.classList.add("open"); document.body.style.overflow = "hidden";
@@ -210,6 +231,8 @@
       wrap.hidden = !signup; input.hidden = !signup; input.required = signup;
     });
     const intentWrap=document.getElementById("hmPrimaryIntentWrap"),intentInput=document.getElementById("hmPrimaryIntent");intentWrap.hidden=!signup;intentInput.hidden=!signup;intentInput.required=signup;
+    const offersWrap=document.getElementById("hmOffersServicesWrap"),offers=document.getElementById("hmOffersServices"),serviceInfo=document.getElementById("hmServiceInfo");offersWrap.hidden=!signup;offers.hidden=!signup;offers.required=signup;serviceInfo.hidden=!signup||offers.value!=="yes";
+    if(!offers.dataset.bound){offers.addEventListener("change",()=>{serviceInfo.hidden=offers.value!=="yes";});offers.dataset.bound="1";}
     const hasTruckWrap=document.getElementById("hmHasTruckWrap"),hasTruck=document.getElementById("hmHasTruck"),truckInfo=document.getElementById("hmTruckInfo");hasTruckWrap.hidden=!signup;hasTruck.hidden=!signup;hasTruck.required=signup;truckInfo.hidden=!signup||hasTruck.value!=="yes";
     if(!hasTruck.dataset.bound){hasTruck.addEventListener("change",()=>{truckInfo.hidden=hasTruck.value!=="yes";});hasTruck.dataset.bound="1";}
     const emailInput = document.getElementById("hmAuthEmail");
@@ -256,6 +279,77 @@
     if (!response.ok) throw new Error(result.error || "Falha na operação administrativa.");
     return result;
   }
+  async function apiServiceProviders(action, payload = {}) {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    if (!token) throw new Error("Sua sessão expirou. Entre novamente.");
+    const response = await fetch("/api/service-providers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ action, ...payload })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || "Falha na operação de prestadores.");
+    return result;
+  }
+  const serviceLabels = {
+    freight_broker: "Agenciamento de cargas",
+    dispatcher: "Despachante e documentação",
+    parts_store: "Loja de peças e acessórios",
+    tow_service: "Guincho e reboque",
+    electrician: "Eletricista",
+    mechanic: "Oficina e serviços mecânicos",
+    insurance_benefits: "Seguros e benefícios",
+    other: "Outro serviço"
+  };
+  async function loadProviderRequests() {
+    const container = document.getElementById("hmProviderRequests");
+    if (!container || currentRole !== "admin") return;
+    container.innerHTML = "<p>Carregando solicitações…</p>";
+    try {
+      const result = await apiServiceProviders("list");
+      const requests = result.requests || [];
+      if (!requests.length) {
+        container.innerHTML = '<div class="hm-admin-note">Nenhuma solicitação de prestador recebida.</div>';
+        return;
+      }
+      container.innerHTML = requests.map(item => {
+        const labels = (item.services || []).map(service => serviceLabels[service] || service).join(", ");
+        const statusLabel = item.status === "approved" ? "Aprovado" : item.status === "rejected" ? "Recusado" : "Pendente";
+        const date = item.created_at ? new Date(item.created_at).toLocaleDateString("pt-BR") : "—";
+        return '<article class="hm-provider-request"><span class="hm-provider-status ' + escapeHtml(item.status) + '">' + statusLabel + '</span>' +
+          '<h4>' + escapeHtml(item.business_name || item.profile?.full_name || "Prestador") + '</h4>' +
+          '<p><strong>Responsável:</strong> ' + escapeHtml(item.profile?.full_name || "—") + '</p>' +
+          '<p><strong>WhatsApp:</strong> ' + escapeHtml(item.profile?.phone || "—") + '</p>' +
+          '<p><strong>Serviços:</strong> ' + escapeHtml(labels) + '</p>' +
+          '<p><strong>Solicitado em:</strong> ' + date + '</p>' +
+          (item.status === "pending" ? '<div class="hm-admin-actions"><button type="button" class="primary hm-provider-review" data-id="' + item.id + '" data-decision="approve">Aprovar</button><button type="button" class="hm-provider-review" data-id="' + item.id + '" data-decision="reject">Recusar</button></div>' : '') +
+          '</article>';
+      }).join("");
+    } catch (error) {
+      container.innerHTML = '<div class="hm-admin-note">Não foi possível carregar as solicitações.</div>';
+      adminMessage(error.message, true);
+    }
+  }
+  document.getElementById("hmProviderRequests").addEventListener("click", async event => {
+    const button = event.target.closest(".hm-provider-review");
+    if (!button) return;
+    const approve = button.dataset.decision === "approve";
+    const note = approve ? "" : (window.prompt("Motivo da recusa (opcional):") || "");
+    button.disabled = true;
+    try {
+      const result = await apiServiceProviders("review", {
+        request_id: button.dataset.id,
+        decision: button.dataset.decision,
+        admin_note: note
+      });
+      adminMessage(result.message || "Solicitação analisada.");
+      await Promise.all([loadProviderRequests(), loadUsers()]);
+    } catch (error) {
+      adminMessage(error.message, true);
+      button.disabled = false;
+    }
+  });
   async function loadUsers() {
     const table = document.getElementById("hmUsersTable");
     table.innerHTML = '<tr><td colspan="4">Carregando contas…</td></tr>';
@@ -397,6 +491,19 @@
       else await supabaseClient.auth.updateUser({data:{freight_equipment:null}});
     }catch(error){console.warn("[CatiraMatch cargas] Sincronização pendente.",error?.message);}
   }
+  async function syncServiceProviderRequest(user) {
+    const request = user?.user_metadata?.service_provider_request;
+    if (!request || !supabaseClient) return;
+    try {
+      const result = await apiServiceProviders("request", request);
+      if (result.request) {
+        await supabaseClient.auth.updateUser({ data: { service_provider_request: null } });
+        message("Seu cadastro de prestador está aguardando aprovação do ADM.", false);
+      }
+    } catch (error) {
+      console.warn("[CatiraMatch prestadores] Sincronização pendente.", error?.message);
+    }
+  }
   async function showSignedIn(user) {
     const profile = await ensureAccountProfile();
     currentUser = user;
@@ -450,18 +557,23 @@
         const phone = document.getElementById("hmAuthPhone").value.trim();
         const address = document.getElementById("hmAuthAddress").value.trim();
         const primaryIntent=document.getElementById("hmPrimaryIntent").value;
+        const offersServices=document.getElementById("hmOffersServices").value;
+        const requestedServices=[...document.querySelectorAll('input[name="hmService"]:checked')].map(input=>input.value);
+        const serviceBusiness=document.getElementById("hmServiceBusiness").value.trim();
         const hasTruck=document.getElementById("hmHasTruck").value;
         const freightEquipment=hasTruck==="yes"?{vehicle_type:document.getElementById("hmTruckType").value,axle_config:document.getElementById("hmTruckAxles").value,implement_type:document.getElementById("hmTruckImplement").value}:null;
         const confirmPassword = document.getElementById("hmAuthConfirmPassword").value;
         if (!fullName || !phone || !address) throw new Error("Preencha nome, telefone e endereço.");
         if (!["services","marketplace"].includes(primaryIntent)) throw new Error("Escolha seu principal interesse no aplicativo.");
+        if(!["yes","no"].includes(offersServices))throw new Error("Informe se você oferece serviços para caminhoneiros.");
+        if(offersServices==="yes"&&!requestedServices.length)throw new Error("Selecione pelo menos um serviço oferecido.");
         if(!["yes","no"].includes(hasTruck))throw new Error("Informe se você tem caminhão disponível para rodar.");
         if (password !== confirmPassword) throw new Error("As senhas não coincidem. Digite a mesma senha nos dois campos.");
         const { data, error } = await supabaseClient.auth.signUp({
           email, password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: fullName, phone, address, account_type: "buyer", primary_intent: primaryIntent, freight_equipment: freightEquipment, hm_buyer_profile_v1: { allow_recommendations: true } }
+            data: { full_name: fullName, phone, address, account_type: "buyer", primary_intent: primaryIntent, freight_equipment: freightEquipment, service_provider_request: offersServices==="yes"?{business_name:serviceBusiness,services:requestedServices}:null, hm_buyer_profile_v1: { allow_recommendations: true } }
           }
         });
         if (error) throw error;
