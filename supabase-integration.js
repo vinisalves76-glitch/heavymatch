@@ -18,6 +18,7 @@
     .hm-auth-actions .primary,.hm-admin-actions .primary{background:#E32227;border-color:#E32227;color:#fff}
     .hm-auth-recovery{color:#705000;font-weight:850;width:100%;padding:9px 5px;border:0;background:transparent;cursor:pointer;font-size:12px;text-align:center}.hm-auth-recovery[hidden]{display:none!important}
     .hm-auth-message,.hm-admin-message{font-size:12px;line-height:1.5;margin-top:12px;overflow-wrap:anywhere}.hm-auth-close,.hm-admin-close{float:right;border:0;background:#eef1f3;border-radius:50%;width:32px;height:32px;font-size:20px}
+    .hm-signup-progress{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0 4px}.hm-signup-progress span{height:5px;border-radius:99px;background:#e5e8ea}.hm-signup-progress span.active{background:#E32227}.hm-signup-step-label{font-size:11px;font-weight:900;color:#687680;margin:8px 0}.hm-signup-next{width:100%;min-height:44px;margin-top:16px;border:0;border-radius:10px;background:#E32227;color:#fff;font-weight:900}.hm-signup-back{width:100%;min-height:40px;margin-top:8px;border:1px solid #dce2e6;border-radius:10px;background:#fff;color:#25343e;font-weight:850}
     .hm-admin-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0}
     .hm-admin-kpi{padding:13px;background:#f3f5f6;border-radius:13px}.hm-admin-kpi small{display:block;color:#687680;font-size:11px}.hm-admin-kpi strong{font-size:23px;display:block;margin-top:4px}
     .hm-admin-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
@@ -72,6 +73,83 @@
       <div class="hm-auth-message" id="hmAuthMessage" role="status" aria-live="polite"></div>
     </section>`;
   document.body.appendChild(overlay);
+
+  const authForm = document.getElementById("hmAuthForm");
+  const authActions = authForm.querySelector(".hm-auth-actions");
+  const signupProgress = document.createElement("div");
+  signupProgress.id = "hmSignupProgress";
+  signupProgress.className = "hm-signup-progress";
+  signupProgress.hidden = true;
+  signupProgress.innerHTML = '<span class="active"></span><span></span>';
+  const signupStepOne = document.createElement("div");
+  signupStepOne.id = "hmSignupStepOne";
+  const signupStepTwo = document.createElement("div");
+  signupStepTwo.id = "hmSignupStepTwo";
+  signupStepTwo.hidden = true;
+  const movePair = (labelId, inputId, target) => {
+    const label = document.getElementById(labelId);
+    const input = document.getElementById(inputId);
+    if (label) target.appendChild(label);
+    if (input) target.appendChild(input);
+  };
+  movePair("hmAuthNameWrap", "hmAuthName", signupStepOne);
+  movePair("hmAuthPhoneWrap", "hmAuthPhone", signupStepOne);
+  movePair("hmAuthAddressWrap", "hmAuthAddress", signupStepOne);
+  movePair("hmAuthEmailLabel", "hmAuthEmail", signupStepOne);
+  const passwordLabel = authForm.querySelector('label[for="hmAuthPassword"]');
+  if (passwordLabel) signupStepOne.appendChild(passwordLabel);
+  signupStepOne.appendChild(document.getElementById("hmAuthPassword"));
+  movePair("hmAuthConfirmWrap", "hmAuthConfirmPassword", signupStepOne);
+  movePair("hmPrimaryIntentWrap", "hmPrimaryIntent", signupStepTwo);
+  movePair("hmHasTruckWrap", "hmHasTruck", signupStepTwo);
+  signupStepTwo.appendChild(document.getElementById("hmTruckInfo"));
+  movePair("hmOffersServicesWrap", "hmOffersServices", signupStepTwo);
+  signupStepTwo.appendChild(document.getElementById("hmServiceInfo"));
+  const signupNext = document.createElement("button");
+  signupNext.type = "button";
+  signupNext.id = "hmSignupNext";
+  signupNext.className = "hm-signup-next";
+  signupNext.textContent = "Continuar";
+  const signupBack = document.createElement("button");
+  signupBack.type = "button";
+  signupBack.id = "hmSignupBack";
+  signupBack.className = "hm-signup-back";
+  signupBack.textContent = "Voltar";
+  signupStepOne.appendChild(signupNext);
+  signupStepTwo.appendChild(signupBack);
+  authForm.insertBefore(signupProgress, authActions);
+  authForm.insertBefore(signupStepOne, authActions);
+  authForm.insertBefore(signupStepTwo, authActions);
+  let signupStep = 1;
+  function setSignupStep(step, enabled = authMode === "signup") {
+    signupStep = enabled ? step : 1;
+    signupProgress.hidden = !enabled;
+    signupStepOne.hidden = enabled && signupStep === 2;
+    signupStepTwo.hidden = !enabled || signupStep !== 2;
+    signupNext.hidden = !enabled || signupStep !== 1;
+    signupBack.hidden = !enabled || signupStep !== 2;
+    document.getElementById("hmAuthSubmit").hidden = enabled && signupStep === 1;
+    signupProgress.querySelectorAll("span").forEach((bar, index) => bar.classList.toggle("active", index < signupStep));
+    if (enabled) {
+      document.getElementById("hmAuthSubtitle").textContent = signupStep === 1
+        ? "Etapa 1 de 2 · Seus dados de acesso."
+        : "Etapa 2 de 2 · Conte como pretende usar o CatiraMatch.";
+    }
+  }
+  signupNext.addEventListener("click", () => {
+    const invalid = Array.from(signupStepOne.querySelectorAll("input[required],select[required]")).find(field => !field.checkValidity());
+    if (invalid) { invalid.reportValidity(); return; }
+    setSignupStep(2, true);
+    document.querySelector(".hm-auth-card")?.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  signupBack.addEventListener("click", () => setSignupStep(1, true));
+  authForm.addEventListener("submit", event => {
+    if (authMode === "signup" && signupStep === 1) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      signupNext.click();
+    }
+  }, true);
 
   const adminOverlay = document.createElement("div");
   adminOverlay.className = "hm-admin-overlay";
@@ -260,6 +338,7 @@
       signup ? "Criar minha conta" : recover ? "Enviar link de recuperação" : reset ? "Atualizar senha" : "Entrar";
     document.getElementById("hmAuthSwitch").textContent = signup || recover
       ? "Já tem conta? Entrar" : "Ainda não tem conta? Fazer cadastro";
+    setSignupStep(1, signup);
     message("");
   }
   function resetAuthForm() {
