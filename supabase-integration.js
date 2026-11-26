@@ -202,7 +202,21 @@
   let authMode = "login";
   let recoveryPending = false;
   let configError = "";
-  const message = (text, error = false) => { const node = document.getElementById("hmAuthMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
+  const readableError = error => {
+    const candidates = [error?.message, error?.error_description, error?.error, error?.details, error?.hint];
+    for (const candidate of candidates) {
+      if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+      if (candidate && typeof candidate === "object") {
+        for (const key of ["message", "error_description", "error", "details", "hint"]) {
+          const value = candidate[key];
+          if (typeof value === "string" && value.trim()) return value.trim();
+        }
+      }
+    }
+    if (typeof error === "string" && error.trim()) return error.trim();
+    return "";
+  };
+  const message = (text, error = false) => { const node = document.getElementById("hmAuthMessage"); node.textContent = typeof text === "string" ? text : readableError(text) || "Não foi possível concluir. Tente novamente."; node.style.color = error ? "#b42332" : "#246b45"; };
   const adminMessage = (text, error = false) => { const node = document.getElementById("hmAdminMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
   const createMessage = (text, error = false) => { const node = document.getElementById("hmCreateMessage"); node.textContent = text; node.style.color = error ? "#b42332" : "#246b45"; };
   const closeAuth = () => { overlay.classList.remove("open"); document.body.style.overflow = ""; };
@@ -682,13 +696,14 @@
         else { message("Login realizado. Perfil: " + currentRole + ".", false); window.setTimeout(closeAuth, 1400); }
       }
     } catch (error) {
-      const raw = error?.message || "";
+      const raw = readableError(error);
+      console.error("[CatiraMatch] Falha no fluxo de autenticação:", error);
       const friendly = /invalid login credentials/i.test(raw) ? "Não foi possível entrar com esse e-mail e senha. Se esqueceu a senha, toque em Esqueci minha senha."
         : /email not confirmed/i.test(raw) ? "Confirme seu e-mail antes de entrar. Verifique a caixa de entrada e o spam."
         : /user already registered/i.test(raw) ? "Este e-mail já possui cadastro. Entre na sua conta ou recupere a senha."
         : /password should be at least/i.test(raw) ? "A senha precisa ter pelo menos 8 caracteres."
         : /rate limit|over_email_send_rate_limit/i.test(raw) ? "Muitas tentativas de envio. Aguarde um pouco antes de solicitar outro link."
-        : (raw || "Não foi possível concluir. Confira os dados e tente novamente.");
+        : (raw || "Não foi possível concluir. Confira sua conexão e tente novamente.");
       message(friendly, true);
     } finally {
       submit.disabled = false;
