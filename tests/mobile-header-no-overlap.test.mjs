@@ -12,8 +12,9 @@ const [page,brandCss,mobileCss,auth,tour,menu]=await Promise.all([
   read("../mobile-discovery.js")
 ]);
 
-test("logo do CatiraMatch continua PNG transparente no cabeçalho",()=>{
-  assert.match(page,/<header class="topbar"><div class="brand"><img class="brand-logo" src="\/assets\/catiramatch-logo-header.png"/);
+test("logo do Catira.com continua PNG transparente no cabeçalho",()=>{
+  assert.match(page,/<header class="topbar"><div class="brand"><div class="brand-signature"><img class="brand-logo" src="\/assets\/catiramatch-icon.png"/);
+  assert.match(page,/class="brand-name">Catira\.com<\/span>/);
   assert.match(brandCss,/\.brand \.brand-logo\{[^}]*background:transparent;[^}]*border:0;[^}]*border-radius:0;[^}]*padding:0;[^}]*box-shadow:none/);
   assert.match(mobileCss,/\.topbar \.brand \.brand-logo\{[^}]*background:transparent;border-radius:0;box-shadow:none/);
 });

@@ -1,3 +1,6 @@
+## Identidade atual — 27/11/2026
+A marca pública atual do aplicativo é **Catira.com** (antes CatiraMatch/HeavyMatch). Em qualquer UI nova, usar Catira.com. Arquivos, nomes internos e assets legados (`catiramatch-*`), projeto Vercel `machinematch` e repositório `heavymatch` permanecem por compatibilidade. No cabeçalho e login, usar somente `assets/catiramatch-icon.png` com texto Catira.com (não reutilizar logos antigos contendo a palavra CatiraMatch). Esta alteração visual não autoriza modificações de API, Supabase ou produção; preservar todas as regras abaixo.
+
 # AGENTS.md — leitura obrigatória antes de editar o HeavyMatch
 
 ## Identidade e objetivo

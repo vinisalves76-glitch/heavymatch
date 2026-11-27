@@ -1,4 +1,4 @@
-/* CatiraMatch — identidade visual aprovada: vermelho #E32227, carvão #181818 e branco. */
+/* Catira.com — identidade visual aprovada: vermelho #E32227, carvão #181818 e branco. */
 :root{
   --site-primary:#E32227;
   --site-on-primary:#FFFFFF;
@@ -16,7 +16,9 @@ html,body{accent-color:#E32227}
 body,#app{background-color:var(--site-background)}
 .topbar{background:#181818;color:#fff;border-bottom:2px solid #E32227}
 .brand{display:flex;align-items:center;gap:10px;color:#fff;min-width:0}
-.brand .brand-logo{display:block;width:clamp(195px,20vw,250px);height:auto;max-height:55px;object-fit:contain;background:transparent;border:0;border-radius:0;padding:0;box-shadow:none;filter:none}
+.brand .brand-signature{display:flex;align-items:center;gap:8px;min-width:0}
+.brand .brand-logo{display:block;width:38px;height:38px;flex:none;object-fit:contain;background:transparent;border:0;border-radius:0;padding:0;box-shadow:none;filter:none}
+.brand .brand-name{display:block;color:#fff;font-size:25px;line-height:1;font-weight:950;letter-spacing:-.7px;white-space:nowrap}
 .brand .mark,.brand em{display:none}
 .brand .brand-text-fallback{display:none;font-weight:950}
 .top-btn{background:#292929;border-color:#454545;color:#fff}
@@ -38,8 +40,10 @@ body,#app{background-color:var(--site-background)}
 .hm-equipment-bio h3{margin:0 0 10px;font-size:17px;color:#181818;font-weight:950}
 .hm-equipment-bio p{margin:12px 0 0;white-space:pre-line;overflow-wrap:anywhere;line-height:1.65;color:#4B4B4B}
 .hm-equipment-bio .hm-price-detail{margin:0}
-.hm-auth-brand{display:flex;align-items:center;gap:12px;max-width:100%;margin:4px 0 16px;padding:0}
-.hm-auth-brand img{width:min(175px,42vw);height:auto;object-fit:contain;flex:none}
+.hm-auth-brand{display:flex;align-items:center;gap:12px;max-width:100%;margin:4px 0 16px;padding:0;flex-wrap:wrap}
+.hm-auth-wordmark{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.hm-auth-wordmark img{width:38px;height:38px;object-fit:contain;flex:none}
+.hm-auth-wordmark strong{font-size:clamp(20px,4vw,25px);letter-spacing:-.7px;font-weight:950;color:#181818}
 .hm-auth-brand span{font-size:11px;line-height:1.4;color:#777;font-weight:800}
 .hm-auth-card .hm-auth-recovery,.hm-auth-card .hm-auth-switch{color:#B51F25}
 .hm-auth-card .hm-auth-actions .primary,.hm-admin-actions .primary{background:#E32227!important;border-color:#E32227!important;color:#fff!important}
@@ -62,7 +66,8 @@ body,#app{background-color:var(--site-background)}
   /* Cabeçalho mobile em duas linhas: marca sempre isolada dos controles. */
   .topbar{height:auto;min-height:105px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(42px,auto) 39px;gap:5px;align-items:center;background:#181818;border-bottom:1px solid #E32227;padding:8px 12px 10px}
   .topbar .brand{grid-column:1;grid-row:1;display:flex;flex-direction:row;align-items:center;justify-content:space-between;width:100%;min-width:0;gap:8px;font-size:0!important;white-space:nowrap}
-  .topbar .brand .brand-logo{display:block;flex:0 1 auto;width:clamp(155px,49vw,210px);max-width:calc(100% - 92px);height:auto;max-height:42px;object-fit:contain;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;filter:none}
+  .topbar .brand .brand-logo{display:block;flex:0 0 34px;width:34px;max-width:34px;height:34px;object-fit:contain;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;filter:none}
+  .topbar .brand .brand-name{font-size:clamp(19px,5.6vw,23px)}
   .topbar .brand:after{content:'Pra você';display:block;flex:0 0 auto;font-size:13px;line-height:1.1;letter-spacing:.1px;font-weight:800;color:#F3F3F3;margin:0}
   .topbar .top-actions{grid-column:1;grid-row:2;width:100%;min-width:0;min-height:38px;display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:nowrap}
   .topbar .top-actions>button{flex:0 1 auto;min-width:0;white-space:nowrap}

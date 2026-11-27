@@ -1,4 +1,10 @@
-# HeavyMatch
+# Catira.com
+
+**Marca atual (27/11/2026): Catira.com.** Antigo CatiraMatch/HeavyMatch. Mantemos o repositório técnico `heavymatch`, o projeto Vercel `machinematch` e os caminhos dos assets para evitar regressões. O cabeçalho e login exibem o ícone de setas da marca original com wordmark Catira.com; não usar PNGs antigos com o nome CatiraMatch nas telas atuais.
+
+## Histórico de alterações da marca
+
+O conteúdo abaixo documenta decisões históricas; onde aparecer CatiraMatch, entenda como marca anterior.
 
 Marketplace digital com experiência mobile de descoberta de caminhões, carretas e máquinas pesadas.
 

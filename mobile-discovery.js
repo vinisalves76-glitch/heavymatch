@@ -18,7 +18,7 @@
         <button class="hm-mobile-menu-option" type="button" id="hmMenuHelp"><span aria-hidden="true">?</span>Ajuda e tutorial</button>
         <button class="hm-mobile-menu-option" type="button" id="hmMenuLogout" hidden><span aria-hidden="true">↪</span>Sair da conta</button>
       </div>
-      <p class="hm-mobile-menu-note">No CatiraMatch, deslize para a direita para salvar ou para a esquerda para passar. Toque na foto para ver outras imagens.</p>
+      <p class="hm-mobile-menu-note">No Catira.com, deslize para a direita para salvar ou para a esquerda para passar. Toque na foto para ver outras imagens.</p>
     </section>`;
   document.body.appendChild(menu);
   const $ = id => document.getElementById(id);

@@ -28,7 +28,7 @@
   post.type = "button";
   post.id = "hmPostNav";
   post.className = "nav-item hm-bottom-primary";
-  post.setAttribute("aria-label", "Publicar no CatiraMatch");
+  post.setAttribute("aria-label", "Publicar no Catira.com");
   post.innerHTML = '<span class="hm-nav-plus" aria-hidden="true">＋</span>Publicar';
   nav.insertBefore(post, activity || byId("profileNav"));
 
@@ -64,7 +64,7 @@
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
   overlay.setAttribute("aria-labelledby", "hmPublishTitle");
-  overlay.innerHTML = '<div class="hm-shell-sheet"><div class="hm-shell-sheet-head"><div><div class="eyebrow">PUBLICAR</div><h2 id="hmPublishTitle">O que você quer disponibilizar?</h2><p>As opções mudam de acordo com seu cadastro.</p></div><button class="hm-shell-close" id="hmPublishClose" aria-label="Fechar">×</button></div><div class="hm-publish-grid" id="hmPublishChoices"></div><p class="hm-shell-note">O CatiraMatch mantém compra e venda, serviços e cargas organizados no mesmo aplicativo.</p></div>';
+  overlay.innerHTML = '<div class="hm-shell-sheet"><div class="hm-shell-sheet-head"><div><div class="eyebrow">PUBLICAR</div><h2 id="hmPublishTitle">O que você quer disponibilizar?</h2><p>As opções mudam de acordo com seu cadastro.</p></div><button class="hm-shell-close" id="hmPublishClose" aria-label="Fechar">×</button></div><div class="hm-publish-grid" id="hmPublishChoices"></div><p class="hm-shell-note">O Catira.com mantém compra e venda, serviços e cargas organizados no mesmo aplicativo.</p></div>';
   document.body.appendChild(overlay);
 
   const closePublish = () => {

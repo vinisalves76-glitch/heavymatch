@@ -35,7 +35,7 @@
   overlay.className = "hm-vehicle-overlay";
   overlay.innerHTML = `
     <section class="hm-vehicle-card" role="dialog" aria-modal="true" aria-labelledby="hmVehiclesTitle">
-      <div class="hm-vehicle-head"><div><div style="font-size:10px;letter-spacing:1.4px;font-weight:900;color:#946000;margin-bottom:5px">CATIRAMATCH · GESTÃO DE ANÚNCIOS</div><h2 id="hmVehiclesTitle">Equipamentos</h2></div><button type="button" class="hm-vehicle-close" aria-label="Fechar">×</button></div>
+      <div class="hm-vehicle-head"><div><div style="font-size:10px;letter-spacing:1.4px;font-weight:900;color:#946000;margin-bottom:5px">CATIRA.COM · GESTÃO DE ANÚNCIOS</div><h2 id="hmVehiclesTitle">Equipamentos</h2></div><button type="button" class="hm-vehicle-close" aria-label="Fechar">×</button></div>
       <p style="font-size:12px;line-height:1.5;color:#687680;margin:8px 0">Cadastre equipamentos com fotos. O administrador gerencia todos os anúncios; cada vendedor gerencia apenas os próprios.</p>
       <div class="hm-vehicle-contact">
         <div><label for="hmVWhatsApp">Seu WhatsApp para receber compradores</label><input id="hmVWhatsApp" type="tel" inputmode="tel" placeholder="(31) 99999-9999" autocomplete="tel"></div>
@@ -224,7 +224,7 @@
       if(!response.ok)throw new Error(data.error||"Não foi possível carregar os anúncios.");
       renderPublic(data.vehicles||[]);
     }catch(error){
-      console.error("[CatiraMatch catálogo]",error);
+      console.error("[Catira.com catálogo]",error);
       vehicles=[];filtered=[];index=0;render();
     }
   }
@@ -399,7 +399,7 @@
       clearForm();setMessage(result.message||"Anúncio salvo.");
       await loadManage();await loadPublic();
     }catch(error) {
-      if(uploaded.length){try{await request("cleanup",{photos:uploaded});}catch(cleanupError){console.warn("[CatiraMatch fotos] limpeza pendente");}}
+      if(uploaded.length){try{await request("cleanup",{photos:uploaded});}catch(cleanupError){console.warn("[Catira.com fotos] limpeza pendente");}}
       setMessage(error.message||"Não foi possível salvar o anúncio.",true);
     }finally {
       button.disabled=false;

@@ -1,4 +1,4 @@
-/* CatiraMatch · Descoberta imersiva — MOBILE ONLY (inspirada na hierarquia de cards de swipe).
+/* Catira.com · Descoberta imersiva — MOBILE ONLY (inspirada na hierarquia de cards de swipe).
    Mantém desktop, backend, autenticação e identidade visual. */
 .hm-mobile-card-action{display:none}
 .hm-hero-price{display:none}
@@ -15,8 +15,9 @@
     background:#181818;border-bottom:0}
   .topbar .brand{display:flex;grid-row:auto;grid-column:auto;flex-direction:row;align-items:center;justify-content:space-between;
     width:100%;min-width:0;max-width:100%;gap:8px;font-size:0}
-  .topbar .brand .brand-logo{flex:0 1 auto;width:clamp(145px,44vw,183px);max-width:calc(100% - 92px);
-    max-height:38px;object-fit:contain;border:0;padding:0;background:transparent;border-radius:0;box-shadow:none}
+  .topbar .brand .brand-logo{flex:0 0 34px;width:34px;max-width:34px;height:34px;
+    object-fit:contain;border:0;padding:0;background:transparent;border-radius:0;box-shadow:none}
+  .topbar .brand .brand-name{display:block;font-size:clamp(19px,5.6vw,23px);line-height:1;color:#fff;font-weight:950;letter-spacing:-.7px}
   .topbar .brand:after{content:'Pra você';display:block;flex:none;font-size:12px;font-weight:800;line-height:1;letter-spacing:.2px;color:#eee;margin:0}
   /* Entrar, filtros duplicados, favoritos e ajuda saem do cabeçalho; o acesso permanece na navegação/Conta. */
   .topbar .top-actions{display:none!important}

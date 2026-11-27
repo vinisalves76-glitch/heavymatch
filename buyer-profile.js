@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   var model = window.hmBuyerProfileModel;
-  if (!model) {console.error("[CatiraMatch perfil] O modelo de perfil não foi carregado.");return;}
+  if (!model) {console.error("[Catira.com perfil] O modelo de perfil não foi carregado.");return;}
   var $ = function (id) {return document.getElementById(id);};
   var escapeHtml = function (value) {return String(value==null?"":value).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
   var overlay=document.createElement("div");
@@ -12,7 +12,7 @@
     '<header class="hm-profile-header">'+
       '<div class="hm-profile-header-top"><div class="hm-profile-heading">'+
         '<div class="hm-profile-avatar" id="hmProfileAvatar">CM</div>'+
-        '<div><small>CATIRAMATCH · PERFIL DE COMPRA</small><h2 id="hmProfileTitle">Meu perfil</h2>'+
+        '<div><small>CATIRA.COM · PERFIL DE COMPRA</small><h2 id="hmProfileTitle">Meu perfil</h2>'+
         '<p id="hmProfileEmail">Suas preferências de equipamentos</p></div>'+
       '</div><button type="button" class="hm-profile-close" id="hmProfileClose" aria-label="Fechar perfil">×</button></div>'+
       '<div class="hm-profile-progress"><span id="hmProfileProgressLabel">Complete seu perfil</span>'+
@@ -208,7 +208,7 @@
       $("hmProfileFooter").hidden=false;
       renderForm();feedback("Suas informações ainda não foram publicadas");
     }catch(error){
-      console.error("[CatiraMatch perfil] Erro ao abrir:",error?.message);
+      console.error("[Catira.com perfil] Erro ao abrir:",error?.message);
       renderGuest("Não foi possível carregar o perfil agora. Tente entrar novamente.");
     }
   }
@@ -231,7 +231,7 @@
       state=next;window.hmBuyerProfileData=next;window.dispatchEvent(new Event("hm-buyer-profile-updated"));dirty=false;renderForm();
       feedback("Perfil salvo no Supabase com sucesso!");
     }catch(error){
-      console.error("[CatiraMatch perfil] Falha no salvamento:",error?.message);
+      console.error("[Catira.com perfil] Falha no salvamento:",error?.message);
       feedback(error?.message||"Não foi possível salvar. Verifique a conexão e tente novamente.",true);
     }finally{setBusy(false);}
   });

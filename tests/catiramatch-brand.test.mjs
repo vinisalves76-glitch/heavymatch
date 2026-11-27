@@ -12,9 +12,10 @@ const [html,theme,login,form,profile,tour] = await Promise.all([
   src("../guided-tour.js")
 ]);
 
-test("nome e identidade CatiraMatch consistentes em toda a interface",()=>{
-  assert.match(html,/<title>CatiraMatch — Seu próximo negócio começa aqui\.<\/title>/);
-  assert.match(html,/class="brand-logo" src="\/assets\/catiramatch-logo-header\.png"/);
+test("nome e identidade Catira.com consistentes em toda a interface",()=>{
+  assert.match(html,/<title>Catira\.com — Seu próximo negócio começa aqui\.<\/title>/);
+  assert.match(html,/class="brand-logo" src="\/assets\/catiramatch-icon\.png"/);
+  assert.match(html,/class="brand-name">Catira\.com<\/span>/);
   assert.match(html,/href="\/styles\/catiramatch-theme\.css"/);
   assert.match(html,/href="\/assets\/catiramatch-icon\.png"/);
   for(const [name,source] of [
@@ -23,15 +24,18 @@ test("nome e identidade CatiraMatch consistentes em toda a interface",()=>{
     assert.doesNotMatch(source, /HeavyMatch|HEAVYMATCH/, name+" mantém a marca antiga");
   }
   assert.match(login,/class="hm-auth-brand"/);
-  assert.match(profile,/CATIRAMATCH · PERFIL DE COMPRA/);
+  assert.match(profile,/CATIRA\.COM · PERFIL DE COMPRA/);
+  assert.doesNotMatch(html,/CatiraMatch|HeavyMatch/);
+  assert.doesNotMatch(login,/CatiraMatch|HeavyMatch/);
 });
 
 test("logo do cabeçalho é PNG transparente, sem fundo branco ou moldura",async()=>{
-  const path=new URL("../assets/catiramatch-logo-header.png",import.meta.url);
+  const path=new URL("../assets/catiramatch-icon.png",import.meta.url);
   const b=await readFile(path);
   assert.deepEqual(Array.from(b.subarray(0,8)),[137,80,78,71,13,10,26,10]);
   assert.match(theme,/\.brand \.brand-logo\{[^}]*background:transparent;[^}]*border:0;[^}]*border-radius:0;[^}]*padding:0;[^}]*box-shadow:none/);
-  assert.match(theme,/\.topbar \.brand \.brand-logo\{display:block;flex:0 1 auto;width:clamp\(155px,49vw,210px\);/);
+  assert.match(theme,/\.topbar \.brand \.brand-logo\{display:block;flex:0 0 34px;width:34px;/);
+  assert.match(theme,/\.brand \.brand-name\{display:block;color:#fff/);
   assert.match(theme,/\.topbar \.brand\{grid-column:1;grid-row:1;/);
   assert.match(theme,/\.topbar \.top-actions\{grid-column:1;grid-row:2;/);
   assert.doesNotMatch(theme,/\.brand \.brand-logo\{[^}]*background:#fff/);
