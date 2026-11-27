@@ -32,7 +32,7 @@
   help.className = "hm-tour-help";
   help.id = "hmTourHelp";
   help.textContent = "❔ Ajuda";
-  help.setAttribute("aria-label", "Aprender a usar o CatiraMatch");
+  help.setAttribute("aria-label", "Aprender a usar o Catira.com");
   document.querySelector(".top-actions")?.appendChild(help);
 
   const welcome = document.createElement("section");
@@ -41,7 +41,7 @@
   welcome.setAttribute("role", "dialog");
   welcome.setAttribute("aria-modal", "true");
   welcome.setAttribute("aria-labelledby", "hmTourWelcomeTitle");
-  welcome.innerHTML = '<div class="hm-tour-kicker">BEM-VINDO AO CATIRAMATCH</div>' +
+  welcome.innerHTML = '<div class="hm-tour-kicker">BEM-VINDO AO CATIRA.COM</div>' +
     '<h2 id="hmTourWelcomeTitle">Vamos conhecer o sistema?</h2>' +
     '<p>Em poucos passos, você vai aprender a explorar os equipamentos, filtrar anúncios, salvar seus favoritos e falar com um consultor. O tour acompanha a interface real e pode ser aberto novamente em <strong>Ajuda</strong>.</p>' +
     '<div class="hm-tour-welcome-actions"><button type="button" class="hm-tour-btn primary" id="hmTourStart">Iniciar tour</button><button type="button" class="hm-tour-btn" id="hmTourLater">Agora não</button></div>';
@@ -85,7 +85,7 @@
     return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 && rect.top < window.innerHeight && rect.left < window.innerWidth;
   };
   const baseSteps = [
-    { selector: ".intro", title: "Bem-vindo ao CatiraMatch", description: "Compra, venda, serviços e cargas ficam organizados no mesmo aplicativo." },
+    { selector: ".intro", title: "Bem-vindo ao Catira.com", description: "Compra, venda, serviços e cargas ficam organizados no mesmo aplicativo." },
     { selector: ".hm-experience-switch", title: "Escolha sua área", description: "Alterne entre compra e venda ou serviços e cargas sem procurar em vários menus." },
     { selector: "#deck", title: "Descubra equipamentos", description: "Deslize para a direita para salvar e para a esquerda para passar. Toque na foto para ver mais imagens." },
     { selector: "#exploreNav", title: "Explore com filtros", description: "Busque por marca, modelo, tipo e faixa de preço.", before: () => { const f=$("filters");if(f && !f.classList.contains("is-open"))$("exploreNav")?.click(); } },

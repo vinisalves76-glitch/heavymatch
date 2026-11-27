@@ -37,7 +37,7 @@
   overlay.innerHTML = `
     <section class="hm-auth-card" role="dialog" aria-modal="true" aria-labelledby="hmAuthTitle">
       <button type="button" class="hm-auth-close" aria-label="Fechar">×</button>
-      <div class="hm-auth-brand"><img src="/assets/catiramatch-logo.png" alt="CatiraMatch"><span>Seu próximo negócio começa aqui.</span></div>
+      <div class="hm-auth-brand"><div class="hm-auth-wordmark"><img src="/assets/catiramatch-icon.png" alt=""><strong>Catira.com</strong></div><span>Seu próximo negócio começa aqui.</span></div>
       <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#E32227;margin:5px 0 9px">ÁREA SEGURA</div>
       <h2 id="hmAuthTitle">Entre na sua conta</h2>
       <p id="hmAuthSubtitle">Entre com seu e-mail e senha para acessar sua conta.</p>
@@ -133,7 +133,7 @@
     if (enabled) {
       document.getElementById("hmAuthSubtitle").textContent = signupStep === 1
         ? "Etapa 1 de 2 · Seus dados de acesso."
-        : "Etapa 2 de 2 · Conte como pretende usar o CatiraMatch.";
+        : "Etapa 2 de 2 · Conte como pretende usar o Catira.com.";
     }
   }
   signupNext.addEventListener("click", () => {
@@ -156,7 +156,7 @@
   adminOverlay.innerHTML = `
     <section class="hm-admin-card" role="dialog" aria-modal="true" aria-labelledby="hmAdminTitle">
       <button type="button" class="hm-admin-close" aria-label="Fechar">×</button>
-      <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">CATIRAMATCH · ACESSO RESTRITO</div>
+      <div style="font-size:10px;font-weight:900;letter-spacing:1.5px;color:#9a6900;margin:5px 0 9px">CATIRA.COM · ACESSO RESTRITO</div>
       <h2 id="hmAdminTitle">ADM Master</h2>
       <p>Gerencie os acessos da plataforma. Somente administradores autorizados conseguem criar novas contas privilegiadas.</p>
       <div class="hm-admin-tabs"><button class="hm-admin-tab active" data-pane="accounts">Usuários e acessos</button><button class="hm-admin-tab" data-pane="providers">Prestadores</button><button class="hm-admin-tab" data-pane="future">Equipamentos e operação</button></div>
@@ -302,7 +302,7 @@
     document.getElementById("hmAuthSubtitle").textContent = signup
       ? "Cadastre-se como cliente para salvar equipamentos e acompanhar seus interesses."
       : recover ? "Informe seu e-mail para receber um link de recuperação."
-      : reset ? "Digite e confirme sua nova senha para voltar a acessar o CatiraMatch."
+      : reset ? "Digite e confirme sua nova senha para voltar a acessar o Catira.com."
       : "Entre com seu e-mail e senha para acessar sua conta.";
     ["Name", "Phone", "Address"].forEach(field => {
       const wrap = document.getElementById("hmAuth" + field + "Wrap");
@@ -544,7 +544,7 @@
       }
     } catch (error) {
       configError = error?.message || "Falha ao conectar ao Supabase.";
-      console.error("[CatiraMatch] Supabase:", configError);
+      console.error("[Catira.com] Supabase:", configError);
     }
   }
   function maybeShowBioPrompt(user) {
@@ -567,9 +567,9 @@
     const eq=user?.user_metadata?.freight_equipment;if(!eq||!supabaseClient)return;
     try{const {data}=await supabaseClient.auth.getSession();const token=data?.session?.access_token;if(!token)return;
       const r=await fetch("/api/freight",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({action:"equipment_save",...eq})});
-      if(!r.ok)console.warn("[CatiraMatch cargas] Não foi possível sincronizar o conjunto inicial.");
+      if(!r.ok)console.warn("[Catira.com cargas] Não foi possível sincronizar o conjunto inicial.");
       else await supabaseClient.auth.updateUser({data:{freight_equipment:null}});
-    }catch(error){console.warn("[CatiraMatch cargas] Sincronização pendente.",error?.message);}
+    }catch(error){console.warn("[Catira.com cargas] Sincronização pendente.",error?.message);}
   }
   async function syncServiceProviderRequest(user) {
     const request = user?.user_metadata?.service_provider_request;
@@ -581,7 +581,7 @@
         message("Seu cadastro de prestador está aguardando aprovação do ADM.", false);
       }
     } catch (error) {
-      console.warn("[CatiraMatch prestadores] Sincronização pendente.", error?.message);
+      console.warn("[Catira.com prestadores] Sincronização pendente.", error?.message);
     }
   }
   async function showSignedIn(user) {

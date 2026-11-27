@@ -1,3 +1,6 @@
+## Identidade atual — 27/11/2026
+A marca pública atual do aplicativo é **Catira.com** (antes CatiraMatch/HeavyMatch). Em qualquer UI nova, usar Catira.com. Arquivos, nomes internos e assets legados (`catiramatch-*`), projeto Vercel `machinematch` e repositório `heavymatch` permanecem por compatibilidade. No cabeçalho e login, usar somente `assets/catiramatch-icon.png` com texto Catira.com (não reutilizar logos antigos contendo a palavra CatiraMatch). Esta alteração visual não autoriza modificações de API, Supabase ou produção; preservar todas as regras abaixo.
+
 # AGENTS.md — leitura obrigatória antes de editar o HeavyMatch
 
 ## Identidade e objetivo
@@ -135,3 +138,7 @@ Não criar triggers, tabelas nem políticas RLS diretamente no projeto Supabase 
 - `#hmPhotoBio` fica no rodapé do texto do anúncio. Ao clicar, chama `openDetails()`, e dentro da bio o botão existente `#modalContact` abre o WhatsApp do vendedor. Clicar nesse link não avança a galeria de fotos.
 - A **única barra de navegação visível** permanece com Descobrir, Buscar, Salvos e Conta. O desktop conserva os controles anteriores.
 - Preservar swipe direita=curtir e esquerda=passar, foto grande, menu Conta vendedor/ADM, e fotos. Não mexer em produção até validação.
+
+
+### Contraste da marca Catira.com
+No cabeçalho escuro, usar `assets/catiracom-icon-dark.png`: seta superior branca e inferior vermelha, mantendo a geometria original. Em fundos claros e login, preservar `assets/catiramatch-icon.png`.
