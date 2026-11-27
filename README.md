@@ -274,3 +274,7 @@ Branch: `feature/ux-simples-20261125` (não publicada em produção).
 - Serviços futuros recolhidos para priorizar recursos já disponíveis.
 - Tour reduzido às ações essenciais e estado vazio com alternativas úteis.
 - Compatibilidade mantida com swipe, filtros, login, favoritos, WhatsApp, anúncios e permissões existentes.
+
+
+### Contraste da marca Catira.com
+No cabeçalho escuro, usar `assets/catiracom-icon-dark.png`: seta superior branca e inferior vermelha, mantendo a geometria original. Em fundos claros e login, preservar `assets/catiramatch-icon.png`.

@@ -14,7 +14,7 @@ const [html,theme,login,form,profile,tour] = await Promise.all([
 
 test("nome e identidade Catira.com consistentes em toda a interface",()=>{
   assert.match(html,/<title>Catira\.com — Seu próximo negócio começa aqui\.<\/title>/);
-  assert.match(html,/class="brand-logo" src="\/assets\/catiramatch-icon\.png"/);
+  assert.match(html,/class="brand-logo" src="\/assets\/catiracom-icon-dark\.png"/);
   assert.match(html,/class="brand-name">Catira\.com<\/span>/);
   assert.match(html,/href="\/styles\/catiramatch-theme\.css"/);
   assert.match(html,/href="\/assets\/catiramatch-icon\.png"/);
@@ -30,7 +30,7 @@ test("nome e identidade Catira.com consistentes em toda a interface",()=>{
 });
 
 test("logo do cabeçalho é PNG transparente, sem fundo branco ou moldura",async()=>{
-  const path=new URL("../assets/catiramatch-icon.png",import.meta.url);
+  const path=new URL("../assets/catiracom-icon-dark.png",import.meta.url);
   const b=await readFile(path);
   assert.deepEqual(Array.from(b.subarray(0,8)),[137,80,78,71,13,10,26,10]);
   assert.match(theme,/\.brand \.brand-logo\{[^}]*background:transparent;[^}]*border:0;[^}]*border-radius:0;[^}]*padding:0;[^}]*box-shadow:none/);
