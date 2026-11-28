@@ -278,3 +278,9 @@ Branch: `feature/ux-simples-20261125` (não publicada em produção).
 
 ### Contraste da marca Catira.com
 No cabeçalho escuro, usar `assets/catiracom-icon-dark.png`: seta superior branca e inferior vermelha, mantendo a geometria original. Em fundos claros e login, preservar `assets/catiramatch-icon.png`.
+
+
+## Preview — instalação PWA no celular (28/11/2026)
+- Botão compacto Instalar app no cabeçalho, sem segunda barra. Android: usa o prompt nativo quando disponível; após instalação ou em modo standalone, oculta o botão. iOS: instruções para adicionar à tela de início pelo Safari; o Safari não permite detectar confiavelmente uma instalação feita em outra janela.
+- Manifesto e ícones da marca, worker apenas de navegação com fallback de conexão; sem cache de APIs, sessão, fotos ou anúncios. Não muda Supabase.
+- Validar em Chrome Android e Safari iOS reais, inclusive após instalar e abrir pelo ícone. Preview e aprovação antes de produção.
