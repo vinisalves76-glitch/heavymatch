@@ -1,0 +1,10 @@
+/* One compact action; never add another header row. */
+.topbar .pwa-install{display:none}
+.topbar .pwa-install[hidden]{display:none!important}
+@media(max-width:799px){
+  .topbar .brand .pwa-install:not([hidden]){display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:none;min-height:36px;padding:0 9px;border:1px solid #ff777a;border-radius:9px;background:#b71920;color:#fff;font-size:12px;font-weight:800;white-space:nowrap;cursor:pointer}
+  .topbar .brand .pwa-install:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .topbar .brand:has(.pwa-install:not([hidden])):after{display:none}
+  .topbar .brand:has(.pwa-install:not([hidden])) .brand-name{font-size:clamp(17px,5.2vw,23px)}
+  @media(max-width:350px){.topbar .brand .pwa-install:not([hidden]){padding:0 6px;font-size:11px}}
+}
